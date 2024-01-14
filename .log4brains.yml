@@ -1,0 +1,5 @@
+project:
+  name: social_media_app
+  tz: Europe/Istanbul
+  adrFolder: ./docs/adr
+  packages: []
