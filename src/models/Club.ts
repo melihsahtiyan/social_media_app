@@ -1,5 +1,21 @@
 import mongoose from "mongoose";
 
+interface ClubDoc extends mongoose.Document {
+  name: string;
+  logoUrl: string;
+  bannerUrl: string;
+  biography: string;
+  status: boolean;
+  president: mongoose.Schema.Types.ObjectId;
+  organizers: mongoose.Schema.Types.ObjectId[];
+  members: mongoose.Schema.Types.ObjectId[];
+  posts: mongoose.Schema.Types.ObjectId[];
+  events: mongoose.Schema.Types.ObjectId[];
+  createdAt: Date;
+}
+
+interface ClubModel extends mongoose.Model<ClubDoc> {}
+
 const clubSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -60,3 +76,7 @@ const clubSchema = new mongoose.Schema({
     required: true,
   },
 });
+
+export default mongoose.model("Club", clubSchema);
+
+export { ClubDoc, ClubModel };

@@ -1,5 +1,16 @@
 import mongoose from "mongoose";
 
+interface CommentDoc extends mongoose.Document {
+  creator: mongoose.Schema.Types.ObjectId;
+  content: string;
+  createdAt: Date;
+  updatedAt: Date;
+  likes: mongoose.Schema.Types.ObjectId[];
+  replies: mongoose.Schema.Types.ObjectId[];
+}
+
+interface CommentModel extends mongoose.Model<CommentDoc> {}
+
 const commentSchema = new mongoose.Schema({
   creator: {
     type: mongoose.Schema.Types.ObjectId,
@@ -29,3 +40,7 @@ const commentSchema = new mongoose.Schema({
     default: [],
   },
 });
+
+export default mongoose.model("Comment", commentSchema);
+
+export { CommentDoc, CommentModel };

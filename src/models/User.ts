@@ -1,5 +1,25 @@
 import mongoose from "mongoose";
 
+interface UserDoc extends mongoose.Document {
+  firstName: string;
+  lastName: string;
+  birthDate: Date;
+  email: string;
+  passwordHash: string;
+  passwordSalt: string;
+  university: string;
+  department: string;
+  studentId: string;
+  studentEmail: string;
+  status: boolean;
+  profilePicture: string;
+  followers: mongoose.Schema.Types.ObjectId[];
+  posts: mongoose.Schema.Types.ObjectId[];
+  createdAt: Date;
+}
+
+interface UserModel extends mongoose.Model<UserDoc> {}
+
 const userSchema = new mongoose.Schema({
   firstName: {
     type: String,
@@ -45,7 +65,7 @@ const userSchema = new mongoose.Schema({
   },
   status: {
     type: Boolean,
-    default: true,
+    default: false,
   },
   profilePicture: {
     type: String,
@@ -71,3 +91,9 @@ const userSchema = new mongoose.Schema({
     required: true,
   },
 });
+
+const User = mongoose.model("User", userSchema);
+
+export default User;
+
+export { UserDoc, UserModel };
