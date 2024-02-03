@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 import mongoose from "mongoose";
 import { CustomError } from "./types/error/CustomError";
 import bodyParser from "body-parser";
-import { fileUpload } from "./util/fileUtil";
+import { fileUpload, profilePictureUpload } from "./util/fileUtil";
 import path from "path";
 import authRoutes from "./routes/authRoutes";
 import { handleError } from "./middleware/errorHandlingMiddleware";
@@ -48,9 +48,10 @@ const app: Express = express();
 
 app.use(bodyParser.json());
 app.use(fileUpload);
+app.use(profilePictureUpload);
 app.use("/media", express.static(path.join(__dirname, "/media")));
 
-app.use((req, res, next) => {
+app.use((req: Request, res: Response, next: NextFunction) => {
   // Allow access to any client
   res.setHeader("Access-Control-Allow-Origin", "*");
   // Allow these headers
@@ -81,5 +82,5 @@ mongoose
   .catch((err) => {
     const error: CustomError = new Error(err.message + " | MongoDB connection");
     error.statusCode = 500;
-    throw error;
+    console.log(error);
   });

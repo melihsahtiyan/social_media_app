@@ -2,21 +2,33 @@ import multer from "multer";
 import path from "path";
 import { v4 as uuidv4 } from "uuid";
 import fs from "fs";
+import Request from "../types/Request";
+
+const mimeTypes = {
+  "image/png": ".png",
+  "image/jpg": ".jpg",
+  "image/jpeg": ".jpeg",
+  "image/webp": ".webp",
+  "image/heic": ".heic",
+  "image/gif": ".gif",
+  "video/mp4": ".mp4",
+  "video/mov": ".mov",
+  "video/avi": ".avi",
+};
+
+const imageMimetypes: Array<string> = [
+  "image/png",
+  "image/jpg",
+  "image/jpeg",
+  "image/webp",
+  "image/heic",
+  "image/gif",
+];
+
+const videoMimetypes: Array<string> = ["video/mp4", "video/mov", "video/avi"];
 
 const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    const mimeTypes = {
-      "image/png": ".png",
-      "image/jpg": ".jpg",
-      "image/jpeg": ".jpeg",
-      "image/webp": ".webp",
-      "image/heic": ".heic",
-      "image/gif": ".gif",
-      "video/mp4": ".mp4",
-      "video/mov": ".mov",
-      "video/avi": ".avi",
-    };
-
+  destination: function (req: Request, file, cb: Function) {
     const mimeType = mimeTypes[file.mimetype];
 
     if (mimeType === ".mp4" || mimeType === ".mov" || mimeType === ".avi") {
@@ -25,20 +37,8 @@ const storage = multer.diskStorage({
       cb(null, "media/images");
     }
   },
-  filename: function (req, file, cb) {
+  filename: function (req: Request, file, cb: Function) {
     const uniqueSuffix = uuidv4() + "-" + Math.round(Math.random() * 1e9);
-
-    const mimeTypes = {
-      "image/png": ".png",
-      "image/jpg": ".jpg",
-      "image/jpeg": ".jpeg",
-      "image/webp": ".webp",
-      "image/heic": ".heic",
-      "image/gif": ".gif",
-      "video/mp4": ".mp4",
-      "video/mov": ".mov",
-      "video/avi": ".avi",
-    };
 
     const mimeType = mimeTypes[file.mimetype];
 
@@ -46,18 +46,7 @@ const storage = multer.diskStorage({
   },
 });
 
-const fileFilter = (req, file, cb) => {
-  const imageMimetypes = [
-    "image/png",
-    "image/jpg",
-    "image/jpeg",
-    "image/webp",
-    "image/heic",
-    "image/gif",
-  ];
-
-  const videoMimetypes = ["video/mp4", "video/mov", "video/avi"];
-
+const fileFilter = (req: Request, file, cb: Function) => {
   if (
     imageMimetypes.find((mimetype) => mimetype === file.mimetype) ||
     videoMimetypes.find((mimetype) => mimetype === file.mimetype)
@@ -72,6 +61,30 @@ export const fileUpload = multer({
   storage: storage,
   fileFilter: fileFilter,
 }).array("sources", 10);
+
+const profilePictureStorage = multer.diskStorage({
+  destination: function (req: Request, file, cb: Function) {
+    cb(null, "media/profilePictures");
+  },
+  filename: function (req: Request, file, cb: Function) {
+    const uniqueSuffix = uuidv4() + "-" + Math.round(Math.random() * 1e9);
+    const mimeType = mimeTypes[file.mimetype];
+    cb(null, uniqueSuffix + mimeType);
+  },
+});
+
+const profilePictureFileFilter = (req: Request, file, cb: Function) => {
+  if (imageMimetypes.find((mimetype) => mimetype === file.mimetype)) {
+    cb(null, true);
+  } else {
+    cb(null, false);
+  }
+};
+
+export const profilePictureUpload = multer({
+  storage: profilePictureStorage,
+  fileFilter: profilePictureFileFilter,
+}).single("profilePicture");
 
 export const clearImage = (filePath) => {
   filePath = path.join(__dirname, "..", filePath);

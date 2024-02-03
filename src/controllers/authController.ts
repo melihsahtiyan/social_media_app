@@ -25,27 +25,36 @@ export const register = async (
   const userToRegister: UserForRegisterDto = req.body;
 
   // Check the profile picture whether it exists or not
-  const profilePicture: string = req.files[0].path === undefined ? null : req.files[0].path;
+  const profilePicture: string = req.files ? req.files[0].fileName : null;
 
   // Check the file type of the profile picture
   const fileExtensions: string[] = ["jpg", "jpeg", "png"];
 
-  if (fileExtensions.includes(profilePicture.split(".")[1]) === false) {
+  console.log('====================================');
+  console.log("PROFILE PICTURE", req.files);
+  console.log('====================================');
+
+  if (fileExtensions.includes(profilePicture) === false || profilePicture === null) {
     const error: CustomError = new Error("Invalid file type");
     error.statusCode = 400;
     next(error);
   }
 
-  // Check the age of the user whether it is older than 18 or not
-  const birthYear = new Date(userToRegister.birthDate).getFullYear();
-  if (Date.now() - birthYear < 18) {
+  // Check the age of the user whether it is older than 18 or not (using birthDate)
+  console.log("====================================");
+  console.log(new Date(Date.now()).getFullYear(), "CURRENT YEAR");
+  console.log(new Date(userToRegister.birthDate).getFullYear(), "BIRTH YEAR");
+  const age = new Date(Date.now()).getFullYear() - new Date(userToRegister.birthDate).getFullYear();
+  console.log(age, "AGE");
+  console.log("====================================");
+  if (age < 18) {
     const error: CustomError = new Error("You must be 18 years old");
     error.statusCode = 400;
     next(error);
   }
 
   // Checking e-mail whether it exists.
-  const userToCheck = User.findOne({ email: userToRegister.email });
+  const userToCheck = await User.findOne({ email: userToRegister.email });
 
   if (userToCheck !== null) {
     const error: CustomError = new Error("User already exists");
@@ -56,7 +65,11 @@ export const register = async (
   bcrypt
     .hash(userToRegister.password, 12)
     .then((hashedPassword) => {
-      const user = new User({...userToRegister, passwordHash: hashedPassword, profilePicture});
+      const user = new User({
+        ...userToRegister,
+        passwordHash: hashedPassword,
+        profilePicture,
+      });
 
       const mailOptions = {
         from: process.env.EMAIL,

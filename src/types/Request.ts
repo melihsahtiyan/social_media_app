@@ -4,6 +4,7 @@ declare module "express" {
   interface Request {
     userId: string;
     files: Array<any>;
+    file: any;
   }
 }
 
