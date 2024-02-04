@@ -22,6 +22,29 @@ interface UserDoc extends mongoose.Document {
 
 interface UserModel extends mongoose.Model<UserDoc> {}
 
+interface UserDoc extends mongoose.Document {
+  firstName: string;
+  lastName: string;
+  birthDate: Date;
+  email: string;
+  passwordHash: string;
+  passwordSalt: string;
+  university: string;
+  department: string;
+  studentId: string;
+  studentEmail: string;
+  status: {
+    studentVerification: boolean;
+    emailVerification: boolean;
+  };
+  profilePicture: string;
+  followers: mongoose.Schema.Types.ObjectId[];
+  posts: mongoose.Schema.Types.ObjectId[];
+  createdAt: Date;
+}
+
+interface UserModel extends mongoose.Model<UserDoc> {}
+
 const userSchema = new mongoose.Schema({
   firstName: {
     type: String,
