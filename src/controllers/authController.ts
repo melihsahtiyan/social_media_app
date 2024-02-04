@@ -7,11 +7,11 @@ import bcrypt from "bcryptjs";
 import User, { UserDoc } from "../models/User";
 import { CustomError } from "../types/error/CustomError";
 
-const transporter = nodemailer.createTransport({
+const transporter: nodemailer.Transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
-    user: process.env.EMAIL,
-    pass: process.env.PASSWORD,
+    user: process.env.VERFICATION_SERVICE_EMAIL,
+    pass: process.env.VERFICATION_SERVICE_PASSWORD,
   },
 });
 
@@ -25,28 +25,15 @@ export const register = async (
   const userToRegister: UserForRegisterDto = req.body;
 
   // Check the profile picture whether it exists or not
-  const profilePicture: string = req.files ? req.files[0].fileName : null;
-
-  // Check the file type of the profile picture
-  const fileExtensions: string[] = ["jpg", "jpeg", "png"];
-
-  console.log('====================================');
-  console.log("PROFILE PICTURE", req.files);
-  console.log('====================================');
-
-  if (fileExtensions.includes(profilePicture) === false || profilePicture === null) {
-    const error: CustomError = new Error("Invalid file type");
-    error.statusCode = 400;
-    next(error);
-  }
+  const profilePicture: string = req.file
+    ? "/media/profilePictures/" + req.file.filename
+    : null;
 
   // Check the age of the user whether it is older than 18 or not (using birthDate)
-  console.log("====================================");
-  console.log(new Date(Date.now()).getFullYear(), "CURRENT YEAR");
-  console.log(new Date(userToRegister.birthDate).getFullYear(), "BIRTH YEAR");
-  const age = new Date(Date.now()).getFullYear() - new Date(userToRegister.birthDate).getFullYear();
-  console.log(age, "AGE");
-  console.log("====================================");
+  const age =
+    new Date(Date.now()).getFullYear() -
+    new Date(userToRegister.birthDate).getFullYear();
+
   if (age < 18) {
     const error: CustomError = new Error("You must be 18 years old");
     error.statusCode = 400;
@@ -67,50 +54,43 @@ export const register = async (
     .then((hashedPassword) => {
       const user = new User({
         ...userToRegister,
-        passwordHash: hashedPassword,
-        profilePicture,
+        password: hashedPassword,
+        profilePicture: profilePicture,
       });
 
-      const mailOptions = {
-        from: process.env.EMAIL,
-        to: user.email,
-        subject: "Verification email",
-        text: "Please click the link to verify your account",
-        html: `<a href="https://www.google.com">Verify</a>`,
-        // TODO: Change the link. Don't forget the mail type (student or personal)
-      };
+      // const mailOptions: nodemailer.SendMailOptions = {
+      //   to: user.email,
+      //   subject: "Verification email",
+      //   text: "Please click the link to verify your account",
+      //   html: `<a href="https://www.google.com">Verify</a>`,
+      //   // TODO: Change the link. Don't forget the mail type (student or personal)
+      // };
+      // //sending the email to the personal email
+      // transporter.sendMail(mailOptions, (err, info) => {
+      //   if (err) {
+      //     const error: CustomError = new Error(err.message);
+      //     error.message = err.message;
+      //     error.statusCode = 503; // Service unavailable
+      //     throw error;
+      //   } else {
+      //     console.log("Email sent: " + info.response);
+      //   }
+      // });
 
-      //sending the email to the personal email
-      transporter.sendMail(mailOptions, (err, info) => {
-        if (err) {
-          const error: CustomError = new Error(err.message);
-          error.message = err.message;
-          error.statusCode = 503; // Service unavailable
-          next(error);
-        } else {
-          console.log("Email sent: " + info.response);
-        }
-      });
-
-      //sending the email to the student email
-      mailOptions.to = user.studentEmail;
-
-      transporter.sendMail(mailOptions, (err, info) => {
-        if (err) {
-          console.log(err);
-        } else {
-          console.log("Email sent: " + info.response);
-        }
-      });
+      // TODO: Send the mail to the student email
 
       return user.save();
     })
     .then((user) => {
       return res
         .status(201)
-        .json({ message: "User created. Verification mail sent", user });
+        .json({ message: "User created. Verification mail sent" });
     })
-    .catch((err) => next(err));
+    .catch((err) => {
+      const error: CustomError = new Error(err.message);
+      error.statusCode = 500;
+      next(error);
+    });
 };
 
 export const login = async (

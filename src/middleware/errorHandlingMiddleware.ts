@@ -7,7 +7,7 @@ export const handleError = (
   res: Response,
   next: NextFunction
 ) => {
-  console.log("ERROR HANDLING MIDDLEWARE", error);
+  console.log(error);
 
   const status = error.statusCode || 500;
   const message = error.message;

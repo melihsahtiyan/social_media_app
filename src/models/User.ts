@@ -5,8 +5,7 @@ interface UserDoc extends mongoose.Document {
   lastName: string;
   birthDate: Date;
   email: string;
-  passwordHash: string;
-  passwordSalt: string;
+  password: string;
   university: string;
   department: string;
   studentId: string;
@@ -41,11 +40,7 @@ const userSchema = new mongoose.Schema({
     required: true,
     unique: true,
   },
-  passwordHash: {
-    type: String,
-    required: true,
-  },
-  passwordSalt: {
+  password: {
     type: String,
     required: true,
   },

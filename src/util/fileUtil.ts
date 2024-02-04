@@ -16,52 +16,6 @@ const mimeTypes = {
   "video/avi": ".avi",
 };
 
-const imageMimetypes: Array<string> = [
-  "image/png",
-  "image/jpg",
-  "image/jpeg",
-  "image/webp",
-  "image/heic",
-  "image/gif",
-];
-
-const videoMimetypes: Array<string> = ["video/mp4", "video/mov", "video/avi"];
-
-const storage = multer.diskStorage({
-  destination: function (req: Request, file, cb: Function) {
-    const mimeType = mimeTypes[file.mimetype];
-
-    if (mimeType === ".mp4" || mimeType === ".mov" || mimeType === ".avi") {
-      cb(null, "media/videos");
-    } else {
-      cb(null, "media/images");
-    }
-  },
-  filename: function (req: Request, file, cb: Function) {
-    const uniqueSuffix = uuidv4() + "-" + Math.round(Math.random() * 1e9);
-
-    const mimeType = mimeTypes[file.mimetype];
-
-    cb(null, uniqueSuffix + mimeType);
-  },
-});
-
-const fileFilter = (req: Request, file, cb: Function) => {
-  if (
-    imageMimetypes.find((mimetype) => mimetype === file.mimetype) ||
-    videoMimetypes.find((mimetype) => mimetype === file.mimetype)
-  ) {
-    cb(null, true);
-  } else {
-    cb(null, false);
-  }
-};
-
-export const fileUpload = multer({
-  storage: storage,
-  fileFilter: fileFilter,
-}).array("sources", 10);
-
 const profilePictureStorage = multer.diskStorage({
   destination: function (req: Request, file, cb: Function) {
     cb(null, "media/profilePictures");
@@ -74,6 +28,15 @@ const profilePictureStorage = multer.diskStorage({
 });
 
 const profilePictureFileFilter = (req: Request, file, cb: Function) => {
+  const imageMimetypes: Array<string> = [
+    "image/png",
+    "image/jpg",
+    "image/jpeg",
+    "image/webp",
+    "image/heic",
+    "image/gif",
+  ];
+
   if (imageMimetypes.find((mimetype) => mimetype === file.mimetype)) {
     cb(null, true);
   } else {
@@ -81,7 +44,7 @@ const profilePictureFileFilter = (req: Request, file, cb: Function) => {
   }
 };
 
-export const profilePictureUpload = multer({
+export const fileUpload = multer({
   storage: profilePictureStorage,
   fileFilter: profilePictureFileFilter,
 }).single("profilePicture");

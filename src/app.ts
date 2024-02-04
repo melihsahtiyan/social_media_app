@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 import mongoose from "mongoose";
 import { CustomError } from "./types/error/CustomError";
 import bodyParser from "body-parser";
-import { fileUpload, profilePictureUpload } from "./util/fileUtil";
+import { fileUpload } from "./util/fileUtil";
 import path from "path";
 import authRoutes from "./routes/authRoutes";
 import { handleError } from "./middleware/errorHandlingMiddleware";
@@ -48,7 +48,6 @@ const app: Express = express();
 
 app.use(bodyParser.json());
 app.use(fileUpload);
-app.use(profilePictureUpload);
 app.use("/media", express.static(path.join(__dirname, "/media")));
 
 app.use((req: Request, res: Response, next: NextFunction) => {
