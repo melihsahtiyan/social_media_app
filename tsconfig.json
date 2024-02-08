@@ -13,5 +13,5 @@
     "sourceMap": true,
     "removeComments": true
   },
-  "include": ["src/**/*"]
+  "include": ["./**/*.ts"]
 }

@@ -6,9 +6,6 @@ interface UserForRegisterDto {
   password: string;
   university: string;
   department: string;
-  studentId: string;
-  studentEmail: string;
-  profilePicture: string;
 }
 
 export default UserForRegisterDto;

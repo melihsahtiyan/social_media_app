@@ -4,8 +4,9 @@ import { isValid } from "../util/validationHandler";
 import UserForRegisterDto from "../types/dtos/user/userForRegisterDto";
 import * as nodemailer from "nodemailer";
 import bcrypt from "bcryptjs";
-import User, { UserDoc } from "../models/User";
+import User, { IUser } from "../models/User";
 import { CustomError } from "../types/error/CustomError";
+import UserForLoginDto from "../types/dtos/user/userForLoginDto";
 
 const transporter: nodemailer.Transporter = nodemailer.createTransport({
   service: "gmail",
@@ -21,83 +22,89 @@ export const register = async (
   next: NextFunction
 ) => {
   isValid(req, next);
-
   const userToRegister: UserForRegisterDto = req.body;
 
-  // Check the profile picture whether it exists or not
-  const profilePicture: string = req.file
-    ? "/media/profilePictures/" + req.file.filename
-    : null;
+  // TODO: profile picture addition will be on the update profile part
+  // const profilePicture: string = req.file
+  //   ? "/media/profilePictures/" + req.file.filename
+  //   : null;
 
-  // Check the age of the user whether it is older than 18 or not (using birthDate)
-  const age =
-    new Date(Date.now()).getFullYear() -
-    new Date(userToRegister.birthDate).getFullYear();
+  try {
+    // Check the age of the user whether it is older than 18 or not (using birthDate)
+    const age =
+      new Date(Date.now()).getFullYear() -
+      new Date(userToRegister.birthDate).getFullYear();
 
-  if (age < 18) {
-    const error: CustomError = new Error("You must be 18 years old");
-    error.statusCode = 400;
-    next(error);
-  }
+    if (age < 18) {
+      const error: CustomError = new Error("You must be 18 years old");
+      error.statusCode = 400;
+      throw error;
+    }
+    // Checking e-mail whether it exists.
+    const userToCheck = await User.findOne({ email: userToRegister.email });
 
-  // Checking e-mail whether it exists.
-  const userToCheck = await User.findOne({ email: userToRegister.email });
+    if (userToCheck !== null) {
+      const error: CustomError = new Error("User already exists");
+      error.statusCode = 409;
+      throw error;
+    }
 
-  if (userToCheck !== null) {
-    const error: CustomError = new Error("User already exists");
-    error.statusCode = 409;
-    next(error);
-  }
+    const hashedPassword = await bcrypt.hash(userToRegister.password, 10);
 
-  bcrypt
-    .hash(userToRegister.password, 12)
-    .then((hashedPassword) => {
-      const user = new User({
-        ...userToRegister,
-        password: hashedPassword,
-        profilePicture: profilePicture,
-      });
-
-      // const mailOptions: nodemailer.SendMailOptions = {
-      //   to: user.email,
-      //   subject: "Verification email",
-      //   text: "Please click the link to verify your account",
-      //   html: `<a href="https://www.google.com">Verify</a>`,
-      //   // TODO: Change the link. Don't forget the mail type (student or personal)
-      // };
-      // //sending the email to the personal email
-      // transporter.sendMail(mailOptions, (err, info) => {
-      //   if (err) {
-      //     const error: CustomError = new Error(err.message);
-      //     error.message = err.message;
-      //     error.statusCode = 503; // Service unavailable
-      //     throw error;
-      //   } else {
-      //     console.log("Email sent: " + info.response);
-      //   }
-      // });
-
-      // TODO: Send the mail to the student email
-
-      return user.save();
-    })
-    .then((user) => {
-      return res
-        .status(201)
-        .json({ message: "User created. Verification mail sent" });
-    })
-    .catch((err) => {
-      const error: CustomError = new Error(err.message);
-      error.statusCode = 500;
-      next(error);
+    const user: IUser = new User({
+      ...userToRegister,
+      password: hashedPassword,
     });
+
+    user.save();
+
+    return res.status(201).json({ message: "User created" });
+  } catch (err) {
+    const error: CustomError = new Error(err.message);
+    error.statusCode = 500;
+    next(error);
+  }
 };
 
 export const login = async (
   req: Request,
   res: Response,
   next: NextFunction
-) => {};
+) => {
+  isValid(req, next);
+  const userToLogin: UserForLoginDto = req.body;
+
+  try {
+    const user: IUser = await User.findOne({ email: userToLogin.email });
+    if (!user) {
+      const error: CustomError = new Error("Email or password is incorrect");
+      error.statusCode = 404;
+      throw error;
+    }
+
+    if (!user.status.emailVerification) {
+      const error: CustomError = new Error("Email is not verified");
+      error.statusCode = 400;
+      throw error;
+    }
+
+    const isEqual = await bcrypt.compare(userToLogin.password, user.password);
+
+    if (!isEqual) {
+      const error: CustomError = new Error("Email or password is incorrect");
+      error.statusCode = 401;
+      throw error;
+    }
+
+    const token = user.generateJsonWebToken();
+
+    return res.status(200).json({ message: "Token generated", token });
+  } catch (err) {
+    const error: CustomError = new Error(err.message);
+    error.statusCode = err.statusCode || 500;
+    next(error);
+  }
+};
 
 export const verifyEmail = async (
   req: Request,
@@ -107,7 +114,7 @@ export const verifyEmail = async (
   const email: string = req.body.email;
   const mailType: string = req.body.mailType;
 
-  const user: UserDoc = await User.findOne({ email });
+  const user: IUser = await User.findOne({ email });
 
   if (!user) {
     const error: CustomError = new Error("User not found");

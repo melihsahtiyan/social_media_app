@@ -1,6 +1,7 @@
 import * as mongoose from "mongoose";
+import jwt from "jsonwebtoken";
 
-interface UserDoc extends mongoose.Document {
+interface IUser extends mongoose.Document {
   firstName: string;
   lastName: string;
   birthDate: Date;
@@ -8,7 +9,6 @@ interface UserDoc extends mongoose.Document {
   password: string;
   university: string;
   department: string;
-  studentId: string;
   studentEmail: string;
   status: {
     studentVerification: boolean;
@@ -18,34 +18,12 @@ interface UserDoc extends mongoose.Document {
   followers: mongoose.Schema.Types.ObjectId[];
   posts: mongoose.Schema.Types.ObjectId[];
   createdAt: Date;
+  generateJsonWebToken: () => string;
 }
 
-interface UserModel extends mongoose.Model<UserDoc> {}
+interface UserModel extends mongoose.Model<IUser> {}
 
-interface UserDoc extends mongoose.Document {
-  firstName: string;
-  lastName: string;
-  birthDate: Date;
-  email: string;
-  passwordHash: string;
-  passwordSalt: string;
-  university: string;
-  department: string;
-  studentId: string;
-  studentEmail: string;
-  status: {
-    studentVerification: boolean;
-    emailVerification: boolean;
-  };
-  profilePicture: string;
-  followers: mongoose.Schema.Types.ObjectId[];
-  posts: mongoose.Schema.Types.ObjectId[];
-  createdAt: Date;
-}
-
-interface UserModel extends mongoose.Model<UserDoc> {}
-
-const userSchema = new mongoose.Schema({
+const userSchema = new mongoose.Schema<IUser>({
   firstName: {
     type: String,
     required: true,
@@ -75,14 +53,9 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  studentId: {
-    type: String,
-    required: true,
-  },
   studentEmail: {
     type: String,
     required: false,
-    unique: true,
   },
   status: {
     type: {
@@ -125,8 +98,21 @@ const userSchema = new mongoose.Schema({
   },
 });
 
+userSchema.methods.generateJsonWebToken = function () {
+  const token = jwt.sign(
+    {
+      _id: this._id,
+      email: this.email,
+      firstName: this.firstName,
+      lastName: this.lastName,
+    },
+    process.env.SECRET_KEY
+  );
+  return token;
+};
+
 const User = mongoose.model("User", userSchema);
 
 export default User;
 
-export { UserDoc, UserModel };
+export { IUser, UserModel };

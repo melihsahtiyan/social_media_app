@@ -1,10 +1,9 @@
-import { before, describe, it } from "mocha";
-import User from "./../models/User";
 import mongoose from "mongoose";
-import { stub } from "sinon";
+import User from "../models/User";
+import { describe, it } from "mocha";
 import { expect } from "chai";
 
-const MONGODB_URI = process.env.CONNECTION_STRING;
+const MONGODB_URI = process.env.TEST_CONNECTION_STRING;
 
 describe("Auth Controller Test", () => {
   before((done) => {
