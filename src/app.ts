@@ -6,6 +6,7 @@ import bodyParser from "body-parser";
 import { fileUpload } from "./util/fileUtil";
 import path from "path";
 import authRoutes from "./routes/authRoutes";
+import postRoutes from "./routes/postRoutes";
 import { handleError } from "./middleware/errorHandlingMiddleware";
 
 dotenv.config();
@@ -13,7 +14,6 @@ dotenv.config();
 const app: Express = express();
 
 app.use(bodyParser.json());
-app.use(fileUpload);
 app.use("/media", express.static(path.join(__dirname, "/media")));
 
 app.use((req: Request, res: Response, next: NextFunction) => {
@@ -33,6 +33,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 });
 
 app.use("/auth", authRoutes);
+app.use("/post", postRoutes);
 
 app.use(
   (error: CustomError, req: Request, res: Response, next: NextFunction) => {

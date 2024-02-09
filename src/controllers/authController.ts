@@ -119,7 +119,7 @@ export const verifyEmail = async (
   if (!user) {
     const error: CustomError = new Error("User not found");
     error.statusCode = 404;
-    next(error);
+    throw error;
   }
 
   if (
@@ -129,12 +129,13 @@ export const verifyEmail = async (
   ) {
     const error: CustomError = new Error("User already verified");
     error.statusCode = 400;
-    next(error);
+    throw error;
   }
 
   if (mailType === "personal") {
     user.status.emailVerification = true;
-  } else {
+  }
+  if (mailType === "student") {
     user.status.studentVerification = true;
   }
 

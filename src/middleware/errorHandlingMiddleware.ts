@@ -8,10 +8,8 @@ export const handleError = (
   next: NextFunction
 ) => {
   const customError: CustomError = error;
-  
-  const status: number = customError.statusCode || 500;
-  const message: string = customError.message;
-  const data: any = customError.data;
 
-  res.status(status).json({ message, data });
+  const status: number = customError.statusCode || 500;
+
+  res.status(status).json({ error: customError });
 };

@@ -1,18 +1,19 @@
 import mongoose, { ObjectId } from "mongoose";
 
-interface PostDoc extends mongoose.Document {
+interface IPost extends mongoose.Document {
   creator: mongoose.Schema.Types.ObjectId;
   content: string;
-  mediaUrls: string[];
+  mediaUrls: Array<String>;
   likes: mongoose.Schema.Types.ObjectId[];
   createdAt: Date;
-  comments: mongoose.Schema.Types.ObjectId[];
+  comments: Array<ObjectId>;
   type: string;
+  updatedAt: Date;
 }
 
-interface PostModel extends mongoose.Model<PostDoc> {}
+interface PostModel extends mongoose.Model<IPost> {}
 
-const postSchema = new mongoose.Schema({
+const postSchema = new mongoose.Schema<IPost>({
   creator: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
@@ -21,71 +22,39 @@ const postSchema = new mongoose.Schema({
   content: {
     type: String,
   },
-  mediaUrls: {
-    type: Array<String>,
-    default: [],
-  },
-  likes: {
-    type: Array<mongoose.Schema.Types.ObjectId>,
-    ref: "User",
-    default: [],
-  },
+  mediaUrls: [
+    {
+      type: String,
+    },
+  ],
+  likes: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
+  ],
   createdAt: {
     type: Date,
     default: Date.now,
     required: true,
   },
-  comments: {
-    type: Array<ObjectId>,
-    ref: "Comment",
-    default: [],
-  },
+  comments: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Comment",
+    },
+  ],
   type: {
     type: String,
     required: true,
+    Enum: ["normal", "poll"],
+  },
+  updatedAt: {
+    type: Date,
+    default: null,
   },
 });
 
 export default mongoose.model("Post", postSchema);
 
-export { PostDoc, PostModel };
-
-// import { ObjectId } from "mongoose";
-// import { Schema, model } from "ottoman";
-
-// const schema = new Schema({
-//   creator: {
-//     type: String,
-//     required: true,
-//   },
-//   content: {
-//     type: String,
-//   },
-//   mediaUrls: {
-//     type: Array<String>,
-//     default: [],
-//   },
-//   likes: {
-//     type: Array<String>,
-//     default: [],
-//   },
-//   createdAt: {
-//     type: Date,
-//     default: Date.now,
-//     required: true,
-//   },
-//   comments: {
-//     type: Array<ObjectId>,
-//     ref: "Comment",
-//     default: [],
-//   },
-//   type: {
-//     type: String,
-//     required: true,
-//   },
-//   status: { type: String, enum: ["Close", "Open", "Review"] },
-// });
-
-// const Post = model("Post", schema);
-
-// export default Post;
+export { IPost, PostModel };
