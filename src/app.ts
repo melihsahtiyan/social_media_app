@@ -11,9 +11,9 @@ import { handleError } from "./middleware/errorHandlingMiddleware";
 import logger from "./util/loggingHandler";
 import fs from "fs";
 
-fs.mkdirSync(path.join(__dirname, "/media/images"), { recursive: true });
-fs.mkdirSync(path.join(__dirname, "/media/videos"), { recursive: true });
-fs.mkdirSync(path.join(__dirname, "/media/profilePictures"), {
+fs.mkdirSync(path.join(__dirname, "../media/images"), { recursive: true });
+fs.mkdirSync(path.join(__dirname, "../media/videos"), { recursive: true });
+fs.mkdirSync(path.join(__dirname, "../media/profilePictures"), {
   recursive: true,
 });
 
