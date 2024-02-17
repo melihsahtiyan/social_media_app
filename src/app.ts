@@ -8,13 +8,21 @@ import authRoutes from "./routes/authRoutes";
 import postRoutes from "./routes/postRoutes";
 import userRoutes from "./routes/userRoutes";
 import { handleError } from "./middleware/errorHandlingMiddleware";
-import logger, { logRequest } from "./util/loggingHandler";
+import logger from "./util/loggingHandler";
+import fs from "fs";
+
+fs.mkdirSync(path.join(__dirname, "/media/images"), { recursive: true });
+fs.mkdirSync(path.join(__dirname, "/media/videos"), { recursive: true });
+fs.mkdirSync(path.join(__dirname, "/media/profilePictures"), {
+  recursive: true,
+});
 
 dotenv.config();
 
 const app: Express = express();
 
 app.use(bodyParser.json());
+
 app.use("/media", express.static(path.join(__dirname, "/media")));
 
 app.use((req: Request, res: Response, next: NextFunction) => {
