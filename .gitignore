@@ -3,3 +3,8 @@
 .env
 /media
 todo-codes.ts
+```
+combined.log
+error.log
+exceptions.log
+```

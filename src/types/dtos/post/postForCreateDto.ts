@@ -2,7 +2,7 @@ import { ObjectId } from "mongoose";
 
 interface PostForCreateDto {
   creator: ObjectId;
-  content: string;
+  caption: string;
   mediaUrls: string[];
   type: string;
 }

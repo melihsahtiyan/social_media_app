@@ -32,10 +32,7 @@ const isAuth = (req: Request, res: Response, next: NextFunction) => {
     throw error;
   }
 
-  // Token is valid
-  console.log("====================================");
-  console.log("Decoded token: ", decodedToken);
-  console.log("====================================");
+  // Token is valid and we have the user id
   req.userId = decodedToken._id;
   next();
 };

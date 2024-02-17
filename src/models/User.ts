@@ -16,6 +16,8 @@ interface IUser extends mongoose.Document {
   };
   profilePicture: string;
   followers: mongoose.Schema.Types.ObjectId[];
+  followRequests: mongoose.Schema.Types.ObjectId[];
+  following: mongoose.Schema.Types.ObjectId[];
   posts: mongoose.Schema.Types.ObjectId[];
   createdAt: Date;
   generateJsonWebToken: () => string;
@@ -78,6 +80,20 @@ const userSchema = new mongoose.Schema<IUser>({
     required: false,
   },
   followers: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      default: [],
+    },
+  ],
+  followRequests: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      default: [],
+    },
+  ],
+  following: [
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",

@@ -37,7 +37,7 @@ export const register = async (
 
     if (age < 18) {
       const error: CustomError = new Error("You must be 18 years old");
-      error.statusCode = 400;
+      error.statusCode = 400; // Bad Request
       throw error;
     }
     // Checking e-mail whether it exists.
@@ -45,7 +45,7 @@ export const register = async (
 
     if (userToCheck !== null) {
       const error: CustomError = new Error("User already exists");
-      error.statusCode = 409;
+      error.statusCode = 409; // Conflict
       throw error;
     }
 
@@ -61,7 +61,7 @@ export const register = async (
     return res.status(201).json({ message: "User created" });
   } catch (err) {
     const error: CustomError = new Error(err.message);
-    error.statusCode = 500;
+    error.statusCode = 500; // Internal Server Error
     next(error);
   }
 };
@@ -78,13 +78,13 @@ export const login = async (
     const user: IUser = await User.findOne({ email: userToLogin.email });
     if (!user) {
       const error: CustomError = new Error("Email or password is incorrect");
-      error.statusCode = 404;
+      error.statusCode = 404; // Not Found
       throw error;
     }
 
     if (!user.status.emailVerification) {
       const error: CustomError = new Error("Email is not verified");
-      error.statusCode = 400;
+      error.statusCode = 400; // Bad Request
       throw error;
     }
 
@@ -92,7 +92,7 @@ export const login = async (
 
     if (!isEqual) {
       const error: CustomError = new Error("Email or password is incorrect");
-      error.statusCode = 401;
+      error.statusCode = 401; // Unauthorized
       throw error;
     }
 
@@ -118,7 +118,7 @@ export const verifyEmail = async (
 
   if (!user) {
     const error: CustomError = new Error("User not found");
-    error.statusCode = 404;
+    error.statusCode = 404; // Not Found
     throw error;
   }
 
@@ -128,7 +128,7 @@ export const verifyEmail = async (
     (user.status.studentVerification && mailType === "student")
   ) {
     const error: CustomError = new Error("User already verified");
-    error.statusCode = 400;
+    error.statusCode = 400; // Bad Request
     throw error;
   }
 

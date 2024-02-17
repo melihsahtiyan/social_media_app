@@ -8,4 +8,6 @@ const router = express.Router();
 
 router.post("/create", isAuth, sourceUpload, postController.createPost);
 
+router.get("/getAllPosts", postController.getPosts);
+
 export default router;

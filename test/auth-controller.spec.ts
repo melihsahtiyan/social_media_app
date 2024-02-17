@@ -1,11 +1,12 @@
 import mongoose from "mongoose";
-import User from "../models/User";
 import { describe, it } from "mocha";
 import { expect } from "chai";
+import sinon from "sinon";
+import User from "../src/models/User";
 
 const MONGODB_URI = process.env.TEST_CONNECTION_STRING;
 
-describe("Auth Controller Test", () => {
+describe("Auth Controller", function () {
   before((done) => {
     mongoose
       .connect(MONGODB_URI)
@@ -13,14 +14,12 @@ describe("Auth Controller Test", () => {
         const user = new User({
           firstName: "test",
           lastName: "test",
-          passwordHash: "test",
+          password: "test",
           email: "test@test.com",
           birthDate: "test",
-          profilePicture: "test",
+          profilePicture: null,
           university: "test",
           department: "test",
-          studentId: "test",
-          studentEmail: "test",
         });
 
         return user.save();
@@ -30,17 +29,19 @@ describe("Auth Controller Test", () => {
       });
   });
 
-  it("should throw error if user already exists", (done) => {
+  it("should throw error if user already exists", function (done) {
+    const findOne = sinon.stub(User, "findOne");
+    findOne.throws();
+
     const user = new User({
       firstName: "test",
       lastName: "test",
-      passwordHash: "test",
+      password: "test",
       email: "test@test.com",
       birthDate: "test",
-      profilePicture: "test",
+      profilePicture: null,
       university: "test",
       department: "test",
-      studentId: "test",
       studentEmail: "test",
     });
 

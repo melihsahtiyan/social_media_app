@@ -2,8 +2,7 @@ import mongoose, { ObjectId } from "mongoose";
 
 interface IPost extends mongoose.Document {
   creator: mongoose.Schema.Types.ObjectId;
-  content: string;
-  mediaUrls: Array<String>;
+  content: { caption: string; mediaUrls: Array<String> };
   likes: mongoose.Schema.Types.ObjectId[];
   createdAt: Date;
   comments: Array<ObjectId>;
@@ -20,13 +19,13 @@ const postSchema = new mongoose.Schema<IPost>({
     required: true,
   },
   content: {
-    type: String,
+    caption: String,
+    mediaUrls: [
+      {
+        type: String,
+      },
+    ],
   },
-  mediaUrls: [
-    {
-      type: String,
-    },
-  ],
   likes: [
     {
       type: mongoose.Schema.Types.ObjectId,
