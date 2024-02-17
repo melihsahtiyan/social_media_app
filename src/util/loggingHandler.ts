@@ -32,10 +32,14 @@ export const logRequest = (req: Request, res: Response, next: NextFunction) => {
   IP: ${req.ip}
   Header: ${req.headers["user-agent"]}
   Body: ${JSON.stringify(req.body)}
-  Form Data: ${JSON.stringify(req.files.map((file) => file.filename))}
+  Form Data: ${
+    req.file
+      ? JSON.stringify(req.files.map((file) => file.filename))
+      : "No files"
+  }
   Query: ${JSON.stringify(req.query)}
   Params: ${JSON.stringify(req.params)}
   Request received at ${new Date().toISOString()}
-  ---------------------------------------------------------`);
+-----------------------------------------------------------`);
   next();
 };

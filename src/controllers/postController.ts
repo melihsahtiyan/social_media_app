@@ -14,9 +14,9 @@ export const createPost = async (
   isValid(req, next);
   const postForCreateDto: PostForCreateDto = req.body;
 
-  console.log('====================================');
+  console.log("====================================");
   console.log(req.body);
-  console.log('====================================');
+  console.log("====================================");
 
   try {
     if (req.files.length === 0 && postForCreateDto.caption.length === 0) {
@@ -73,7 +73,7 @@ export const getPosts = async (
 ) => {
   try {
     const posts: IPost[] = await Post.find().sort({ createdAt: -1 });
-    res.status(200).json({ posts: posts });
+    return res.status(200).json({ posts: posts });
   } catch (err) {
     err.message = err.message || "Fetching posts failed";
     next(err);
