@@ -3,13 +3,12 @@ import dotenv from "dotenv";
 import mongoose from "mongoose";
 import { CustomError } from "./types/error/CustomError";
 import bodyParser from "body-parser";
-import { fileUpload } from "./util/fileUtil";
 import path from "path";
 import authRoutes from "./routes/authRoutes";
 import postRoutes from "./routes/postRoutes";
 import userRoutes from "./routes/userRoutes";
 import { handleError } from "./middleware/errorHandlingMiddleware";
-import logger from "./util/loggingHandler";
+import logger, { logRequest } from "./util/loggingHandler";
 
 dotenv.config();
 
@@ -34,19 +33,18 @@ app.use((req: Request, res: Response, next: NextFunction) => {
   next();
 });
 
-app.use((req: Request, res: Response, next: NextFunction) => {
-  logger.info(`Method: ${req.method}`);
-  logger.info(`IP: ${req.ip}`);
-  logger.info(`Header: ${req.headers["user-agent"]}`);
-  logger.info(`Body: ${JSON.stringify(req.body)}`);
-  logger.info(`Query: ${JSON.stringify(req.query)}`);
-  logger.info(`Params: ${JSON.stringify(req.params)}`);
-  logger.info(`Request received at ${new Date().toISOString()}`);
-
-  next();
-});
-
-app.use("/auth", authRoutes);
+app.use(
+  "/auth",
+  (req: Request, res: Response, next: NextFunction) => {
+    logger.info(`Path: ${req.path}
+  Method: ${req.method}
+  IP: ${req.ip}
+  Request received at ${new Date().toISOString()}
+  ---------------------------------------------------------`);
+    next();
+  },
+  authRoutes
+);
 app.use("/post", postRoutes);
 app.use("/user", userRoutes);
 

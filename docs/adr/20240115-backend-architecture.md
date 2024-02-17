@@ -3,7 +3,7 @@
 - Status: accepted
 - Deciders: Melih Sahtiyan
 - Date: [2024-01-16 when the decision was last updated] <!-- optional. To customize the ordering without relying on Git creation dates and filenames -->
-- Tags: [space and/or comma separated list of tags] <!-- optional -->
+- Tags: backend, architecture, monolith, microservices, modular-monolith
 
 Technical Story: To start a new project, we needed an initial project architecture that satisfies the first needs of the project. For these reasons, we have chosen monolithic architecture. <!-- optional -->
 
@@ -21,10 +21,11 @@ The aim of the monolithic architecture is, it's so simple that one developer can
 
 - Microservices
 - Monolithic
+- Modular Monolith
 
 ## Decision Outcome
 
-Chosen option: "[option 1]", because [justification. e.g., only option, which meets k.o. criterion decision driver | which resolves force force | … | comes out best (see below)].
+Chosen option: "Monolith", because it's easy to develop and deploy. We can easily change the architecture to microservices when we need it. Monolith is the best way to start the project with one backend developer.
 
 ### Positive Consequences
 
@@ -36,8 +37,7 @@ Chosen option: "[option 1]", because [justification. e.g., only option, which me
 - [e.g., compromising quality attribute, follow-up decisions required, …]
 - …
 
-## Pros and Cons of the Options 
-
+## Pros and Cons of the Options
 
 ### Monolithic
 

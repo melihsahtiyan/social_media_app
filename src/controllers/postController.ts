@@ -14,6 +14,10 @@ export const createPost = async (
   isValid(req, next);
   const postForCreateDto: PostForCreateDto = req.body;
 
+  console.log('====================================');
+  console.log(req.body);
+  console.log('====================================');
+
   try {
     if (req.files.length === 0 && postForCreateDto.caption.length === 0) {
       const error: CustomError = new Error("Post must have content or media!");
