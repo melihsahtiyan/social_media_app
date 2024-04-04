@@ -3,7 +3,7 @@ import { body } from "express-validator";
 import { fileUpload } from "../util/fileUtil";
 import isAuth from "../middleware/is-auth";
 import { UserRepository } from "../repositories/user-repository";
-import { UserService } from "../controllers/userService";
+import { UserService } from "../services/userService";
 
 const router = express.Router();
 const service = new UserService(new UserRepository());
