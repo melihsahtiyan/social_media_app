@@ -1,8 +1,10 @@
 import { Router } from "express";
 import { body } from "express-validator";
-import * as authController from "../controllers/authController";
+import { authService } from "../controllers/authService";
+import { UserRepository } from "../repositories/user-repository";
 
 const router: Router = Router();
+const service = new authService(new UserRepository());
 
 router.put(
   "/register",
@@ -36,7 +38,7 @@ router.put(
       .isEmpty()
       .withMessage("Department is required"),
   ],
-  authController.register
+  service.register
 );
 
 router.post(
@@ -48,7 +50,19 @@ router.post(
       .isLength({ min: 8, max: 20 })
       .withMessage("Password must be between 8 and 20 characters"),
   ],
-  authController.login
+  service.login
+);
+
+router.post(
+  "/verify-email",
+  [
+    body("email").isEmail().withMessage("Email must be valid"),
+    // body("verificationCode")
+    // .trim()
+    // .isLength({ min: 8, max: 8 })
+    // .withMessage("Verification code must be 6 characters"),
+  ],
+  service.verifyEmail
 );
 
 export default router;

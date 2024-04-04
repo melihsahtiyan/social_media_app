@@ -1,30 +1,27 @@
-import mongoose, { ObjectId } from "mongoose";
+import mongoose from "mongoose";
+import { UserDoc } from "./User";
+import { CommentDoc } from "./Comment";
 
-interface IPost extends mongoose.Document {
-  creator: mongoose.Schema.Types.ObjectId;
-  content: { caption: string; mediaUrls: Array<String> };
+export type PostModel = {
+  creator: UserDoc;
+  content: { caption: string; mediaUrls: Array<string> };
   likes: mongoose.Schema.Types.ObjectId[];
   createdAt: Date;
-  comments: Array<ObjectId>;
+  comments: Array<CommentDoc>;
   type: string;
-  updatedAt: Date;
-}
+  isUpdated: Boolean;
+};
 
-interface PostModel extends mongoose.Model<IPost> {}
+export type PostDoc = mongoose.Document & PostModel;
 
-const postSchema = new mongoose.Schema<IPost>({
+const postSchema = new mongoose.Schema({
   creator: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
-    required: true,
   },
   content: {
     caption: String,
-    mediaUrls: [
-      {
-        type: String,
-      },
-    ],
+    mediaUrls: Array<String>,
   },
   likes: [
     {
@@ -34,8 +31,7 @@ const postSchema = new mongoose.Schema<IPost>({
   ],
   createdAt: {
     type: Date,
-    default: Date.now,
-    required: true,
+    default: Date.now(),
   },
   comments: [
     {
@@ -45,15 +41,15 @@ const postSchema = new mongoose.Schema<IPost>({
   ],
   type: {
     type: String,
-    required: true,
     Enum: ["normal", "poll"],
   },
-  updatedAt: {
-    type: Date,
-    default: null,
+  isUpdated: {
+    type: Boolean,
+    default: false,
   },
 });
 
-export default mongoose.model("Post", postSchema);
+const posts: mongoose.Model<PostDoc> =
+  mongoose.models.posts || mongoose.model<PostDoc>("posts", postSchema);
 
-export { IPost, PostModel };
+export { posts };

@@ -9,12 +9,12 @@ export const handleError = (
   next: NextFunction
 ) => {
   const customError: CustomError = error;
-
+  const message: string = customError.message || "An error occurred!";
   const status: number = customError.statusCode || 500;
 
   logger.error(
     `${req.method} ${req.url} ${status} ${customError.message} ${customError.data}`
   );
 
-  res.status(status).json({ error: customError });
+  res.status(status).json({ error: customError, message: message });
 };

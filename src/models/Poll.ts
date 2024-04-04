@@ -1,8 +1,8 @@
 import mongoose from "mongoose";
-import { IPost } from "./Post";
+import { posts, PostModel } from "./Post";
 
-interface IPoll extends IPost {
-  options: Array<String>;
+type PollModel = PostModel & {
+  options: { optionName: Array<String>; totalVotes: Number }[];
   votes: [
     {
       voter: mongoose.Schema.Types.ObjectId;
@@ -12,35 +12,45 @@ interface IPoll extends IPost {
   totalVotes: Number;
   expiresAt: Date;
   createdAt: Date;
-}
+};
 
-interface PollModel extends mongoose.Model<IPoll> {}
+export type PollDoc = mongoose.Document & PollModel;
 
-const pollSchema = new mongoose.Schema<IPoll>({
-  options: [
-    {
-      type: Array<String>,
-      required: true,
+const pollSchema = new mongoose.Schema<PollDoc>(
+  {
+    ...posts,
+    options: [
+      {
+        optionName: String,
+        totalVotes: { type: Number, default: 0, min: 0 },
+      },
+    ],
+    votes: [
+      {
+        voter: {
+          type: Array<Object>,
+        },
+        option: {
+          type: String,
+        },
+      },
+    ],
+    totalVotes: {
+      type: Number,
+      default: 0,
     },
-  ],
-  votes: [
-    {
-      type: Array<Object>,
-      default: [],
+    expiresAt: {
+      type: Date,
     },
-  ],
-  totalVotes: {
-    type: Number,
-    default: 0,
-    required: true,
+    createdAt: {
+      type: Date,
+      default: Date.now,
+    },
   },
-  expiresAt: {
-    type: Date,
-    required: true,
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now,
-    required: true,
-  },
-});
+  { discriminatorKey: "type" }
+);
+
+const polls: mongoose.Model<PollDoc> =
+  mongoose.models.polls || mongoose.model<PollDoc>("polls", pollSchema);
+
+export { polls };

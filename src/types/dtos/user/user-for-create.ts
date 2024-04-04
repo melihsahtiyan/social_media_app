@@ -1,4 +1,4 @@
-interface UserForRegisterDto {
+interface UserForCreate {
   firstName: string;
   lastName: string;
   birthDate: Date;
@@ -6,6 +6,7 @@ interface UserForRegisterDto {
   password: string;
   university: string;
   department: string;
+  profilePicture?: string;
 }
 
-export default UserForRegisterDto;
+export default UserForCreate;

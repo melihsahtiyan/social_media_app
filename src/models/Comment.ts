@@ -1,15 +1,15 @@
 import mongoose from "mongoose";
 
-interface CommentDoc extends mongoose.Document {
+type CommentModel = {
   creator: mongoose.Schema.Types.ObjectId;
   content: string;
   createdAt: Date;
-  updatedAt: Date;
+  isUpdated: Boolean;
   likes: mongoose.Schema.Types.ObjectId[];
   replies: mongoose.Schema.Types.ObjectId[];
-}
+};
 
-interface CommentModel extends mongoose.Model<CommentDoc> {}
+export type CommentDoc = mongoose.Document & CommentModel;
 
 const commentSchema = new mongoose.Schema({
   creator: {
@@ -25,9 +25,9 @@ const commentSchema = new mongoose.Schema({
     default: Date.now,
     required: true,
   },
-  updatedAt: {
-    type: Date,
-    default: null,
+  isUpdated: {
+    type: Boolean,
+    default: false,
   },
   likes: {
     type: Array<mongoose.Schema.Types.ObjectId>,
@@ -41,6 +41,8 @@ const commentSchema = new mongoose.Schema({
   },
 });
 
-export default mongoose.model("Comment", commentSchema);
+const comments: mongoose.Model<CommentDoc> =
+  mongoose.models.comments ||
+  mongoose.model<CommentDoc>("Comment", commentSchema);
 
-export { CommentDoc, CommentModel };
+export { comments };

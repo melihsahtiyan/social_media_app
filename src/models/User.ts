@@ -1,7 +1,6 @@
 import * as mongoose from "mongoose";
-import jwt from "jsonwebtoken";
 
-interface IUser extends mongoose.Document {
+type UserModel = {
   firstName: string;
   lastName: string;
   birthDate: Date;
@@ -20,55 +19,23 @@ interface IUser extends mongoose.Document {
   following: mongoose.Schema.Types.ObjectId[];
   posts: mongoose.Schema.Types.ObjectId[];
   createdAt: Date;
-  generateJsonWebToken: () => string;
-}
+};
 
-interface UserModel extends mongoose.Model<IUser> {}
+export type UserDoc = mongoose.Document & UserModel;
 
-const userSchema = new mongoose.Schema<IUser>({
-  firstName: {
-    type: String,
-    required: true,
-  },
-  lastName: {
-    type: String,
-    required: true,
-  },
-  birthDate: {
-    type: Date,
-    required: false,
-  },
-  email: {
-    type: String,
-    required: true,
-    unique: true,
-  },
-  password: {
-    type: String,
-    required: true,
-  },
-  university: {
-    type: String,
-    required: true,
-  },
-  department: {
-    type: String,
-    required: true,
-  },
-  studentEmail: {
-    type: String,
-    required: false,
-  },
+const userSchema = new mongoose.Schema({
+  firstName: String,
+  lastName: String,
+  birthDate: Date,
+  email: String,
+  password: String,
+  university: String,
+  department: String,
+  studentEmail: String,
   status: {
     type: {
-      studentVerification: {
-        type: Boolean,
-        required: true,
-      },
-      emailVerification: {
-        type: Boolean,
-        required: true,
-      },
+      studentVerification: Boolean,
+      emailVerification: Boolean,
     },
     default: {
       studentVerification: false,
@@ -77,7 +44,6 @@ const userSchema = new mongoose.Schema<IUser>({
   },
   profilePicture: {
     type: String,
-    required: false,
   },
   followers: [
     {
@@ -109,26 +75,11 @@ const userSchema = new mongoose.Schema<IUser>({
   ],
   createdAt: {
     type: Date,
-    default: Date.now,
-    required: true,
+    default: Date.now(),
   },
 });
 
-userSchema.methods.generateJsonWebToken = function () {
-  const token = jwt.sign(
-    {
-      _id: this._id,
-      email: this.email,
-      firstName: this.firstName,
-      lastName: this.lastName,
-    },
-    process.env.SECRET_KEY
-  );
-  return token;
-};
+const users: mongoose.Model<UserDoc> = 
+  mongoose.models.users || mongoose.model<UserDoc>("User", userSchema);
 
-const User = mongoose.model("User", userSchema);
-
-export default User;
-
-export { IUser, UserModel };
+export { users };
