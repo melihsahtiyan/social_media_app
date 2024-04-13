@@ -1,6 +1,6 @@
-import { PollDoc, polls } from "../models/Poll";
-import { PollDetails } from "../types/dtos/post/poll/poll-details";
-import { PollForCreate } from "../types/dtos/post/poll/poll-for-create";
+import { PollDoc, polls } from "../models/mongoose/PollDoc";
+import { PollDetails } from "../models/dtos/post/poll/poll-details";
+import { PollForCreate } from "../models/dtos/post/poll/poll-for-create";
 import { PageableModel } from "../types/pageable-model";
 
 export class PollRepository {

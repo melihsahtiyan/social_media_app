@@ -1,15 +1,7 @@
 import mongoose from "mongoose";
+import { Comment } from "../entites/Comment";
 
-type CommentModel = {
-  creator: mongoose.Schema.Types.ObjectId;
-  content: string;
-  createdAt: Date;
-  isUpdated: Boolean;
-  likes: mongoose.Schema.Types.ObjectId[];
-  replies: mongoose.Schema.Types.ObjectId[];
-};
-
-export type CommentDoc = mongoose.Document & CommentModel;
+export type CommentDoc = mongoose.Document & Comment;
 
 const commentSchema = new mongoose.Schema({
   creator: {

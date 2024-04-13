@@ -1,4 +1,4 @@
-import { UserDoc } from "../../../../models/User";
+import { UserDoc } from "../../../mongoose/UserDoc";
 
 export type PollForCreate = {
   creator: UserDoc;

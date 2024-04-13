@@ -1,49 +1,87 @@
-import { NextFunction, Response } from "express";
-import Request from "../types/Request";
 import { CustomError } from "../types/error/CustomError";
-import { UserDoc } from "../models/User";
+import { UserDoc } from "../models/mongoose/UserDoc";
 import SchemaTypes from "mongoose";
-import { isValid } from "../util/validationHandler";
 import { UserRepository } from "../repositories/user-repository";
 import mongoose from "mongoose";
+import { UserForUpdate } from "../models/dtos/user/user-for-update";
+import { Result } from "../types/result/Result";
+import { DataResult } from "src/types/result/DataResult";
 
 export class UserService {
   _userRepository: UserRepository;
   constructor(userRepository: UserRepository) {
     this._userRepository = userRepository;
   }
-  followUser = async (req: Request, res: Response, next: NextFunction) => {
-    isValid(req, next);
-    const userId: string = req.body.userId;
 
+  getAllUsers = async (): Promise<DataResult<Array<UserDoc>>> => {
+    try {
+      const users: Array<UserDoc> = await this._userRepository.getAll();
+      const result: DataResult<Array<UserDoc>> = {
+        statusCode: 200,
+        message: "Users fetched successfully",
+        success: true,
+        data: users,
+      };
+      return result;
+    } catch (err) {
+      const error: CustomError = new Error(err.message);
+      error.statusCode = 500;
+      throw error;
+    }
+  };
+
+  followUser = async (
+    followingUserId: string,
+    userToFollowId: string
+  ): Promise<Result> => {
     try {
       const followingUser: UserDoc = await this._userRepository.getById(
-        req.userId
+        followingUserId
       );
 
       if (!followingUser) {
-        const error: CustomError = new Error("You must be logged in!");
-        error.statusCode = 404;
-        throw error;
+        const result: Result = {
+          statusCode: 404,
+          message: "You must be logged in!",
+          success: false,
+        };
+
+        return result;
       }
 
-      const userToFollow: UserDoc = await this._userRepository.getById(userId);
+      const userToFollow: UserDoc = await this._userRepository.getById(
+        userToFollowId
+      );
       if (!userToFollow) {
-        const error: CustomError = new Error("User to follow not found!");
-        error.statusCode = 404;
-        throw error;
+        const result: Result = {
+          statusCode: 404,
+          message: "User to follow not found!",
+          success: false,
+        };
+        return result;
       }
 
-      // if (
-      //   // Check if the user is already following the user
-      //   followingUser.following.includes(
-      //     userToFollow._id as SchemaTypes.ObjectId
-      //   )
-      // ) {
-      //   this._userRepository.unfollowUser(userToFollow._id, followingUser._id);
-      //   message = "User unfollowed!";
-      // }
+      if (
+        // Check if the user is already following the user
+        followingUser.following.includes(
+          userToFollow._id as SchemaTypes.ObjectId
+        )
+      ) {
+        // If yes, unfollow the user
 
+        await this._userRepository.unfollowUser(
+          userToFollow._id,
+          followingUser._id
+        );
+
+        // return res.status(200).json({ message: "User unfollowed!" });
+        const result: Result = {
+          statusCode: 200,
+          message: "User unfollowed!",
+          success: true,
+        };
+        return result;
+      }
       if (
         // Check if the user has already sent a follow request
 
@@ -52,12 +90,17 @@ export class UserService {
         )
       ) {
         // If yes, cancel the follow request
-        userToFollow.followRequests = userToFollow.followRequests.filter(
-          (id) => id.toString() !== followingUser._id.toString()
+        await this._userRepository.deleteFollowRequest(
+          userToFollow._id,
+          followingUser._id
         );
-        await this._userRepository.update(userToFollow._id, userToFollow);
 
-        res.status(200).json({ message: "Follow request cancelled!" });
+        const result: Result = {
+          statusCode: 200,
+          message: "Follow request cancelled!",
+          success: true,
+        };
+        return result;
       } else {
         // If not, send a follow request
 
@@ -66,29 +109,33 @@ export class UserService {
           followingUser._id
         );
 
-        res.status(200).json({ message: "User follow request sent!" });
+        const result: Result = {
+          statusCode: 200,
+          message: "Follow request sent!",
+          success: true,
+        };
+        return result;
       }
     } catch (err) {
       err.message = err.message + "\nFollowing user failed";
-      next(err);
+      throw err;
     }
   };
 
   handleFollowRequest = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) => {
-    isValid(req, next);
-    const followResponse: boolean = req.body.followResponse;
-    const followRequestId: string = req.body.userId;
-
+    followingUserId: string,
+    followRequestId: string,
+    followResponse: boolean
+  ): Promise<Result> => {
     try {
-      const user: UserDoc = await this._userRepository.getById(req.userId);
+      const user: UserDoc = await this._userRepository.getById(followingUserId);
       if (!user) {
-        const error: CustomError = new Error("User not found!");
-        error.statusCode = 404;
-        throw error;
+        const result: Result = {
+          statusCode: 404,
+          message: "User not found!",
+          success: false,
+        };
+        return result;
       }
 
       const followerUser: UserDoc = await this._userRepository.getById(
@@ -97,32 +144,42 @@ export class UserService {
 
       // Check 1: if the user to follow exists
       if (!followerUser) {
-        const error: CustomError = new Error("User to follow not found!");
-        error.statusCode = 404;
-        throw error;
+        const result: Result = {
+          statusCode: 404,
+          message: "User to follow not found!",
+          success: false,
+        };
+        return result;
       }
 
       // Check 2: if the user has a follow request from the follower user
       if (!user.followRequests.includes(followerUser._id)) {
-        const error: CustomError = new Error("No follow request found!");
-        error.statusCode = 404;
-        throw error;
+        const result: Result = {
+          statusCode: 404,
+          message: "No follow request found!",
+          success: false,
+        };
+        return result;
       }
 
       // Check 3: if the user is already following the follower user
       if (user.followers.includes(followerUser._id)) {
-        const error: CustomError = new Error(
-          "Follower is already following you!"
-        );
-        error.statusCode = 400;
-        throw error;
+        const result: Result = {
+          statusCode: 400,
+          message: "Follower is already following you!",
+          success: false,
+        };
+        return result;
       }
 
       // Check 4: if the following user is already following the user
       if (followerUser.following.includes(user._id)) {
-        const error: CustomError = new Error("User is already following you!");
-        error.statusCode = 400;
-        throw error;
+        const result: Result = {
+          statusCode: 400,
+          message: "User is already following you!",
+          success: false,
+        };
+        return result;
       }
 
       // Handle the follow request
@@ -131,23 +188,67 @@ export class UserService {
         // 1st case: Accept the follow request
 
         await this._userRepository.acceptFollowRequest(user, followerUser);
-
-        return res.status(200).json({ message: "Follow request accepted!" });
+        const result: Result = {
+          statusCode: 200,
+          message: "Follow request accepted!",
+          success: true,
+        };
+        return result;
       } else {
         // 2nd case: Decline the follow request
-
         await this._userRepository.declineFollowRequest(user, followerUser);
 
-        return res.status(200).json({ message: "Follow request declined!" });
+        const result: Result = {
+          statusCode: 200,
+          message: "Follow request declined!",
+          success: true,
+        };
+        return result;
       }
     } catch (err) {
       const error: CustomError = new Error(
         err.message || "Handle follow request failed"
       );
       error.statusCode = 500;
-      next(err);
+      throw error;
     }
   };
 
-  updateProfile = async (req: Request, res: Response, next: NextFunction) => {};
+  // TODO: Global exception handling
+  updateProfile = async (
+    userId: string,
+    userForUpdate: UserForUpdate,
+    file?
+  ): Promise<Result> => {
+    try {
+      const user: UserDoc = await this._userRepository.getById(userId);
+
+      // Check 1: if the user exists
+      if (!user) {
+        const result: Result = {
+          statusCode: 404,
+          message: "User not found!",
+          success: false,
+        };
+        return result;
+      }
+
+      const updatedUser: UserDoc = await this._userRepository.update(
+        user._id,
+        userForUpdate
+      );
+
+      const result: Result = {
+        statusCode: 200,
+        message: "Profile updated!",
+        success: true,
+      };
+      return result;
+      // TODO: Check the catch block
+    } catch (err) {
+      const error: CustomError = new Error(err.message);
+      error.statusCode = 500;
+      throw error;
+    }
+  };
 }

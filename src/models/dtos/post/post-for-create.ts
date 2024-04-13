@@ -1,9 +1,7 @@
-import { UserForPost } from "../user/user-for-post";
+import mongoose from "mongoose";
 
 export interface PostForCreate {
-  creator: UserForPost;
+  creator: mongoose.Schema.Types.ObjectId;
   content: { caption: string; mediaUrls: Array<string> };
-  likes: [];
-  comments: [];
   type: string;
 }

@@ -16,5 +16,5 @@ export const handleError = (
     `${req.method} ${req.url} ${status} ${customError.message} ${customError.data}`
   );
 
-  res.status(status).json({ error: customError, message: message });
+  return res.status(status).json({ error: customError, message: message });
 };

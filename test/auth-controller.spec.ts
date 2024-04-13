@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 import { describe, it } from "mocha";
 import { expect } from "chai";
 import sinon from "sinon";
-import User from "../src/models/User";
+import User from "../src/models/mongoose/UserDoc";
 
 const MONGODB_URI = process.env.TEST_CONNECTION_STRING;
 

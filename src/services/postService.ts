@@ -1,15 +1,15 @@
-import { NextFunction, Response } from "express";
-import Request from "../types/Request";
-import { isValid } from "../util/validationHandler";
 import { CustomError } from "../types/error/CustomError";
-import { PostDoc } from "../models/Post";
-import { PostInputDto } from "../types/dtos/post/post-input-dto";
+import { PostDoc } from "../models/mongoose/PostDoc";
+import { PostInputDto } from "../models/dtos/post/post-input-dto";
 import { PostRepository } from "../repositories/post-repository";
-import { UserDoc } from "../models/User";
+import { UserDoc } from "../models/mongoose/UserDoc";
 import { UserRepository } from "../repositories/user-repository";
-import PostList from "../types/dtos/post/post-list";
+import PostList from "../models/dtos/post/post-list";
 import path from "path";
 import fs from "fs";
+import { DataResult } from "../types/result/DataResult";
+import { PostForCreate } from "src/models/dtos/post/post-for-create";
+import mongoose from "mongoose";
 
 export class PostService {
   _postRepository: PostRepository;
@@ -18,30 +18,33 @@ export class PostService {
     this._postRepository = postRepository;
     this._userRepository = userRepository;
   }
-  createPost = async (req: Request, res: Response, next: NextFunction) => {
-    isValid(req, next);
-    const postInput: PostInputDto = req.body;
-
-    console.log("====================================");
-    console.log(req.body);
-    console.log("====================================");
-
+  createPost = async (
+    postInput: PostInputDto,
+    userId: string,
+    files: any
+  ): Promise<DataResult<PostInputDto>> => {
     try {
-      if (req.files.length === 0 && postInput.caption.length === 0) {
-        const error: CustomError = new Error(
-          "Post must have content or media!"
-        );
-        error.statusCode = 422; // Unprocessable Entity
-        throw error;
+      if (files.length === 0 && postInput.caption.length === 0) {
+        const result: DataResult<PostInputDto> = {
+          statusCode: 422,
+          message: "Post must have content or media!",
+          success: false,
+          data: null,
+        };
+        return result;
       }
 
-      if (req.files.values.length > 10) {
-        const error: CustomError = new Error("Too many files!");
-        error.statusCode = 422; // Unprocessable Entity
-        throw error;
+      if (files.values.length > 10) {
+        const result: DataResult<PostInputDto> = {
+          statusCode: 422,
+          message: "Too many files!",
+          success: false,
+          data: null,
+        };
+        return result;
       }
 
-      const sourceUrls: string[] = req.files.map((file) => {
+      const sourceUrls: string[] = files.map((file) => {
         const extension = file.mimetype.split("/")[1];
         const videoExtensions = ["mp4", "mov", "avi", "mkv", "webm", "m4v"];
         const imageExtensions = ["jpg", "jpeg", "png", "gif"];
@@ -53,39 +56,63 @@ export class PostService {
         } else {
           const error: CustomError = new Error("Invalid file type!");
           error.statusCode = 422; // Unprocessable Entity
-
           throw error;
         }
       });
 
-      postInput.mediaUrls = sourceUrls;
+      const postForCreate: PostForCreate = {
+        creator: new mongoose.Schema.Types.ObjectId(userId),
+        content: {
+          caption: postInput.caption,
+          mediaUrls: sourceUrls,
+        },
+        type: "post",
+      };
 
-      const post: PostDoc = await this._postRepository.createPost(postInput);
+      const post: PostDoc = await this._postRepository.createPost(
+        postForCreate
+      );
 
-      res.status(201).json({ message: "Post created!", post: post });
+      const result: DataResult<PostInputDto> = {
+        statusCode: 201,
+        message: "Post created!",
+        success: true,
+        data: postInput,
+      };
+
+      return result;
     } catch (err) {
       err.message = err.message || "Post creation failed";
-      next(err);
+      throw err;
     }
   };
 
-  getPosts = async (req: Request, res: Response, next: NextFunction) => {
+  async getPosts(): Promise<DataResult<Array<PostDoc>>> {
     try {
+      console.log("====================================");
+      console.log("Post Service: getPosts");
+      console.log("====================================");
       const posts: PostDoc[] = await this._postRepository.getAllPosts();
-      return res.status(200).json({ posts: posts });
+
+      const result: DataResult<Array<PostDoc>> = {
+        statusCode: 200,
+        message: "Posts fetched!",
+        success: true,
+        data: posts,
+      };
+
+      return new DataResult<Array<PostDoc>>(200, true, "Posts fetched!", posts);
     } catch (err) {
       err.message = err.message || "Fetching posts failed";
-      next(err);
+      throw err;
     }
-  };
+  }
 
   getFollowingPosts = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) => {
+    userId: string
+  ): Promise<DataResult<Array<PostList>>> => {
     try {
-      const user: UserDoc = await this._userRepository.getById(req.userId);
+      const user: UserDoc = await this._userRepository.getById(userId);
 
       const posts: PostDoc[] = await this._postRepository.getFollowingPosts(
         user._id
@@ -104,9 +131,9 @@ export class PostService {
           });
         });
 
-        console.log('====================================');
+        console.log("====================================");
         console.log("Files: ", files);
-        console.log('====================================');
+        console.log("====================================");
 
         const postForList: PostList = {
           _id: post._id,
@@ -125,10 +152,16 @@ export class PostService {
         return postForList;
       });
 
-      res.status(200).json({ posts: postList });
+      const result: DataResult<Array<PostList>> = {
+        statusCode: 200,
+        message: "Following posts fetched!",
+        success: true,
+        data: postList,
+      };
+      return result;
     } catch (err) {
       err.message = err.message || "Fetching posts failed";
-      next(err);
+      throw err;
     }
   };
 }

@@ -1,37 +1,20 @@
 import mongoose from "mongoose";
+import { Club } from "../entites/Club";
 
-interface ClubDoc extends mongoose.Document {
-  name: string;
-  logoUrl: string;
-  bannerUrl: string;
-  biography: string;
-  status: boolean;
-  president: mongoose.Schema.Types.ObjectId;
-  organizers: mongoose.Schema.Types.ObjectId[];
-  members: mongoose.Schema.Types.ObjectId[];
-  posts: mongoose.Schema.Types.ObjectId[];
-  events: mongoose.Schema.Types.ObjectId[];
-  createdAt: Date;
-}
-
-interface ClubModel extends mongoose.Model<ClubDoc> {}
+export type ClubDoc = mongoose.Document & Club;
 
 const clubSchema = new mongoose.Schema({
   name: {
     type: String,
-    required: true,
   },
   logoUrl: {
     type: String,
-    required: false,
   },
   bannerUrl: {
     type: String,
-    required: false,
   },
   biography: {
     type: String,
-    required: false,
   },
   status: {
     type: Boolean,
@@ -40,7 +23,6 @@ const clubSchema = new mongoose.Schema({
   president: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
-    required: true,
   },
   organizers: [
     {
@@ -77,6 +59,7 @@ const clubSchema = new mongoose.Schema({
   },
 });
 
-export default mongoose.model("Club", clubSchema);
+const clubs: mongoose.Model<ClubDoc> =
+  mongoose.models.clubs || mongoose.model<ClubDoc>("Club", clubSchema);
 
-export { ClubDoc, ClubModel };
+export { clubs };

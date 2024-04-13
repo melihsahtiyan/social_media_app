@@ -2,11 +2,18 @@
   "compilerOptions": {
     "target": "ES6",
     "module": "commonjs",
-    "moduleResolution": "Node",
-    "outDir": "./dist",
-    "esModuleInterop": true,
+    "outDir": "build",
+
     "forceConsistentCasingInFileNames": true,
+
     "strict": false,
+
+    "moduleResolution": "Node",
+    "baseUrl": ".",
+    "esModuleInterop": true,
+
+    "experimentalDecorators": true,
+
     "skipLibCheck": true,
     "moduleDetection": "auto",
     "sourceMap": true,

@@ -1,5 +1,5 @@
-import { CommentDoc, comments } from "../models/Comment";
-import { CommentForCreate } from "../types/dtos/comment/comment-for-create";
+import { CommentDoc, comments } from "../models/mongoose/CommentDoc";
+import { CommentForCreate } from "../models/dtos/comment/comment-for-create";
 
 export class CommentRepository {
   constructor() {}

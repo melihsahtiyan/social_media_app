@@ -1,20 +1,10 @@
 import mongoose from "mongoose";
-import { UserDoc } from "./User";
-import { CommentDoc } from "./Comment";
+import { Post } from "../entites/Post";
 
-export type PostModel = {
-  creator: UserDoc;
-  content: { caption: string; mediaUrls: Array<string> };
-  likes: mongoose.Schema.Types.ObjectId[];
-  createdAt: Date;
-  comments: Array<CommentDoc>;
-  type: string;
-  isUpdated: Boolean;
-};
 
-export type PostDoc = mongoose.Document & PostModel;
+export type PostDoc = mongoose.Document & Post;
 
-const postSchema = new mongoose.Schema({
+export const postSchema = new mongoose.Schema({
   creator: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
@@ -41,7 +31,7 @@ const postSchema = new mongoose.Schema({
   ],
   type: {
     type: String,
-    Enum: ["normal", "poll"],
+    Enum: ["post", "poll"],
   },
   isUpdated: {
     type: Boolean,

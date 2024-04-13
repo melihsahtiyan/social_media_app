@@ -1,9 +1,8 @@
-import { posts, PostDoc } from "../models/Post";
-import { UserDoc, users } from "../models/User";
-import { PostDetails } from "../types/dtos/post/post-details";
-import { PostForCreate } from "../types/dtos/post/post-for-create";
-import { PostInputDto } from "../types/dtos/post/post-input-dto";
-import { UserForPost } from "../types/dtos/user/user-for-post";
+import { posts, PostDoc } from "../models/mongoose/PostDoc";
+import { UserDoc, users } from "../models/mongoose/UserDoc";
+import { PostDetails } from "../models/dtos/post/post-details";
+import { PostForCreate } from "../models/dtos/post/post-for-create";
+import { UserForPost } from "../models/dtos/user/user-for-post";
 import mongoose from "mongoose";
 import { ObjectId } from "mongoose";
 
@@ -12,10 +11,9 @@ export class PostRepository {
 
   async createPost({
     creator,
-    caption,
-    mediaUrls,
+    content: { caption, mediaUrls },
     type,
-  }: PostInputDto): Promise<PostDoc> {
+  }: PostForCreate): Promise<PostDoc> {
     const postForCreate: PostForCreate = {
       creator,
       content: {
@@ -23,8 +21,6 @@ export class PostRepository {
         mediaUrls,
       },
       type,
-      likes: [],
-      comments: [],
     };
     return await posts.create(postForCreate);
   }

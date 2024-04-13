@@ -13,7 +13,7 @@ import fs from "fs";
 
 fs.mkdirSync(path.join(__dirname, "../media/images"), { recursive: true });
 fs.mkdirSync(path.join(__dirname, "../media/videos"), { recursive: true });
-fs.mkdirSync(path.join(__dirname, "../media/profilePictures"), { 
+fs.mkdirSync(path.join(__dirname, "../media/profilePictures"), {
   recursive: true,
 });
 
@@ -45,10 +45,10 @@ app.use(
   "/auth",
   (req: Request, res: Response, next: NextFunction) => {
     logger.info(`Path: ${req.path}
-  Method: ${req.method}
-  IP: ${req.ip}
-  Request received at ${new Date().toISOString()}
-  ---------------------------------------------------------`);
+    Method: ${req.method}
+    IP: ${req.ip}
+    Request received at ${new Date().toISOString()}
+    ---------------------------------------------------------`);
     next();
   },
   authRoutes

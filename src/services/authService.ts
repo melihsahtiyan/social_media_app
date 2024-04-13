@@ -1,15 +1,16 @@
 import { NextFunction, Response } from "express";
 import Request from "../types/Request";
 import { isValid } from "../util/validationHandler";
-import UserForRegister from "../types/dtos/user/user-for-register";
+import UserForRegister from "../models/dtos/user/user-for-register";
 import * as nodemailer from "nodemailer";
 import bcrypt from "bcryptjs";
 import { CustomError } from "../types/error/CustomError";
-import UserForLogin from "../types/dtos/user/user-for-login";
-import { UserDoc, users } from "../models/User";
+import UserForLogin from "../models/dtos/user/user-for-login";
+import { UserDoc } from "../models/mongoose/UserDoc";
 import { UserRepository } from "../repositories/user-repository";
-import UserForCreate from "../types/dtos/user/user-for-create";
-import jwt from "jsonwebtoken";
+import UserForCreate from "../models/dtos/user/user-for-create";
+import { Result } from "../types/result/Result";
+import { DataResult } from "../types/result/DataResult";
 
 const transporter: nodemailer.Transporter = nodemailer.createTransport({
   service: "gmail",
@@ -19,15 +20,12 @@ const transporter: nodemailer.Transporter = nodemailer.createTransport({
   },
 });
 
-export class authService {
+export class AuthService {
   _userRepository: UserRepository;
   constructor(userRepository: UserRepository) {
     this._userRepository = userRepository;
   }
-  register = async (req: Request, res: Response, next: NextFunction) => {
-    isValid(req, next);
-    const userToRegister: UserForRegister = req.body;
-
+  register = async (userToRegister: UserForRegister): Promise<Result> => {
     // TODO: profile picture addition will be on the update profile part
     // const profilePicture: string = req.file
     //   ? "/media/profilePictures/" + req.file.filename
@@ -40,9 +38,13 @@ export class authService {
         new Date(userToRegister.birthDate).getFullYear();
 
       if (age < 18) {
-        const error: CustomError = new Error("You must be 18 years old");
-        error.statusCode = 400; // Bad Request
-        throw error;
+        const result: Result = {
+          statusCode: 400,
+          message: "You must be 18 years old",
+          success: false,
+        };
+
+        return result;
       }
       // Checking e-mail whether it exists.
       const userToCheck = await this._userRepository.getByEmail(
@@ -50,9 +52,13 @@ export class authService {
       );
 
       if (userToCheck !== null) {
-        const error: CustomError = new Error("User already exists");
-        error.statusCode = 409; // Conflict
-        throw error;
+        const result: Result = {
+          statusCode: 409,
+          message: "User already exists",
+          success: false,
+        };
+
+        return result;
       }
 
       const hashedPassword = await bcrypt.hash(userToRegister.password, 10);
@@ -62,53 +68,71 @@ export class authService {
         password: hashedPassword,
       };
 
-      const user = this._userRepository.create(userToCreate);
+      const createdUser: UserDoc = await this._userRepository.create(
+        userToCreate
+      );
 
-      return res.status(201).json({ message: "User created" });
+      const result: Result = {
+        statusCode: 201,
+        message: "User registered successfully",
+        success: true,
+      };
+
+      return result;
     } catch (err) {
       const error: CustomError = new Error(err.message);
       error.statusCode = 500; // Internal Server Error
-      next(error);
+      throw error;
     }
   };
 
-  login = async (req: Request, res: Response, next: NextFunction) => {
-    isValid(req, next);
-    const userToLogin: UserForLogin = req.body;
-
+  login = async (userToLogin: UserForLogin): Promise<DataResult<String>> => {
     try {
       const user: UserDoc = await this._userRepository.getByEmail(
         userToLogin.email
       );
       if (!user) {
-        const error: CustomError = new Error("Email or password is incorrect");
-        error.statusCode = 404; // Not Found
-        throw error;
+        const result: DataResult<String> = {
+          statusCode: 404,
+          message: "Email or password is incorrect",
+          success: false,
+        };
+        return result;
       }
 
       const isEqual = await bcrypt.compare(userToLogin.password, user.password);
 
       if (!isEqual) {
-        const error: CustomError = new Error("Email or password is incorrect");
-        error.statusCode = 401; // Unauthorized
-        throw error;
+        const result: DataResult<String> = {
+          statusCode: 401,
+          message: "Email or password is incorrect",
+          success: false,
+        };
+        return result;
       }
 
       if (!user.status.emailVerification) {
-        const error: CustomError = new Error(
-          "Email is not verified! You must verify your email!!"
-        );
-        error.statusCode = 400; // Bad Request
-        throw error;
+        const result: DataResult<String> = {
+          statusCode: 400,
+          message: "Email is not verified! You must verify your email!!",
+          success: false,
+        };
+        return result;
       }
 
       const token = await this._userRepository.generateJsonWebToken(user._id);
 
-      return res.status(200).json({ message: "Token generated", token });
+      const result: DataResult<String> = {
+        statusCode: 200,
+        message: "Token generated",
+        data: token,
+        success: true,
+      };
+      return result;
     } catch (err) {
       const error: CustomError = new Error(err.message);
       error.statusCode = err.statusCode || 500;
-      next(error);
+      throw error;
     }
   };
 

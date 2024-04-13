@@ -4,8 +4,6 @@ interface UserForRegister {
   birthDate: Date;
   email: string;
   password: string;
-  university: string;
-  department: string;
 }
 
 export default UserForRegister;

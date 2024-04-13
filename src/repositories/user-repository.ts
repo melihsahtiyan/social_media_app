@@ -1,8 +1,9 @@
 import mongoose from "mongoose";
-import { UserDoc, users } from "../models/User";
-import UserForCreate from "../types/dtos/user/user-for-create";
-import { UserForUpdate } from "../types/dtos/user/user-for-update";
+import { UserDoc, users } from "../models/mongoose/UserDoc";
+import UserForCreate from "../models/dtos/user/user-for-create";
+import { UserForUpdate } from "../models/dtos/user/user-for-update";
 import jwt from "jsonwebtoken";
+import { UserForPost } from "src/models/dtos/user/user-for-post";
 
 export class UserRepository {
   constructor() {}
@@ -14,6 +15,10 @@ export class UserRepository {
       following: [],
       posts: [],
     });
+  }
+
+  async getAll(): Promise<UserDoc[]> {
+    return await users.find();
   }
 
   async getById(id: string): Promise<UserDoc> {
@@ -61,15 +66,28 @@ export class UserRepository {
     return await userToFollow.save();
   }
 
+  async deleteFollowRequest(
+    userToFollowId: mongoose.Schema.Types.ObjectId,
+    followerId: mongoose.Schema.Types.ObjectId
+  ): Promise<UserDoc> {
+    const userToFollow: UserDoc = (await users.findById(
+      userToFollowId
+    )) as UserDoc;
+
+    userToFollow.followRequests = userToFollow.followRequests.filter(
+      (request) => request.toString() !== followerId.toString()
+    );
+
+    return await userToFollow.save();
+  }
+
   async acceptFollowRequest(
     userToFollow: UserDoc,
     followerUser: UserDoc
   ): Promise<UserDoc> {
     if (userToFollow.followRequests.includes(followerUser._id)) {
-      userToFollow.followRequests = userToFollow.followRequests.filter(
-        (request: mongoose.Schema.Types.ObjectId) =>
-          request.toString() !== followerUser._id.toString()
-      );
+      this.deleteFollowRequest(userToFollow._id, followerUser._id);
+
       userToFollow.followers.push(
         followerUser._id as mongoose.Schema.Types.ObjectId
       );
@@ -78,9 +96,9 @@ export class UserRepository {
       );
     }
 
-    await this.update(followerUser._id, followerUser);
+    await userToFollow.save();
 
-    return await this.update(userToFollow._id, userToFollow);
+    return await followerUser.save();
   }
 
   async declineFollowRequest(
@@ -88,11 +106,9 @@ export class UserRepository {
     followerUser: UserDoc
   ): Promise<UserDoc> {
     if (userToFollow.followRequests.includes(followerUser._id)) {
-      userToFollow.followRequests = userToFollow.followRequests.filter(
-        (request: mongoose.Schema.Types.ObjectId) =>
-          request.toString() !== followerUser._id.toString()
-      );
+      this.deleteFollowRequest(userToFollow._id, followerUser._id);
     }
+
     await userToFollow.save();
     return await followerUser.save();
   }
@@ -105,11 +121,13 @@ export class UserRepository {
     const followerUser: UserDoc = await users.findById(followerId);
 
     userToUnfollow.followers = userToUnfollow.followers.filter(
-      (follower) => follower !== followerUser._id
+      (follower: mongoose.Schema.Types.ObjectId) =>
+        follower.toString() !== followerUser._id.toString()
     );
 
     followerUser.following = followerUser.following.filter(
-      (following) => following !== userToUnfollow._id
+      (following: mongoose.Schema.Types.ObjectId) =>
+        following.toString() !== userToUnfollow._id.toString()
     );
 
     await userToUnfollow.save();

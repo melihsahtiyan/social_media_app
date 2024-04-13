@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { CommentDoc } from "../../../models/Comment";
+import { CommentDoc } from "../../mongoose/CommentDoc";
 
 interface PostList {
   _id: mongoose.Schema.Types.ObjectId;

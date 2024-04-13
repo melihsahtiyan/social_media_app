@@ -1,10 +1,12 @@
 import { Router } from "express";
 import { body } from "express-validator";
-import { authService } from "../services/authService";
+import { AuthService } from "../services/authService";
 import { UserRepository } from "../repositories/user-repository";
+import { AuthController } from "../controllers/authController";
 
 const router: Router = Router();
-const service = new authService(new UserRepository());
+const authService = new AuthService(new UserRepository());
+const controller = new AuthController(authService);
 
 router.put(
   "/register",
@@ -38,7 +40,7 @@ router.put(
       .isEmpty()
       .withMessage("Department is required"),
   ],
-  service.register
+  controller.register
 );
 
 router.post(
@@ -50,19 +52,19 @@ router.post(
       .isLength({ min: 8, max: 20 })
       .withMessage("Password must be between 8 and 20 characters"),
   ],
-  service.login
+  controller.login
 );
 
-router.post(
-  "/verify-email",
-  [
-    body("email").isEmail().withMessage("Email must be valid"),
-    // body("verificationCode")
-    // .trim()
-    // .isLength({ min: 8, max: 8 })
-    // .withMessage("Verification code must be 6 characters"),
-  ],
-  service.verifyEmail
-);
+// router.post(
+//   "/verify-email",
+//   [
+//     body("email").isEmail().withMessage("Email must be valid"),
+//     // body("verificationCode")
+//     // .trim()
+//     // .isLength({ min: 8, max: 8 })
+//     // .withMessage("Verification code must be 6 characters"),
+//   ],
+//   controller.verifyEmail
+// );
 
 export default router;

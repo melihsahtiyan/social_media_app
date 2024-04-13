@@ -1,24 +1,15 @@
 import mongoose from "mongoose";
-import { posts, PostModel } from "./Post";
+import { postSchema } from "./PostDoc";
+import { Poll } from "../entites/Poll";
 
-type PollModel = PostModel & {
-  options: { optionName: Array<String>; totalVotes: Number }[];
-  votes: [
-    {
-      voter: mongoose.Schema.Types.ObjectId;
-      option: String;
-    }
-  ];
-  totalVotes: Number;
-  expiresAt: Date;
-  createdAt: Date;
-};
-
-export type PollDoc = mongoose.Document & PollModel;
+export type PollDoc = mongoose.Document & Poll;
 
 const pollSchema = new mongoose.Schema<PollDoc>(
   {
-    ...posts,
+    ...postSchema,
+    question: {
+      type: String,
+    },
     options: [
       {
         optionName: String,

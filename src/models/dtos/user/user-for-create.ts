@@ -4,8 +4,6 @@ interface UserForCreate {
   birthDate: Date;
   email: string;
   password: string;
-  university: string;
-  department: string;
   profilePicture?: string;
 }
 

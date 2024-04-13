@@ -4,11 +4,13 @@ import { fileUpload } from "../util/fileUtil";
 import isAuth from "../middleware/is-auth";
 import { UserRepository } from "../repositories/user-repository";
 import { UserService } from "../services/userService";
+import { UsersContoller } from "../controllers/usersController";
 
 const router = express.Router();
-const service = new UserService(new UserRepository());
+const userService = new UserService(new UserRepository());
+const controller = new UsersContoller(userService);
 
-router.put("/updateProfile", fileUpload, isAuth, service.updateProfile);
+router.put("/updateProfile", fileUpload, isAuth, controller.updateProfile);
 
 router.put(
   "/follow",
@@ -20,7 +22,7 @@ router.put(
       .withMessage("User ID cannot be empty!"),
   ],
   isAuth,
-  service.followUser
+  controller.followUser
 );
 
 router.put(
@@ -30,7 +32,9 @@ router.put(
     body("followResponse").isBoolean().not().isEmpty(),
   ],
   isAuth,
-  service.handleFollowRequest
+  controller.handleFollowRequest
 );
+
+router.get("/getAllUsers", controller.getAllUsers);
 
 export default router;
