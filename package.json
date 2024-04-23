@@ -1,4 +1,32 @@
 {
+  "name": "social_media_app",
+  "version": "1.0.0",
+  "main": "/src/app.ts",
+  "scripts": {
+    "test": "mocha -r ts-node/register test/**.spec.ts",
+    "start": "nodemon"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "body-parser": "^1.20.2",
+    "express": "^4.18.2",
+    "express-validator": "^7.0.1",
+    "inversify": "^6.0.2",
+    "inversify-express-utils": "^6.4.6",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.0.4",
+    "multer": "^1.4.5-lts.1",
+    "nodemailer": "^6.9.8",
+    "reflect-metadata": "^0.2.2",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.0",
+    "tsoa": "^6.2.0",
+    "uuidv4": "^6.2.13",
+    "winston": "^3.11.0"
+  },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.3",
     "@types/body-parser": "^1.19.2",
@@ -22,30 +50,5 @@
     "sinon": "^17.0.1",
     "ts-node": "^10.9.1",
     "typescript": "^5.3.3"
-  },
-  "name": "social_media_app",
-  "version": "1.0.0",
-  "main": "/src/app.ts",
-  "scripts": {
-    "test": "mocha -r ts-node/register test/**.spec.ts",
-    "start": "nodemon"
-  },
-  "author": "",
-  "license": "ISC",
-  "description": "",
-  "dependencies": {
-    "bcryptjs": "^2.4.3",
-    "body-parser": "^1.20.2",
-    "express": "^4.18.2",
-    "express-validator": "^7.0.1",
-    "jsonwebtoken": "^9.0.2",
-    "mongoose": "^8.0.4",
-    "multer": "^1.4.5-lts.1",
-    "nodemailer": "^6.9.8",
-    "swagger-jsdoc": "^6.2.8",
-    "swagger-ui-express": "^5.0.0",
-    "tsoa": "^6.2.0",
-    "uuidv4": "^6.2.13",
-    "winston": "^3.11.0"
   }
 }

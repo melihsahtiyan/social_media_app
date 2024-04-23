@@ -93,7 +93,7 @@ const fileFilter = (req: Request, file, cb) => {
 export const sourceUpload = multer({
   storage: storage,
   fileFilter: fileFilter,
-}).array("sources", 10);
+}).array("sources");
 
 export const clearImage = (filePath) => {
   filePath = path.join(__dirname, "..", filePath);

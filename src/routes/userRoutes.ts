@@ -1,40 +1,58 @@
-import express from "express";
+import { Express, NextFunction, Response } from "express";
 import { body } from "express-validator";
 import { fileUpload } from "../util/fileUtil";
 import isAuth from "../middleware/is-auth";
-import { UserRepository } from "../repositories/user-repository";
-import { UserService } from "../services/userService";
-import { UsersContoller } from "../controllers/usersController";
+import { UserController } from "../controllers/userController";
+import container from "../util/ioc/iocContainer";
+import Request from "../types/Request";
+import { logRequest } from "../util/loggingHandler";
 
-const router = express.Router();
-const userService = new UserService(new UserRepository());
-const controller = new UsersContoller(userService);
+const controller: UserController =
+  container.get<UserController>(UserController);
 
-router.put("/updateProfile", fileUpload, isAuth, controller.updateProfile);
+function routes(app: Express) {
+  app.put(
+    "/user/updateProfile",
+    fileUpload,
+    isAuth,
+    (req: Request, res: Response, next: NextFunction) => {
+      controller.updateProfile(req, res, next);
+    }
+  );
 
-router.put(
-  "/follow",
-  [
-    body("userId")
-      .isAlphanumeric()
-      .not()
-      .isEmpty()
-      .withMessage("User ID cannot be empty!"),
-  ],
-  isAuth,
-  controller.followUser
-);
+  app.put(
+    "/user/follow",
+    [
+      body("userId")
+        .isAlphanumeric()
+        .not()
+        .isEmpty()
+        .withMessage("User ID cannot be empty!"),
+    ],
+    isAuth,
+    logRequest,
+    (req: Request, res: Response, next: NextFunction) => {
+      controller.followUser(req, res, next);
+    }
+  );
 
-router.put(
-  "/handleFollowRequest",
-  [
-    body("userId").isAlphanumeric().not().isEmpty(),
-    body("followResponse").isBoolean().not().isEmpty(),
-  ],
-  isAuth,
-  controller.handleFollowRequest
-);
+  app.put(
+    "/user/handleFollowRequest",
+    [
+      body("userId").isAlphanumeric().not().isEmpty(),
+      body("followResponse").isBoolean().not().isEmpty(),
+    ],
+    isAuth,
+    (req: Request, res: Response, next: NextFunction) => {
+      controller.handleFollowRequest(req, res, next);
+    }
+  );
 
-router.get("/getAllUsers", controller.getAllUsers);
-
-export default router;
+  app.get(
+    "/user/getAllUsers",
+    (req: Request, res: Response, next: NextFunction) => {
+      controller.getAllUsers(req, res, next);
+    }
+  );
+}
+export default routes;

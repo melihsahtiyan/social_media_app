@@ -1,4 +1,4 @@
-import { CommentDoc, comments } from "../models/mongoose/CommentDoc";
+import { CommentDoc, comments } from "../models/schemas/comment.schema";
 import { CommentForCreate } from "../models/dtos/comment/comment-for-create";
 
 export class CommentRepository {

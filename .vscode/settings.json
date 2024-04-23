@@ -1,0 +1,5 @@
+{
+    "typescript.referencesCodeLens.showOnAllFunctions": false,
+    "editor.suggest.showReferences": false,
+    "typescript.referencesCodeLens.enabled": true
+}

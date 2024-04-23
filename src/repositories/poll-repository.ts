@@ -1,4 +1,4 @@
-import { PollDoc, polls } from "../models/mongoose/PollDoc";
+import { PollDoc, polls } from "../models/schemas/poll.schema";
 import { PollDetails } from "../models/dtos/post/poll/poll-details";
 import { PollForCreate } from "../models/dtos/post/poll/poll-for-create";
 import { PageableModel } from "../types/pageable-model";

@@ -1,4 +1,4 @@
-import { UserDoc } from "../../../mongoose/UserDoc";
+import { UserDoc } from "../../../schemas/user.schema";
 
 export type PollForCreate = {
   creator: UserDoc;

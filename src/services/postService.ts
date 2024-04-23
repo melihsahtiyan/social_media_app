@@ -1,30 +1,37 @@
+import "reflect-metadata";
+import { inject, injectable } from "inversify";
 import { CustomError } from "../types/error/CustomError";
-import { PostDoc } from "../models/mongoose/PostDoc";
+import { PostDoc } from "../models/schemas/post.schema";
 import { PostInputDto } from "../models/dtos/post/post-input-dto";
 import { PostRepository } from "../repositories/post-repository";
-import { UserDoc } from "../models/mongoose/UserDoc";
+import { UserDoc } from "../models/schemas/user.schema";
 import { UserRepository } from "../repositories/user-repository";
 import PostList from "../models/dtos/post/post-list";
-import path from "path";
-import fs from "fs";
 import { DataResult } from "../types/result/DataResult";
-import { PostForCreate } from "src/models/dtos/post/post-for-create";
+import { PostForCreate } from "../models/dtos/post/post-for-create";
 import mongoose from "mongoose";
+import IPostService from "../types/services/IPostService";
+import TYPES from "../util/ioc/types";
 
-export class PostService {
-  _postRepository: PostRepository;
-  _userRepository: UserRepository;
-  constructor(postRepository: PostRepository, userRepository: UserRepository) {
+@injectable()
+export class PostService implements IPostService {
+  private _postRepository: PostRepository;
+  private _userRepository: UserRepository;
+  constructor(
+    @inject(PostRepository) postRepository: PostRepository,
+    @inject(UserRepository) userRepository: UserRepository
+  ) {
     this._postRepository = postRepository;
     this._userRepository = userRepository;
   }
-  createPost = async (
+
+  async createPost(
     postInput: PostInputDto,
     userId: string,
-    files: any
-  ): Promise<DataResult<PostInputDto>> => {
+    files?: Array<Express.Multer.File>
+  ): Promise<DataResult<PostInputDto>> {
     try {
-      if (files.length === 0 && postInput.caption.length === 0) {
+      if (!files && !postInput.caption) {
         const result: DataResult<PostInputDto> = {
           statusCode: 422,
           message: "Post must have content or media!",
@@ -33,35 +40,40 @@ export class PostService {
         };
         return result;
       }
+      let sourceUrls: string[] = [];
 
-      if (files.values.length > 10) {
-        const result: DataResult<PostInputDto> = {
-          statusCode: 422,
-          message: "Too many files!",
-          success: false,
-          data: null,
-        };
-        return result;
+      if (files) {
+        if (files.length > 10) {
+          const result: DataResult<PostInputDto> = {
+            statusCode: 422,
+            message: "Too many files!",
+            success: false,
+            data: null,
+          };
+          return result;
+        }
+
+        if (files.length === 0 && postInput.caption.length === 0) {
+          sourceUrls = files.map((file) => {
+            const extension = file.mimetype.split("/")[1];
+            const videoExtensions = ["mp4", "mov", "avi", "mkv", "webm", "m4v"];
+            const imageExtensions = ["jpg", "jpeg", "png", "gif"];
+
+            if (videoExtensions.includes(extension)) {
+              return "media/videos/" + file.filename;
+            } else if (imageExtensions.includes(extension)) {
+              return "media/images/" + file.filename;
+            } else {
+              const error: CustomError = new Error("Invalid file type!");
+              error.statusCode = 422; // Unprocessable Entity
+              throw error;
+            }
+          });
+        }
       }
 
-      const sourceUrls: string[] = files.map((file) => {
-        const extension = file.mimetype.split("/")[1];
-        const videoExtensions = ["mp4", "mov", "avi", "mkv", "webm", "m4v"];
-        const imageExtensions = ["jpg", "jpeg", "png", "gif"];
-
-        if (videoExtensions.includes(extension)) {
-          return "media/videos/" + file.filename;
-        } else if (imageExtensions.includes(extension)) {
-          return "media/images/" + file.filename;
-        } else {
-          const error: CustomError = new Error("Invalid file type!");
-          error.statusCode = 422; // Unprocessable Entity
-          throw error;
-        }
-      });
-
       const postForCreate: PostForCreate = {
-        creator: new mongoose.Schema.Types.ObjectId(userId),
+        creator: new mongoose.Types.ObjectId(userId),
         content: {
           caption: postInput.caption,
           mediaUrls: sourceUrls,
@@ -85,7 +97,7 @@ export class PostService {
       err.message = err.message || "Post creation failed";
       throw err;
     }
-  };
+  }
 
   async getPosts(): Promise<DataResult<Array<PostDoc>>> {
     try {
@@ -108,9 +120,7 @@ export class PostService {
     }
   }
 
-  getFollowingPosts = async (
-    userId: string
-  ): Promise<DataResult<Array<PostList>>> => {
+  async getAllFollowing(userId: string): Promise<DataResult<Array<PostList>>> {
     try {
       const user: UserDoc = await this._userRepository.getById(userId);
 
@@ -119,28 +129,12 @@ export class PostService {
       );
 
       const postList: PostList[] = posts.map((post) => {
-        const files: File[] = [];
-
-        post.content.mediaUrls.map((url: string) => {
-          fs.readFile(path.join(__dirname, "../", url), (err, data) => {
-            if (err) {
-              throw err;
-            }
-            const result: File = new File([data], url);
-            return files.push(result);
-          });
-        });
-
-        console.log("====================================");
-        console.log("Files: ", files);
-        console.log("====================================");
-
         const postForList: PostList = {
           _id: post._id,
-          creator: post.creator._id,
+          creator: post.creator,
           content: {
             caption: post.content.caption,
-            files: files,
+            files: post.content.mediaUrls,
           },
           type: post.type,
           likes: post.likes,
@@ -148,7 +142,6 @@ export class PostService {
           createdAt: post.createdAt,
           isUpdated: post.isUpdated,
         };
-
         return postForList;
       });
 
@@ -163,5 +156,5 @@ export class PostService {
       err.message = err.message || "Fetching posts failed";
       throw err;
     }
-  };
+  }
 }

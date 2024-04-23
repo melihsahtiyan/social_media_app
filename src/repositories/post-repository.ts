@@ -1,12 +1,15 @@
-import { posts, PostDoc } from "../models/mongoose/PostDoc";
-import { UserDoc, users } from "../models/mongoose/UserDoc";
+import "reflect-metadata";
+import { injectable } from "inversify";
+import { posts, PostDoc } from "../models/schemas/post.schema";
+import { UserDoc, users } from "../models/schemas/user.schema";
 import { PostDetails } from "../models/dtos/post/post-details";
 import { PostForCreate } from "../models/dtos/post/post-for-create";
 import { UserForPost } from "../models/dtos/user/user-for-post";
 import mongoose from "mongoose";
-import { ObjectId } from "mongoose";
+import IPostRepository from "../types/repositories/IPostRepository";
 
-export class PostRepository {
+@injectable()
+export class PostRepository implements IPostRepository {
   constructor() {}
 
   async createPost({
@@ -22,7 +25,8 @@ export class PostRepository {
       },
       type,
     };
-    return await posts.create(postForCreate);
+    
+    return await posts.create({...postForCreate});
   }
 
   async getAllPosts(pages?: number): Promise<PostDoc[]> {
@@ -35,11 +39,10 @@ export class PostRepository {
 
   async getPostDetails(id: string): Promise<PostDetails> {
     const postForDetail: PostDoc = (await posts.findById(id)) as PostDoc;
+    const creator: UserForPost = await users.findById(postForDetail.creator);
     const postDetails: PostDetails = {
       _id: postForDetail._id,
-      creator: {
-        ...(postForDetail.creator as UserForPost),
-      },
+      creator: creator,
       content: {
         caption: postForDetail.content.caption,
         mediaUrls: postForDetail.content.mediaUrls,

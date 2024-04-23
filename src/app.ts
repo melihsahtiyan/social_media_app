@@ -10,6 +10,7 @@ import userRoutes from "./routes/userRoutes";
 import { handleError } from "./middleware/errorHandlingMiddleware";
 import logger from "./util/loggingHandler";
 import fs from "fs";
+import swaggerDocs from "./util/swagger";
 
 fs.mkdirSync(path.join(__dirname, "../media/images"), { recursive: true });
 fs.mkdirSync(path.join(__dirname, "../media/videos"), { recursive: true });
@@ -42,31 +43,22 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 });
 
 app.use(
-  "/auth",
-  (req: Request, res: Response, next: NextFunction) => {
-    logger.info(`Path: ${req.path}
-    Method: ${req.method}
-    IP: ${req.ip}
-    Request received at ${new Date().toISOString()}
-    ---------------------------------------------------------`);
-    next();
-  },
-  authRoutes
-);
-app.use("/post", postRoutes);
-app.use("/user", userRoutes);
-
-app.use(
   (error: CustomError, req: Request, res: Response, next: NextFunction) => {
     handleError(error, req, res, next);
   }
 );
+authRoutes(app);
+userRoutes(app);
+postRoutes(app);
 
 mongoose
   .connect(process.env.MONGO_URL)
   .then(() => {
-    app.listen({ port: 8080 });
-    console.log("Server running, MongoDB connected");
+    app.listen({ port: 8080 }, () => {
+      console.log("Server running, MongoDB connected");
+
+      swaggerDocs(app, 8080);
+    });
   })
   .catch((err) => {
     const error: CustomError = new Error(err.message + " | MongoDB connection");

@@ -1,21 +1,25 @@
+import "reflect-metadata";
+import { inject, injectable } from "inversify";
 import { CustomError } from "../types/error/CustomError";
-import { UserDoc } from "../models/mongoose/UserDoc";
+import { UserDoc } from "../models/schemas/user.schema";
 import SchemaTypes from "mongoose";
 import { UserRepository } from "../repositories/user-repository";
 import mongoose from "mongoose";
 import { UserForUpdate } from "../models/dtos/user/user-for-update";
 import { Result } from "../types/result/Result";
-import { DataResult } from "src/types/result/DataResult";
+import { DataResult } from "../types/result/DataResult";
+import IUserService from "../types/services/IUserService";
 
-export class UserService {
-  _userRepository: UserRepository;
-  constructor(userRepository: UserRepository) {
-    this._userRepository = userRepository;
+@injectable()
+export class UserService implements IUserService {
+  public userRepository: UserRepository;
+  constructor(@inject(UserRepository) userRepository: UserRepository) {
+    this.userRepository = userRepository;
   }
 
-  getAllUsers = async (): Promise<DataResult<Array<UserDoc>>> => {
+  async getAllUsers(): Promise<DataResult<Array<UserDoc>>> {
     try {
-      const users: Array<UserDoc> = await this._userRepository.getAll();
+      const users: Array<UserDoc> = await this.userRepository.getAll();
       const result: DataResult<Array<UserDoc>> = {
         statusCode: 200,
         message: "Users fetched successfully",
@@ -28,14 +32,22 @@ export class UserService {
       error.statusCode = 500;
       throw error;
     }
-  };
+  }
 
-  followUser = async (
-    followingUserId: string,
-    userToFollowId: string
-  ): Promise<Result> => {
+  async followUser(
+    userToFollowId: string,
+    followingUserId: string
+  ): Promise<Result> {
     try {
-      const followingUser: UserDoc = await this._userRepository.getById(
+      if (userToFollowId === followingUserId) {
+        const errorResult: Result = {
+          statusCode: 400,
+          message: "You cannot follow yourself!",
+          success: false,
+        };
+        return errorResult;
+      }
+      const followingUser: UserDoc = await this.userRepository.getById(
         followingUserId
       );
 
@@ -49,7 +61,7 @@ export class UserService {
         return result;
       }
 
-      const userToFollow: UserDoc = await this._userRepository.getById(
+      const userToFollow: UserDoc = await this.userRepository.getById(
         userToFollowId
       );
       if (!userToFollow) {
@@ -69,7 +81,7 @@ export class UserService {
       ) {
         // If yes, unfollow the user
 
-        await this._userRepository.unfollowUser(
+        await this.userRepository.unfollowUser(
           userToFollow._id,
           followingUser._id
         );
@@ -82,15 +94,14 @@ export class UserService {
         };
         return result;
       }
+      // Check if the user has already sent a follow request
       if (
-        // Check if the user has already sent a follow request
-
         userToFollow.followRequests.includes(
           followingUser._id as mongoose.Schema.Types.ObjectId
         )
       ) {
         // If yes, cancel the follow request
-        await this._userRepository.deleteFollowRequest(
+        await this.userRepository.deleteFollowRequest(
           userToFollow._id,
           followingUser._id
         );
@@ -104,7 +115,7 @@ export class UserService {
       } else {
         // If not, send a follow request
 
-        await this._userRepository.sendFollowRequest(
+        await this.userRepository.sendFollowRequest(
           userToFollow._id,
           followingUser._id
         );
@@ -120,16 +131,18 @@ export class UserService {
       err.message = err.message + "\nFollowing user failed";
       throw err;
     }
-  };
+  }
 
-  handleFollowRequest = async (
+  async handleFollowRequest(
+    userToFollowId: string,
     followingUserId: string,
-    followRequestId: string,
     followResponse: boolean
-  ): Promise<Result> => {
+  ): Promise<Result> {
     try {
-      const user: UserDoc = await this._userRepository.getById(followingUserId);
-      if (!user) {
+      const userToFollow: UserDoc = await this.userRepository.getById(
+        userToFollowId
+      );
+      if (!userToFollow) {
         const result: Result = {
           statusCode: 404,
           message: "User not found!",
@@ -138,22 +151,22 @@ export class UserService {
         return result;
       }
 
-      const followerUser: UserDoc = await this._userRepository.getById(
-        followRequestId
+      const followingUser: UserDoc = await this.userRepository.getById(
+        followingUserId
       );
 
       // Check 1: if the user to follow exists
-      if (!followerUser) {
+      if (!followingUser) {
         const result: Result = {
           statusCode: 404,
-          message: "User to follow not found!",
+          message: "You must be logged in!",
           success: false,
         };
         return result;
       }
 
       // Check 2: if the user has a follow request from the follower user
-      if (!user.followRequests.includes(followerUser._id)) {
+      if (!userToFollow.followRequests.includes(followingUser._id)) {
         const result: Result = {
           statusCode: 404,
           message: "No follow request found!",
@@ -162,8 +175,8 @@ export class UserService {
         return result;
       }
 
-      // Check 3: if the user is already following the follower user
-      if (user.followers.includes(followerUser._id)) {
+      // Check 3: if the user has already following user to follow
+      if (userToFollow.followers.includes(followingUser._id)) {
         const result: Result = {
           statusCode: 400,
           message: "Follower is already following you!",
@@ -172,8 +185,8 @@ export class UserService {
         return result;
       }
 
-      // Check 4: if the following user is already following the user
-      if (followerUser.following.includes(user._id)) {
+      // Check 4: if the following user is already following the user to follow
+      if (followingUser.following.includes(userToFollow._id)) {
         const result: Result = {
           statusCode: 400,
           message: "User is already following you!",
@@ -187,7 +200,10 @@ export class UserService {
       if (followResponse) {
         // 1st case: Accept the follow request
 
-        await this._userRepository.acceptFollowRequest(user, followerUser);
+        await this.userRepository.acceptFollowRequest(
+          userToFollow,
+          followingUser
+        );
         const result: Result = {
           statusCode: 200,
           message: "Follow request accepted!",
@@ -196,11 +212,14 @@ export class UserService {
         return result;
       } else {
         // 2nd case: Decline the follow request
-        await this._userRepository.declineFollowRequest(user, followerUser);
+        await this.userRepository.rejectFollowRequest(
+          userToFollow,
+          followingUser
+        );
 
         const result: Result = {
           statusCode: 200,
-          message: "Follow request declined!",
+          message: "Follow request rejected!",
           success: true,
         };
         return result;
@@ -212,16 +231,16 @@ export class UserService {
       error.statusCode = 500;
       throw error;
     }
-  };
+  }
 
   // TODO: Global exception handling
-  updateProfile = async (
+  async updateProfile(
     userId: string,
     userForUpdate: UserForUpdate,
-    file?
-  ): Promise<Result> => {
+    file?: Express.Multer.File
+  ): Promise<Result> {
     try {
-      const user: UserDoc = await this._userRepository.getById(userId);
+      const user: UserDoc = await this.userRepository.getById(userId);
 
       // Check 1: if the user exists
       if (!user) {
@@ -233,7 +252,7 @@ export class UserService {
         return result;
       }
 
-      const updatedUser: UserDoc = await this._userRepository.update(
+      const updatedUser: UserDoc = await this.userRepository.update(
         user._id,
         userForUpdate
       );
@@ -250,5 +269,5 @@ export class UserService {
       error.statusCode = 500;
       throw error;
     }
-  };
+  }
 }

@@ -1,28 +1,39 @@
-import express from "express";
+import { NextFunction, Response, Express } from "express";
+import Request from "../types/Request";
 import { sourceUpload } from "../util/fileUtil";
 import isAuth from "../middleware/is-auth";
 import { logRequest } from "../util/loggingHandler";
-import { PostService } from "../services/postService";
-import { UserRepository } from "../repositories/user-repository";
-import { PostRepository } from "../repositories/post-repository";
-import { PostsContoller } from "../controllers/postsController";
+import { PostController } from "../controllers/postController";
+import container from "../util/ioc/iocContainer";
 
-const router = express.Router();
-const postService: PostService = new PostService(
-  new PostRepository(),
-  new UserRepository()
-);
-const controller = new PostsContoller(postService);
+const controller: PostController =
+  container.get<PostController>(PostController);
 
-router.post("/create", isAuth, sourceUpload, logRequest, controller.createPost);
+function routes(app: Express) {
+  app.post(
+    "/post/create",
+    sourceUpload,
+    logRequest,
+    (req: Request, res: Response, next: NextFunction) => {
+      isAuth(req, res, next), controller.createPost(req, res, next);
+    }
+  );
+  app.get(
+    "/post/getAllPosts",
+    logRequest,
+    (req: Request, res: Response, next: NextFunction) => {
+      controller.getPosts(req, res, next);
+    }
+  );
 
-router.get("/getAllPosts", logRequest, controller.getPosts);
+  app.get(
+    "/post/getAllFollowing",
+    isAuth,
+    logRequest,
+    (req: Request, res: Response, next: NextFunction) => {
+      controller.getFollowingPosts(req, res, next);
+    }
+  );
+}
 
-router.get(
-  "/getFollowingUser",
-  isAuth,
-  logRequest,
-  controller.getFollowingPosts
-);
-
-export default router;
+export default routes;

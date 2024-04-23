@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { postSchema } from "./PostDoc";
+import { postSchema } from "./post.schema";
 import { Poll } from "../entites/Poll";
 
 export type PollDoc = mongoose.Document & Poll;

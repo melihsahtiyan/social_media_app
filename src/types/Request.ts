@@ -3,7 +3,7 @@ import { Request } from "express";
 declare module "express" {
   interface Request {
     userId: string;
-    files: Array<any>;
+    files: Array<Express.Multer.File>;
     file: any;
   }
 }

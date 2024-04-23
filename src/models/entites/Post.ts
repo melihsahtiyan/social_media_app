@@ -1,10 +1,10 @@
 import mongoose from "mongoose";
 import { Entity } from "./Entity";
-import { CommentDoc } from "../mongoose/CommentDoc";
-import { UserDoc } from "../mongoose/UserDoc";
+import { CommentDoc } from "../schemas/comment.schema";
+import { UserDoc } from "../schemas/user.schema";
 
 export interface Post extends Entity {
-  creator: UserDoc;
+  creator: mongoose.Schema.Types.ObjectId;
   content: { caption: string; mediaUrls: Array<string> };
   likes: mongoose.Schema.Types.ObjectId[];
   comments: Array<CommentDoc>;

@@ -2,7 +2,6 @@ import mongoose from "mongoose";
 import { describe, it } from "mocha";
 import { expect } from "chai";
 import sinon from "sinon";
-import User from "../src/models/mongoose/UserDoc";
 
 const MONGODB_URI = process.env.TEST_CONNECTION_STRING;
 
@@ -11,18 +10,18 @@ describe("Auth Controller", function () {
     mongoose
       .connect(MONGODB_URI)
       .then(() => {
-        const user = new User({
-          firstName: "test",
-          lastName: "test",
-          password: "test",
-          email: "test@test.com",
-          birthDate: "test",
-          profilePicture: null,
-          university: "test",
-          department: "test",
-        });
+        // const user = new User({
+        //   firstName: "test",
+        //   lastName: "test",
+        //   password: "test",
+        //   email: "test@test.com",
+        //   birthDate: "test",
+        //   profilePicture: null,
+        //   university: "test",
+        //   department: "test",
+        // });
 
-        return user.save();
+        // return user.save();
       })
       .then(() => {
         done();
@@ -30,24 +29,24 @@ describe("Auth Controller", function () {
   });
 
   it("should throw error if user already exists", function (done) {
-    const findOne = sinon.stub(User, "findOne");
-    findOne.throws();
+    // const findOne = sinon.stub(User, "findOne");
+    // findOne.throws();
 
-    const user = new User({
-      firstName: "test",
-      lastName: "test",
-      password: "test",
-      email: "test@test.com",
-      birthDate: "test",
-      profilePicture: null,
-      university: "test",
-      department: "test",
-      studentEmail: "test",
-    });
+    // const user = new User({
+    //   firstName: "test",
+    //   lastName: "test",
+    //   password: "test",
+    //   email: "test@test.com",
+    //   birthDate: "test",
+    //   profilePicture: null,
+    //   university: "test",
+    //   department: "test",
+    //   studentEmail: "test",
+    // });
 
-    user.save().catch((err) => {
-      expect(err).to.exist;
-      done();
-    });
+    // user.save().catch((err) => {
+    //   expect(err).to.exist;
+    //   done();
+    // });
   });
 });

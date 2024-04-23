@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import { UserForPost } from "../user/user-for-post";
-import { CommentDoc } from "../../mongoose/CommentDoc";
+import { CommentDoc } from "../../schemas/comment.schema";
 
 export type PostDetails = {
   _id: mongoose.Schema.Types.ObjectId;

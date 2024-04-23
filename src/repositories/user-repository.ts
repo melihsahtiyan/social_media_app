@@ -1,11 +1,14 @@
+import "reflect-metadata";
+import { injectable } from "inversify";
 import mongoose from "mongoose";
-import { UserDoc, users } from "../models/mongoose/UserDoc";
+import { UserDoc, users } from "../models/schemas/user.schema";
 import UserForCreate from "../models/dtos/user/user-for-create";
 import { UserForUpdate } from "../models/dtos/user/user-for-update";
 import jwt from "jsonwebtoken";
-import { UserForPost } from "src/models/dtos/user/user-for-post";
+import IUserRepository from "../types/repositories/IUserRepository";
 
-export class UserRepository {
+@injectable()
+export class UserRepository implements IUserRepository {
   constructor() {}
 
   async create(userForCreate: UserForCreate): Promise<UserDoc> {
@@ -55,21 +58,21 @@ export class UserRepository {
 
   async sendFollowRequest(
     userToFollowId: mongoose.Schema.Types.ObjectId,
-    followerId: mongoose.Schema.Types.ObjectId
+    followingUserId: mongoose.Schema.Types.ObjectId
   ): Promise<UserDoc> {
     const userToFollow: UserDoc = (await users.findById(
       userToFollowId
     )) as UserDoc;
 
     // Push the followerId to the followRequests array of the userToFollow
-    userToFollow.followRequests.push(followerId);
+    userToFollow.followRequests.push(followingUserId);
     return await userToFollow.save();
   }
 
   async deleteFollowRequest(
     userToFollowId: mongoose.Schema.Types.ObjectId,
     followerId: mongoose.Schema.Types.ObjectId
-  ): Promise<UserDoc> {
+  ): Promise<Boolean> {
     const userToFollow: UserDoc = (await users.findById(
       userToFollowId
     )) as UserDoc;
@@ -78,7 +81,7 @@ export class UserRepository {
       (request) => request.toString() !== followerId.toString()
     );
 
-    return await userToFollow.save();
+    return true;
   }
 
   async acceptFollowRequest(
@@ -91,17 +94,25 @@ export class UserRepository {
       userToFollow.followers.push(
         followerUser._id as mongoose.Schema.Types.ObjectId
       );
+
+      await userToFollow.save();
+
       followerUser.following.push(
         userToFollow._id as mongoose.Schema.Types.ObjectId
       );
     }
 
-    await userToFollow.save();
+    console.log("====================================");
+    console.log("User to follow: ", {
+      followers: userToFollow.followers,
+      followRequests: userToFollow.followRequests,
+    });
+    console.log("====================================");
 
     return await followerUser.save();
   }
 
-  async declineFollowRequest(
+  async rejectFollowRequest(
     userToFollow: UserDoc,
     followerUser: UserDoc
   ): Promise<UserDoc> {

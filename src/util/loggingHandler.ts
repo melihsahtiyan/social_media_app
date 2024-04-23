@@ -12,7 +12,10 @@ const logger = winston.createLogger({
         winston.format.simple()
       ),
     }),
-    new winston.transports.File({ filename: "./logs/error.log", level: "error" }),
+    new winston.transports.File({
+      filename: "./logs/error.log",
+      level: "error",
+    }),
     new winston.transports.File({
       filename: "./logs/combined.log",
       level: "info",
@@ -41,5 +44,18 @@ export const logRequest = (req: Request, res: Response, next: NextFunction) => {
   Params: ${JSON.stringify(req.params)}
   Request received at ${new Date().toISOString()}
 -----------------------------------------------------------`);
+  next();
+};
+
+export const authRequestLogger = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  logger.info(`Path: ${req.path}
+  Method: ${req.method}
+  IP: ${req.ip}
+  Request received at ${new Date().toISOString()}
+  ---------------------------------------------------------`);
   next();
 };
