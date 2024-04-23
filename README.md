@@ -7,7 +7,7 @@ Tags: Codebase, Guides and Processes
 
 Hello and welcome to the social media app! This is a social media app that allows university students to post interesting events that are happening on campus.
 
-This API is built using _[Node.js (TypeScript)](Backend%200a56389979d9499ca0a545284e27f9d2.md), [Express](Backend%200a56389979d9499ca0a545284e27f9d2.md),_ and _[MongoDB Atlas](Backend%200a56389979d9499ca0a545284e27f9d2.md)_.
+This API is built using _[Node.js (TypeScript)](#node.js-and-typescript), [Express](#express.js),_ and _[MongoDB Atlas](#mongodb-atlas)_.
 
 ### Getting Started
 
@@ -15,6 +15,7 @@ This API is built using _[Node.js (TypeScript)](Backend%200a56389979d9499ca0a545
   1. Clone the repository: `git clone https://github.com/melihsahtiyan/social_media_app.git`
   2. Install dependencies: `npm install`
   3. Start the development server: npm start
+  <br>
 - Packages Used
   - [bcrypt](https://www.npmjs.com/package/bcrypt) is a library to help you hash passwords.
   - [body-parser](https://www.npmjs.com/package/body-parser) is a Node.js body parsing middleware.
@@ -36,7 +37,7 @@ This API is built using _[Node.js (TypeScript)](Backend%200a56389979d9499ca0a545
 
 ---
 
-# Node.js & TypeScript
+# Node.js and TypeScript
 
 We use _Node.js_ environment and _TypeScript_ language. For a guide on getting started with _Node.js_ and _TypeScript_, check out these [Node.js docs](https://nodejs.org/docs/latest/api/) and [TypeScript docs](https://www.typescriptlang.org/docs/).
 
@@ -72,7 +73,7 @@ _Express.js_ is a minimalist web framework for _Node.js_. It simplifies server c
 
 # MongoDB Atlas
 
-We use _MongoDB Atlas_ for our database. For a guide on getting started with _MongoDB_, check out this [docs](https://www.postgresql.org/docs/manuals/).
+We use _MongoDB Atlas_ for our database. For a guide on getting started with _MongoDB_, check out this [docs](https://www.mongodb.com/docs/atlas/getting-started/).
 
 _MongoDB Atlas_ is a fully-managed cloud database service provided by _MongoDB_. It allows you to deploy, operate, and scale your databases on the cloud.
 
