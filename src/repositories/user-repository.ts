@@ -3,9 +3,11 @@ import { injectable } from "inversify";
 import mongoose from "mongoose";
 import { UserDoc, users } from "../models/schemas/user.schema";
 import UserForCreate from "../models/dtos/user/user-for-create";
+import { UserDetailDto } from "../models/dtos/user/user-detail-dto";
 import { UserForUpdate } from "../models/dtos/user/user-for-update";
 import jwt from "jsonwebtoken";
 import IUserRepository from "../types/repositories/IUserRepository";
+import { CustomError } from "../types/error/CustomError";
 
 @injectable()
 export class UserRepository implements IUserRepository {
@@ -14,7 +16,7 @@ export class UserRepository implements IUserRepository {
   async create(userForCreate: UserForCreate): Promise<UserDoc> {
     return await users.create({
       ...userForCreate,
-      followers: [],
+      friends: [],
       following: [],
       posts: [],
     });
@@ -24,8 +26,56 @@ export class UserRepository implements IUserRepository {
     return await users.find();
   }
 
+  async getAllPopulated(): Promise<UserDetailDto[]> {
+    const allUsers = await users.find();
+
+    const detailedUsers: UserDetailDto[] = await Promise.all(
+      allUsers.map(async (user: UserDoc) => {
+        const detailedUser: UserDetailDto = {
+          _id: user._id,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          email: user.email,
+          profilePicture: user.profilePicture,
+          friends: [],
+          friendRequests: [],
+          posts: user.posts.map((post) => post.toString()),
+          createdAt: user.createdAt,
+          updatedAt: user.updatedAt,
+        };
+
+        detailedUser.friends = await Promise.all(
+          user.friends.map(async (followerId) => {
+            const follower: UserDoc = await users.findById(followerId);
+            return {
+              _id: follower._id.toString(),
+              firstName: follower.firstName,
+              lastName: follower.lastName,
+            };
+          })
+        );
+
+        detailedUser.friendRequests = await Promise.all(
+          user.friendRequests.map(async (requestId) => {
+            const request: UserDoc = await users.findById(requestId);
+            return {
+              _id: request._id.toString(),
+              firstName: request.firstName,
+              lastName: request.lastName,
+            };
+          })
+        );
+
+        return detailedUser as UserDetailDto;
+      })
+    );
+
+    return await Promise.resolve<UserDetailDto[]>(detailedUsers);
+  }
+
   async getById(id: string): Promise<UserDoc> {
-    return (await users.findById(id)) as UserDoc;
+    const user: UserDoc = await users.findById(id);
+    return user;
   }
 
   async getByEmail(email: string): Promise<UserDoc | null> {
@@ -56,7 +106,7 @@ export class UserRepository implements IUserRepository {
     return await users.findByIdAndDelete(id);
   }
 
-  async sendFollowRequest(
+  async sendFriendRequest(
     userToFollowId: mongoose.Schema.Types.ObjectId,
     followingUserId: mongoose.Schema.Types.ObjectId
   ): Promise<UserDoc> {
@@ -65,84 +115,82 @@ export class UserRepository implements IUserRepository {
     )) as UserDoc;
 
     // Push the followerId to the followRequests array of the userToFollow
-    userToFollow.followRequests.push(followingUserId);
+    userToFollow.friendRequests.push(followingUserId);
     return await userToFollow.save();
   }
 
-  async deleteFollowRequest(
-    userToFollowId: mongoose.Schema.Types.ObjectId,
-    followerId: mongoose.Schema.Types.ObjectId
-  ): Promise<Boolean> {
-    const userToFollow: UserDoc = (await users.findById(
-      userToFollowId
-    )) as UserDoc;
-
-    userToFollow.followRequests = userToFollow.followRequests.filter(
-      (request) => request.toString() !== followerId.toString()
-    );
-
-    return true;
-  }
-
-  async acceptFollowRequest(
-    userToFollow: UserDoc,
-    followerUser: UserDoc
+  async deleteFriendRequest(
+    receiverUserId: mongoose.Schema.Types.ObjectId,
+    senderUserId: mongoose.Schema.Types.ObjectId
   ): Promise<UserDoc> {
-    if (userToFollow.followRequests.includes(followerUser._id)) {
-      this.deleteFollowRequest(userToFollow._id, followerUser._id);
+    try {
+      const receiverUser: UserDoc = (await users.findById(
+        receiverUserId
+      )) as UserDoc;
 
-      userToFollow.followers.push(
-        followerUser._id as mongoose.Schema.Types.ObjectId
+      receiverUser.friendRequests = receiverUser.friendRequests.filter(
+        (request) => request.toString() !== senderUserId.toString()
       );
 
-      await userToFollow.save();
+      return await receiverUser.save();
+    } catch (err) {
+      const error: CustomError = err;
+      throw error;
+    }
+  }
 
-      followerUser.following.push(
-        userToFollow._id as mongoose.Schema.Types.ObjectId
+  async acceptFriendRequest(
+    receiverUser: UserDoc,
+    senderUser: UserDoc
+  ): Promise<UserDoc> {
+    if (receiverUser.friendRequests.includes(senderUser._id)) {
+      await this.deleteFriendRequest(
+        receiverUser._id,
+        senderUser._id
+      );
+
+      receiverUser.friends.push(
+        senderUser._id as mongoose.Schema.Types.ObjectId
+      );
+
+      await receiverUser.save();
+
+      senderUser.friends.push(
+        receiverUser._id as mongoose.Schema.Types.ObjectId
       );
     }
 
-    console.log("====================================");
-    console.log("User to follow: ", {
-      followers: userToFollow.followers,
-      followRequests: userToFollow.followRequests,
-    });
-    console.log("====================================");
-
-    return await followerUser.save();
+    return await senderUser.save();
   }
 
-  async rejectFollowRequest(
-    userToFollow: UserDoc,
-    followerUser: UserDoc
+  async rejectFriendRequest(
+    userToAdd: UserDoc,
+    requestedUser: UserDoc
   ): Promise<UserDoc> {
-    if (userToFollow.followRequests.includes(followerUser._id)) {
-      this.deleteFollowRequest(userToFollow._id, followerUser._id);
+    if (userToAdd.friendRequests.includes(requestedUser._id)) {
+      this.deleteFriendRequest(userToAdd._id, requestedUser._id);
     }
 
-    await userToFollow.save();
-    return await followerUser.save();
+    await userToAdd.save();
+    return await requestedUser.save();
   }
 
-  async unfollowUser(
-    userToUnfollowId: string,
-    followerId: string
-  ): Promise<UserDoc> {
-    const userToUnfollow: UserDoc = await users.findById(userToUnfollowId);
-    const followerUser: UserDoc = await users.findById(followerId);
+  async removeFriend(userToRemoveId: string, userId: string): Promise<UserDoc> {
+    const userToRemove: UserDoc = await users.findById(userToRemoveId);
+    const user: UserDoc = await users.findById(userId);
 
-    userToUnfollow.followers = userToUnfollow.followers.filter(
-      (follower: mongoose.Schema.Types.ObjectId) =>
-        follower.toString() !== followerUser._id.toString()
+    userToRemove.friends = userToRemove.friends.filter(
+      (friends: mongoose.Schema.Types.ObjectId) =>
+        friends.toString() !== user._id.toString()
     );
 
-    followerUser.following = followerUser.following.filter(
-      (following: mongoose.Schema.Types.ObjectId) =>
-        following.toString() !== userToUnfollow._id.toString()
+    user.friends = user.friends.filter(
+      (friend: mongoose.Schema.Types.ObjectId) =>
+        friend.toString() !== userToRemove._id.toString()
     );
 
-    await userToUnfollow.save();
-    return await followerUser.save();
+    await userToRemove.save();
+    return await user.save();
   }
 
   async generateJsonWebToken(id: string): Promise<string> {

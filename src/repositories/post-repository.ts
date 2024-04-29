@@ -25,46 +25,41 @@ export class PostRepository implements IPostRepository {
       },
       type,
     };
-    
-    return await posts.create({...postForCreate});
+
+    return await posts.create({ ...postForCreate });
   }
 
   async getAllPosts(pages?: number): Promise<PostDoc[]> {
-    return await posts.find().limit(pages ? pages : 10);
+    return await posts
+      .find()
+      .populate("creator", "firstName lastName profilePicture")
+      .sort({ createdAt: -1 })
+      .limit(pages ? pages : 10);
   }
 
   async getPostById(id: string): Promise<PostDoc | null> {
-    return (await posts.findById(id)) as PostDoc;
+    return (await posts
+      .findById(id)
+      .populate("creator", "firstName lastName profilePicture")) as PostDoc;
   }
 
   async getPostDetails(id: string): Promise<PostDetails> {
-    const postForDetail: PostDoc = (await posts.findById(id)) as PostDoc;
-    const creator: UserForPost = await users.findById(postForDetail.creator);
-    const postDetails: PostDetails = {
-      _id: postForDetail._id,
-      creator: creator,
-      content: {
-        caption: postForDetail.content.caption,
-        mediaUrls: postForDetail.content.mediaUrls,
-      },
-      type: postForDetail.type,
-      likes: postForDetail.likes,
-      comments: postForDetail.comments,
-      createdAt: postForDetail.createdAt,
-      isUpdated: postForDetail.isUpdated,
-    };
+    const postDetails: PostDetails = await posts
+      .findById(id)
+      .populate("creator", "firstName lastName profilePicture");
 
     return postDetails;
   }
 
-  async getFollowingPosts(
+  async getFriendsPosts(
     userId: mongoose.Schema.Types.ObjectId
   ): Promise<PostDoc[]> {
     const user: UserDoc = await users.findById(userId);
-    const userIds: mongoose.Schema.Types.ObjectId[] = user.following;
+    const userIds: mongoose.Schema.Types.ObjectId[] = user.friends;
 
     return await posts
       .find({ creator: { $in: userIds } })
+      .populate("creator", "firstName lastName profilePicture")
       .sort({ createdAt: -1 });
   }
 

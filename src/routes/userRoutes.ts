@@ -21,7 +21,7 @@ function routes(app: Express) {
   );
 
   app.put(
-    "/user/follow",
+    "/user/sendFriendRequest",
     [
       body("userId")
         .isAlphanumeric()
@@ -32,15 +32,15 @@ function routes(app: Express) {
     isAuth,
     logRequest,
     (req: Request, res: Response, next: NextFunction) => {
-      controller.followUser(req, res, next);
+      controller.sendFriendRequest(req, res, next);
     }
   );
 
   app.put(
-    "/user/handleFollowRequest",
+    "/user/handleFriendRequest",
     [
       body("userId").isAlphanumeric().not().isEmpty(),
-      body("followResponse").isBoolean().not().isEmpty(),
+      body("response").isBoolean().not().isEmpty(),
     ],
     isAuth,
     (req: Request, res: Response, next: NextFunction) => {
@@ -52,6 +52,13 @@ function routes(app: Express) {
     "/user/getAllUsers",
     (req: Request, res: Response, next: NextFunction) => {
       controller.getAllUsers(req, res, next);
+    }
+  );
+
+  app.get(
+    "/user/getAllDetails",
+    (req: Request, res: Response, next: NextFunction) => {
+      controller.getAllDetails(req, res, next);
     }
   );
 }

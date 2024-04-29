@@ -15,8 +15,7 @@ export interface User extends Entity {
     emailVerification: boolean;
   };
   profilePicture: string;
-  followers: mongoose.Schema.Types.ObjectId[];
-  followRequests: mongoose.Schema.Types.ObjectId[];
-  following: mongoose.Schema.Types.ObjectId[];
+  friends: mongoose.Schema.Types.ObjectId[];
+  friendRequests: mongoose.Schema.Types.ObjectId[];
   posts: mongoose.Schema.Types.ObjectId[];
 }

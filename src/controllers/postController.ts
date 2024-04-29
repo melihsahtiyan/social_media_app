@@ -20,21 +20,17 @@ export class PostController {
 
   async createPost(req: Request, res: Response, next: NextFunction) {
     try {
-      isValid(req, next);
-      const postInput: PostInputDto = req.body;
       const files: Express.Multer.File[] = req.files;
       const userId: string = req.userId;
+      const postInput: PostInputDto = req.body;
 
       const result: DataResult<PostInputDto> =
         await this._postService.createPost(postInput, userId, files);
 
-      if (result.success)
-        return res.status(201).json({
-          message: "Post created successfully",
-          data: result.data,
-        });
-
-      return res.status(result.statusCode).json({ result });
+      return res.status(result.success ? 201 : result.statusCode).json({
+        message: result.message,
+        data: result.data,
+      });
     } catch (err) {
       next(err);
     }
@@ -63,9 +59,9 @@ export class PostController {
     }
   }
 
-  async getFollowingPosts(req: Request, res: Response, next: NextFunction) {
+  async getFriendsPosts(req: Request, res: Response, next: NextFunction) {
     const result: DataResult<Array<PostList>> =
-      await this._postService.getAllFollowing(req.userId);
+      await this._postService.getAllFriendsPosts(req.userId);
 
     if (result.success)
       return res.status(200).json({

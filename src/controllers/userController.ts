@@ -10,6 +10,7 @@ import isAuth from "../middleware/is-auth";
 import { UserForUpdate } from "../models/dtos/user/user-for-update";
 import { DataResult } from "../types/result/DataResult";
 import { UserDoc } from "../models/schemas/user.schema";
+import { UserDetailDto } from "src/models/dtos/user/user-detail-dto";
 
 @injectable()
 export class UserController {
@@ -19,14 +20,14 @@ export class UserController {
     this.userService = userService;
   }
 
-  async followUser(req: Request, res: Response, next: NextFunction) {
+  async sendFriendRequest(req: Request, res: Response, next: NextFunction) {
     isValid(req, next);
 
     try {
       const userToFollow: string = req.body.userId;
       const followingUser: string = req.userId;
 
-      const result: Result = await this.userService.followUser(
+      const result: Result = await this.userService.sendFriendRequest(
         userToFollow,
         followingUser
       );
@@ -47,14 +48,14 @@ export class UserController {
     isValid(req, next);
 
     try {
-      const userToFollowId: string = req.userId;
-      const followingUserId: string = req.body.userId;
-      const followResponse: boolean = req.body.followResponse;
+      const receiverUserId: string = req.userId;
+      const senderUserId: string = req.body.userId;
+      const response: boolean = req.body.response;
 
       const result: Result = await this.userService.handleFollowRequest(
-        userToFollowId,
-        followingUserId,
-        followResponse
+        receiverUserId,
+        senderUserId,
+        response
       );
 
       if (result.success)
@@ -91,6 +92,23 @@ export class UserController {
       return res.status(result.statusCode).json({ result });
     } catch (err) {
       // console.log(err);
+      next(err);
+    }
+  }
+
+  async getAllDetails(req: Request, res: Response, next: NextFunction) {
+    try {
+      const result: DataResult<Array<UserDetailDto>> =
+        await this.userService.getAllDetails();
+
+      if (result.success)
+        return res.status(200).json({
+          message: "Users fetched successfully",
+          data: result.data,
+        });
+
+      return res.status(result.statusCode).json({ result });
+    } catch (err) {
       next(err);
     }
   }

@@ -23,24 +23,15 @@ const userSchema = new mongoose.Schema({
     },
     _id: false,
   },
-  profilePicture: {
-    type: String,
-  },
-  followers: [
+  profilePicture: String,
+  friends: [
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       default: [],
     },
   ],
-  followRequests: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      default: [],
-    },
-  ],
-  following: [
+  friendRequests: [
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",

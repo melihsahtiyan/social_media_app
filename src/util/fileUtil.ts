@@ -10,7 +10,6 @@ const mimeTypes = {
   "image/jpeg": ".jpeg",
   "image/webp": ".webp",
   "image/heic": ".heic",
-  "image/gif": ".gif",
   "video/mp4": ".mp4",
   "video/mov": ".mov",
   "video/avi": ".avi",
@@ -34,7 +33,6 @@ const profilePictureFileFilter = (req: Request, file, cb: Function) => {
     "image/jpeg",
     "image/webp",
     "image/heic",
-    "image/gif",
   ];
 
   if (imageMimetypes.find((mimetype) => mimetype === file.mimetype)) {
@@ -75,7 +73,6 @@ const fileFilter = (req: Request, file, cb) => {
     "image/jpeg",
     "image/webp",
     "image/heic",
-    "image/gif",
   ];
 
   const videoMimetypes = ["video/mp4", "video/mov", "video/avi"];

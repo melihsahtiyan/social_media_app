@@ -2,11 +2,13 @@ import mongoose from "mongoose";
 import UserForCreate from "../../models/dtos/user/user-for-create";
 import { UserForUpdate } from "../../models/dtos/user/user-for-update";
 import { UserDoc } from "../../models/schemas/user.schema";
+import { UserDetailDto } from "src/models/dtos/user/user-detail-dto";
 
 interface IUserRepository {
   create(userForCreate: UserForCreate): Promise<UserDoc>;
 
   getAll(): Promise<UserDoc[]>;
+  getAllPopulated(): Promise<UserDetailDto[]>;
 
   getById(id: string): Promise<UserDoc>;
 
@@ -21,22 +23,22 @@ interface IUserRepository {
 
   delete(id: string): Promise<UserDoc>;
 
-  deleteFollowRequest(
+  deleteFriendRequest(
     userToFollowId: mongoose.Schema.Types.ObjectId,
     followerId: mongoose.Schema.Types.ObjectId
-  ): Promise<Boolean>;
+  ): Promise<UserDoc>;
 
-  acceptFollowRequest(
+  acceptFriendRequest(
     userToFollow: UserDoc,
     followerUser: UserDoc
   ): Promise<UserDoc>;
 
-  rejectFollowRequest(
+  rejectFriendRequest(
     userToFollow: UserDoc,
     followerUser: UserDoc
   ): Promise<UserDoc>;
 
-  unfollowUser(userToUnfollowId: string, followerId: string): Promise<UserDoc>;
+  removeFriend(userToUnfollowId: string, followerId: string): Promise<UserDoc>;
 
   generateJsonWebToken(id: string): Promise<string>;
 

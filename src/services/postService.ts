@@ -11,7 +11,6 @@ import { DataResult } from "../types/result/DataResult";
 import { PostForCreate } from "../models/dtos/post/post-for-create";
 import mongoose from "mongoose";
 import IPostService from "../types/services/IPostService";
-import TYPES from "../util/ioc/types";
 
 @injectable()
 export class PostService implements IPostService {
@@ -28,7 +27,7 @@ export class PostService implements IPostService {
   async createPost(
     postInput: PostInputDto,
     userId: string,
-    files?: Array<Express.Multer.File>
+    files?: Express.Multer.File[]
   ): Promise<DataResult<PostInputDto>> {
     try {
       if (!files && !postInput.caption) {
@@ -40,6 +39,7 @@ export class PostService implements IPostService {
         };
         return result;
       }
+
       let sourceUrls: string[] = [];
 
       if (files) {
@@ -53,11 +53,11 @@ export class PostService implements IPostService {
           return result;
         }
 
-        if (files.length === 0 && postInput.caption.length === 0) {
+        if (files.length > 0) {
           sourceUrls = files.map((file) => {
             const extension = file.mimetype.split("/")[1];
             const videoExtensions = ["mp4", "mov", "avi", "mkv", "webm", "m4v"];
-            const imageExtensions = ["jpg", "jpeg", "png", "gif"];
+            const imageExtensions = ["jpg", "jpeg", "png"];
 
             if (videoExtensions.includes(extension)) {
               return "media/videos/" + file.filename;
@@ -120,11 +120,13 @@ export class PostService implements IPostService {
     }
   }
 
-  async getAllFollowing(userId: string): Promise<DataResult<Array<PostList>>> {
+  async getAllFriendsPosts(
+    userId: string
+  ): Promise<DataResult<Array<PostList>>> {
     try {
       const user: UserDoc = await this._userRepository.getById(userId);
 
-      const posts: PostDoc[] = await this._postRepository.getFollowingPosts(
+      const posts: PostDoc[] = await this._postRepository.getFriendsPosts(
         user._id
       );
 
@@ -139,7 +141,6 @@ export class PostService implements IPostService {
           type: post.type,
           likes: post.likes,
           comments: post.comments,
-          createdAt: post.createdAt,
           isUpdated: post.isUpdated,
         };
         return postForList;

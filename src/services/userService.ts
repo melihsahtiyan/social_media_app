@@ -9,12 +9,31 @@ import { UserForUpdate } from "../models/dtos/user/user-for-update";
 import { Result } from "../types/result/Result";
 import { DataResult } from "../types/result/DataResult";
 import IUserService from "../types/services/IUserService";
+import { UserDetailDto } from "src/models/dtos/user/user-detail-dto";
 
 @injectable()
 export class UserService implements IUserService {
   public userRepository: UserRepository;
   constructor(@inject(UserRepository) userRepository: UserRepository) {
     this.userRepository = userRepository;
+  }
+
+  async getAllDetails(): Promise<DataResult<UserDetailDto[]>> {
+    try {
+      const userDetailDtos: Array<UserDetailDto> =
+        await this.userRepository.getAllPopulated();
+      const result: DataResult<Array<UserDetailDto>> = {
+        statusCode: 200,
+        message: "Users fetched successfully",
+        success: true,
+        data: userDetailDtos,
+      };
+      return result;
+    } catch (err) {
+      const error: CustomError = new Error(err.message);
+      error.statusCode = 500;
+      throw error;
+    }
   }
 
   async getAllUsers(): Promise<DataResult<Array<UserDoc>>> {
@@ -34,7 +53,7 @@ export class UserService implements IUserService {
     }
   }
 
-  async followUser(
+  async sendFriendRequest(
     userToFollowId: string,
     followingUserId: string
   ): Promise<Result> {
@@ -42,7 +61,7 @@ export class UserService implements IUserService {
       if (userToFollowId === followingUserId) {
         const errorResult: Result = {
           statusCode: 400,
-          message: "You cannot follow yourself!",
+          message: "You cannot be Friend of yourself!",
           success: false,
         };
         return errorResult;
@@ -67,7 +86,7 @@ export class UserService implements IUserService {
       if (!userToFollow) {
         const result: Result = {
           statusCode: 404,
-          message: "User to follow not found!",
+          message: "User to Friend not found!",
           success: false,
         };
         return result;
@@ -75,13 +94,11 @@ export class UserService implements IUserService {
 
       if (
         // Check if the user is already following the user
-        followingUser.following.includes(
-          userToFollow._id as SchemaTypes.ObjectId
-        )
+        followingUser.friends.includes(userToFollow._id as SchemaTypes.ObjectId)
       ) {
         // If yes, unfollow the user
 
-        await this.userRepository.unfollowUser(
+        await this.userRepository.removeFriend(
           userToFollow._id,
           followingUser._id
         );
@@ -89,60 +106,64 @@ export class UserService implements IUserService {
         // return res.status(200).json({ message: "User unfollowed!" });
         const result: Result = {
           statusCode: 200,
-          message: "User unfollowed!",
+          message: "Friendship removed!",
           success: true,
         };
         return result;
       }
       // Check if the user has already sent a follow request
       if (
-        userToFollow.followRequests.includes(
+        userToFollow.friendRequests.includes(
           followingUser._id as mongoose.Schema.Types.ObjectId
         )
       ) {
         // If yes, cancel the follow request
-        await this.userRepository.deleteFollowRequest(
+        await this.userRepository.deleteFriendRequest(
           userToFollow._id,
           followingUser._id
         );
 
         const result: Result = {
           statusCode: 200,
-          message: "Follow request cancelled!",
+          message: "Friend request cancelled!",
           success: true,
         };
         return result;
       } else {
         // If not, send a follow request
 
-        await this.userRepository.sendFollowRequest(
+        await this.userRepository.sendFriendRequest(
           userToFollow._id,
           followingUser._id
         );
 
         const result: Result = {
           statusCode: 200,
-          message: "Follow request sent!",
+          message: "Friend request sent!",
           success: true,
         };
         return result;
       }
     } catch (err) {
-      err.message = err.message + "\nFollowing user failed";
+      err.message = err.message + "\nFriend request failed";
       throw err;
     }
   }
 
-  async handleFollowRequest(
-    userToFollowId: string,
+  async unfriend(
     followingUserId: string,
-    followResponse: boolean
+    userToUnfollowId: string
   ): Promise<Result> {
     try {
-      const userToFollow: UserDoc = await this.userRepository.getById(
-        userToFollowId
+      const followingUser: UserDoc = await this.userRepository.getById(
+        followingUserId
       );
-      if (!userToFollow) {
+      const userToUnfollow: UserDoc = await this.userRepository.getById(
+        userToUnfollowId
+      );
+
+      // Check 1: if the user exists
+      if (!followingUser || !userToUnfollow) {
         const result: Result = {
           statusCode: 404,
           message: "User not found!",
@@ -151,12 +172,60 @@ export class UserService implements IUserService {
         return result;
       }
 
-      const followingUser: UserDoc = await this.userRepository.getById(
-        followingUserId
+      // Check 2: if the user is friend with the user to unfollow
+      if (!followingUser.friends.includes(userToUnfollow._id)) {
+        const result: Result = {
+          statusCode: 400,
+          message: "User is not your friend!",
+          success: false,
+        };
+        return result;
+      }
+
+      // Unfriend the user
+      await this.userRepository.removeFriend(
+        userToUnfollow._id,
+        followingUser._id
+      );
+
+      const result: Result = {
+        statusCode: 200,
+        message: "User unfriended!",
+        success: true,
+      };
+
+      return result;
+    } catch (err) {
+      const error: CustomError = new Error(err.message);
+      error.statusCode = 500;
+      throw error;
+    }
+  }
+
+  async handleFollowRequest(
+    receiverUserId: string,
+    senderUserId: string,
+    response: boolean
+  ): Promise<Result> {
+    try {
+      const receiverUser: UserDoc = await this.userRepository.getById(
+        receiverUserId
+      );
+      if (!receiverUser) {
+        const result: Result = {
+          statusCode: 404,
+          message: "User not found!",
+          success: false,
+        };
+        return result;
+      }
+
+      const senderUser: UserDoc = await this.userRepository.getById(
+        senderUserId
       );
 
       // Check 1: if the user to follow exists
-      if (!followingUser) {
+      if (!senderUser) {
         const result: Result = {
           statusCode: 404,
           message: "You must be logged in!",
@@ -166,7 +235,7 @@ export class UserService implements IUserService {
       }
 
       // Check 2: if the user has a follow request from the follower user
-      if (!userToFollow.followRequests.includes(followingUser._id)) {
+      if (!receiverUser.friendRequests.includes(senderUser._id)) {
         const result: Result = {
           statusCode: 404,
           message: "No follow request found!",
@@ -176,20 +245,20 @@ export class UserService implements IUserService {
       }
 
       // Check 3: if the user has already following user to follow
-      if (userToFollow.followers.includes(followingUser._id)) {
+      if (receiverUser.friends.includes(senderUser._id)) {
         const result: Result = {
           statusCode: 400,
-          message: "Follower is already following you!",
+          message: "You are already friends!",
           success: false,
         };
         return result;
       }
 
       // Check 4: if the following user is already following the user to follow
-      if (followingUser.following.includes(userToFollow._id)) {
+      if (senderUser.friends.includes(receiverUser._id)) {
         const result: Result = {
           statusCode: 400,
-          message: "User is already following you!",
+          message: "You are already friends!",
           success: false,
         };
         return result;
@@ -197,36 +266,36 @@ export class UserService implements IUserService {
 
       // Handle the follow request
       // Possible cases: Accept or Decline
-      if (followResponse) {
+      if (response) {
         // 1st case: Accept the follow request
 
-        await this.userRepository.acceptFollowRequest(
-          userToFollow,
-          followingUser
+        await this.userRepository.acceptFriendRequest(
+          receiverUser,
+          senderUser
         );
         const result: Result = {
           statusCode: 200,
-          message: "Follow request accepted!",
+          message: "Friend request accepted!",
           success: true,
         };
         return result;
       } else {
         // 2nd case: Decline the follow request
-        await this.userRepository.rejectFollowRequest(
-          userToFollow,
-          followingUser
+        await this.userRepository.rejectFriendRequest(
+          receiverUser,
+          senderUser
         );
 
         const result: Result = {
           statusCode: 200,
-          message: "Follow request rejected!",
+          message: "Friend request rejected!",
           success: true,
         };
         return result;
       }
     } catch (err) {
       const error: CustomError = new Error(
-        err.message || "Handle follow request failed"
+        err.message || "Handle friend request failed"
       );
       error.statusCode = 500;
       throw error;

@@ -6,7 +6,6 @@ interface PostList {
   creator: mongoose.Schema.Types.ObjectId;
   content: { caption: string, files: string[]};
   likes: mongoose.Schema.Types.ObjectId[];
-  createdAt: Date;
   isUpdated: Boolean;
   comments: Array<CommentDoc>;
   type: string;

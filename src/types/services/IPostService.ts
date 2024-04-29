@@ -7,7 +7,7 @@ interface IPostService {
   createPost(
     postInput: PostInputDto,
     userId: string,
-    files: any
+    files?: Express.Multer.File[]
   ): Promise<DataResult<PostInputDto>>;
 
   getPosts(): Promise<DataResult<Array<PostDoc>>>;
@@ -16,7 +16,7 @@ interface IPostService {
 
   //   getPostDetails(id: string): Promise<PostDetails>;
 
-  getAllFollowing(userId: string): Promise<DataResult<Array<PostList>>>;
+  getAllFriendsPosts(userId: string): Promise<DataResult<Array<PostList>>>;
 
   //   updatePost(id: string, caption: string): Promise<PostDoc>;
 

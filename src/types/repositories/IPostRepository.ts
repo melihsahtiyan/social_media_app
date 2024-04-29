@@ -12,7 +12,7 @@ interface IPostRepository {
 
   getPostDetails(id: string): Promise<PostDetails>;
 
-  getFollowingPosts(userId: mongoose.Schema.Types.ObjectId): Promise<PostDoc[]>;
+  getFriendsPosts(userId: mongoose.Schema.Types.ObjectId): Promise<PostDoc[]>;
 
   updatePost(id: string, caption: string): Promise<PostDoc>;
 

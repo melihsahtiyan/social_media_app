@@ -12,10 +12,11 @@ const controller: PostController =
 function routes(app: Express) {
   app.post(
     "/post/create",
-    sourceUpload,
     logRequest,
-    (req: Request, res: Response, next: NextFunction) => {
-      isAuth(req, res, next), controller.createPost(req, res, next);
+    sourceUpload,
+    isAuth,
+    async (req: Request, res: Response, next: NextFunction) => {
+      await controller.createPost(req, res, next);
     }
   );
   app.get(
@@ -27,11 +28,11 @@ function routes(app: Express) {
   );
 
   app.get(
-    "/post/getAllFollowing",
+    "/post/getAllFriendsPosts",
     isAuth,
     logRequest,
     (req: Request, res: Response, next: NextFunction) => {
-      controller.getFollowingPosts(req, res, next);
+      controller.getFriendsPosts(req, res, next);
     }
   );
 }
