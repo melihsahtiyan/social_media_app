@@ -19,11 +19,12 @@ function routes(app: Express) {
       await controller.createPost(req, res, next);
     }
   );
+
   app.get(
     "/post/getAllPosts",
     logRequest,
-    (req: Request, res: Response, next: NextFunction) => {
-      controller.getPosts(req, res, next);
+    async (req: Request, res: Response, next: NextFunction) => {
+      await controller.getPosts(req, res, next);
     }
   );
 
@@ -31,8 +32,35 @@ function routes(app: Express) {
     "/post/getAllFriendsPosts",
     isAuth,
     logRequest,
-    (req: Request, res: Response, next: NextFunction) => {
-      controller.getFriendsPosts(req, res, next);
+    async (req: Request, res: Response, next: NextFunction) => {
+      await controller.getFriendsPosts(req, res, next);
+    }
+  );
+
+  app.get(
+    "/post/getPostDetails/postId=:postId",
+    isAuth,
+    logRequest,
+    async (req: Request, res: Response, next: NextFunction) => {
+      await controller.getPostDetails(req, res, next);
+    }
+  );
+
+  app.post(
+    "/post/likePost/postId=:postId",
+    isAuth,
+    logRequest,
+    async (req: Request, res: Response, next: NextFunction) => {
+      await controller.likePost(req, res, next);
+    }
+  );
+
+  app.post(
+    "/post/unlikePost/postId=:postId",
+    isAuth,
+    logRequest,
+    async (req: Request, res: Response, next: NextFunction) => {
+      await controller.unlikePost(req, res, next);
     }
   );
 }

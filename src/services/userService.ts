@@ -106,7 +106,7 @@ export class UserService implements IUserService {
         // return res.status(200).json({ message: "User unfollowed!" });
         const result: Result = {
           statusCode: 200,
-          message: "Friendship removed!",
+          message: "User unfriended!",
           success: true,
         };
         return result;

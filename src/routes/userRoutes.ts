@@ -15,8 +15,8 @@ function routes(app: Express) {
     "/user/updateProfile",
     fileUpload,
     isAuth,
-    (req: Request, res: Response, next: NextFunction) => {
-      controller.updateProfile(req, res, next);
+    async (req: Request, res: Response, next: NextFunction) => {
+      await controller.updateProfile(req, res, next);
     }
   );
 
@@ -31,8 +31,8 @@ function routes(app: Express) {
     ],
     isAuth,
     logRequest,
-    (req: Request, res: Response, next: NextFunction) => {
-      controller.sendFriendRequest(req, res, next);
+    async (req: Request, res: Response, next: NextFunction) => {
+      await controller.sendFriendRequest(req, res, next);
     }
   );
 
@@ -43,22 +43,22 @@ function routes(app: Express) {
       body("response").isBoolean().not().isEmpty(),
     ],
     isAuth,
-    (req: Request, res: Response, next: NextFunction) => {
-      controller.handleFollowRequest(req, res, next);
+    async (req: Request, res: Response, next: NextFunction) => {
+      await controller.handleFollowRequest(req, res, next);
     }
   );
 
   app.get(
     "/user/getAllUsers",
-    (req: Request, res: Response, next: NextFunction) => {
-      controller.getAllUsers(req, res, next);
+    async (req: Request, res: Response, next: NextFunction) => {
+      await controller.getAllUsers(req, res, next);
     }
   );
 
   app.get(
     "/user/getAllDetails",
-    (req: Request, res: Response, next: NextFunction) => {
-      controller.getAllDetails(req, res, next);
+    async (req: Request, res: Response, next: NextFunction) => {
+      await controller.getAllDetails(req, res, next);
     }
   );
 }

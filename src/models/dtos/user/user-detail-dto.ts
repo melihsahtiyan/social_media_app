@@ -11,6 +11,7 @@ export interface UserDetailDto {
     firstName: string;
     lastName: string;
   }>;
+  friendCount: number;
   friendRequests: Array<{
     _id: string;
     firstName: string;

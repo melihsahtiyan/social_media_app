@@ -42,8 +42,8 @@ function routes(app: express.Express) {
         .withMessage("Department is required"),
     ],
     authRequestLogger,
-    (req: Request, res: Response, next: NextFunction) => {
-      controller.register(req, res, next);
+    async (req: Request, res: Response, next: NextFunction) => {
+      await controller.register(req, res, next);
     }
   );
 
@@ -57,8 +57,8 @@ function routes(app: express.Express) {
         .withMessage("Password must be between 8 and 20 characters"),
     ],
     authRequestLogger,
-    (req: Request, res: Response, next: NextFunction) => {
-      controller.login(req, res, next);
+    async (req: Request, res: Response, next: NextFunction) => {
+      await controller.login(req, res, next);
     }
   );
 
@@ -72,8 +72,8 @@ function routes(app: express.Express) {
   //     // .withMessage("Verification code must be 6 characters"),
   //   ],
   //   authRequestLogger,
-  //   (req: Request, res: Response, next: NextFunction) => {
-  //   controller.verifyEmail(req, res, next);
+  //   async (req: Request, res: Response, next: NextFunction) => {
+  //     await controller.verifyEmail(req, res, next);
   //   }
   // );
 }

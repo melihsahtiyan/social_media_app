@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
 import { Post } from "../entites/Post";
 
-
 export type PostDoc = mongoose.Document & Post;
 
 export const postSchema = new mongoose.Schema({
@@ -17,8 +16,13 @@ export const postSchema = new mongoose.Schema({
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
+      default: [],
     },
   ],
+  likeCount: {
+    type: Number,
+    default: 0,
+  },
   createdAt: {
     type: Date,
     default: Date.now(),
@@ -29,6 +33,10 @@ export const postSchema = new mongoose.Schema({
       ref: "Comment",
     },
   ],
+  commentCount: {
+    type: Number,
+    default: 0,
+  },
   type: {
     type: String,
     Enum: ["post", "poll"],

@@ -11,6 +11,10 @@ export type PollDetails = {
       option: String;
     }
   ];
+  likeCount: Number;
+  likes: mongoose.Schema.Types.ObjectId[];
+  comments: mongoose.Schema.Types.ObjectId[];
+  commentCount: Number;
   totalVotes: Number;
   expiresAt: Date;
   createdAt: Date;

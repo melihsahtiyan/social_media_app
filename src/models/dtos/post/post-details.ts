@@ -11,7 +11,9 @@ export type PostDetails = {
   };
   type: string;
   likes: mongoose.Schema.Types.ObjectId[];
+  likeCount: number;
   comments: CommentDoc[];
+  commentCount: number;
   createdAt: Date;
   isUpdated: Boolean;
 };

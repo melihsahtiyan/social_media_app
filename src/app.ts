@@ -47,9 +47,9 @@ app.use(
     handleError(error, req, res, next);
   }
 );
+postRoutes(app);
 authRoutes(app);
 userRoutes(app);
-postRoutes(app);
 
 mongoose
   .connect(process.env.MONGO_URL)

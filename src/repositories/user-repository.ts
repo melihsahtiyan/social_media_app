@@ -38,6 +38,7 @@ export class UserRepository implements IUserRepository {
           email: user.email,
           profilePicture: user.profilePicture,
           friends: [],
+          friendCount: user.friends.length,
           friendRequests: [],
           posts: user.posts.map((post) => post.toString()),
           createdAt: user.createdAt,
@@ -144,10 +145,7 @@ export class UserRepository implements IUserRepository {
     senderUser: UserDoc
   ): Promise<UserDoc> {
     if (receiverUser.friendRequests.includes(senderUser._id)) {
-      await this.deleteFriendRequest(
-        receiverUser._id,
-        senderUser._id
-      );
+      await this.deleteFriendRequest(receiverUser._id, senderUser._id);
 
       receiverUser.friends.push(
         senderUser._id as mongoose.Schema.Types.ObjectId

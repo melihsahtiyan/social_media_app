@@ -11,6 +11,8 @@ import { DataResult } from "../types/result/DataResult";
 import { PostForCreate } from "../models/dtos/post/post-for-create";
 import mongoose from "mongoose";
 import IPostService from "../types/services/IPostService";
+import { PostDetails } from "../models/dtos/post/post-details";
+import { PostForLike } from "../models/dtos/post/post-for-like";
 
 @injectable()
 export class PostService implements IPostService {
@@ -23,87 +25,56 @@ export class PostService implements IPostService {
     this._postRepository = postRepository;
     this._userRepository = userRepository;
   }
-
-  async createPost(
-    postInput: PostInputDto,
-    userId: string,
-    files?: Express.Multer.File[]
-  ): Promise<DataResult<PostInputDto>> {
+  async getPostById(id: string): Promise<PostDoc> {
+    throw new Error("Method not implemented.");
+  }
+  async getPostDetails(
+    postId: string,
+    userId: string
+  ): Promise<DataResult<PostDetails>> {
     try {
-      if (!files && !postInput.caption) {
-        const result: DataResult<PostInputDto> = {
-          statusCode: 422,
-          message: "Post must have content or media!",
+      const postDetails: PostDetails =
+        await this._postRepository.getPostDetailsById(postId);
+      const user: UserDoc = await this._userRepository.getById(userId);
+
+      if (!postDetails) {
+        const result: DataResult<PostDetails> = {
+          statusCode: 404,
+          message: "Post not found!",
           success: false,
           data: null,
         };
         return result;
       }
 
-      let sourceUrls: string[] = [];
-
-      if (files) {
-        if (files.length > 10) {
-          const result: DataResult<PostInputDto> = {
-            statusCode: 422,
-            message: "Too many files!",
-            success: false,
-            data: null,
-          };
-          return result;
-        }
-
-        if (files.length > 0) {
-          sourceUrls = files.map((file) => {
-            const extension = file.mimetype.split("/")[1];
-            const videoExtensions = ["mp4", "mov", "avi", "mkv", "webm", "m4v"];
-            const imageExtensions = ["jpg", "jpeg", "png"];
-
-            if (videoExtensions.includes(extension)) {
-              return "media/videos/" + file.filename;
-            } else if (imageExtensions.includes(extension)) {
-              return "media/images/" + file.filename;
-            } else {
-              const error: CustomError = new Error("Invalid file type!");
-              error.statusCode = 422; // Unprocessable Entity
-              throw error;
-            }
-          });
-        }
+      if (
+        !user.friends.includes(postDetails.creator._id) &&
+        postDetails.creator.university !== user.university
+      ) {
+        const result: DataResult<PostDetails> = {
+          statusCode: 403,
+          message: "You are not authorized to view this post!",
+          success: false,
+          data: null,
+        };
+        return result;
       }
 
-      const postForCreate: PostForCreate = {
-        creator: new mongoose.Types.ObjectId(userId),
-        content: {
-          caption: postInput.caption,
-          mediaUrls: sourceUrls,
-        },
-        type: "post",
-      };
-
-      const post: PostDoc = await this._postRepository.createPost(
-        postForCreate
-      );
-
-      const result: DataResult<PostInputDto> = {
-        statusCode: 201,
-        message: "Post created!",
+      const result: DataResult<PostDetails> = {
+        statusCode: 200,
+        message: "Post details fetched!",
         success: true,
-        data: postInput,
+        data: postDetails,
       };
 
       return result;
     } catch (err) {
-      err.message = err.message || "Post creation failed";
-      throw err;
+      const error: CustomError = new Error(err);
+      throw error;
     }
   }
-
   async getPosts(): Promise<DataResult<Array<PostDoc>>> {
     try {
-      console.log("====================================");
-      console.log("Post Service: getPosts");
-      console.log("====================================");
       const posts: PostDoc[] = await this._postRepository.getAllPosts();
 
       const result: DataResult<Array<PostDoc>> = {
@@ -155,6 +126,154 @@ export class PostService implements IPostService {
       return result;
     } catch (err) {
       err.message = err.message || "Fetching posts failed";
+      throw err;
+    }
+  }
+
+  async likePost(
+    postId: string,
+    userId: string
+  ): Promise<DataResult<PostForLike>> {
+    try {
+      const post: PostDoc = await this._postRepository.getPostById(postId);
+      const user: UserDoc = await this._userRepository.getById(userId);
+
+      if (post.likes.includes(user._id)) {
+        const result: DataResult<PostForLike> = {
+          statusCode: 400,
+          message: "You already liked this post!",
+          success: false,
+          data: null,
+        };
+        return result;
+      }
+
+      const updatedPost: PostForLike = (await this._postRepository.likePost(
+        post._id,
+        user._id
+      )) as PostForLike;
+
+      const result: DataResult<PostForLike> = {
+        statusCode: 200,
+        message: "Post liked!",
+        success: true,
+        data: updatedPost,
+      };
+
+      return result;
+    } catch (err) {
+      err.message = err.message || "Liking post failed";
+      throw err;
+    }
+  }
+  async unlikePost(
+    postId: string,
+    userId: string
+  ): Promise<DataResult<PostForLike>> {
+    try {
+      const post: PostDoc = await this._postRepository.getPostById(postId);
+      const user: UserDoc = await this._userRepository.getById(userId);
+
+      if (!post.likes.includes(user._id)) {
+        const result: DataResult<PostForLike> = {
+          statusCode: 400,
+          message: "You have not liked this post!",
+          success: false,
+          data: null,
+        };
+        return result;
+      }
+
+      const updatedPost: PostForLike = (await this._postRepository.unlikePost(
+        post._id,
+        user._id
+      )) as PostForLike;
+
+      const result: DataResult<PostForLike> = {
+        statusCode: 200,
+        message: "Post unliked!",
+        success: true,
+        data: updatedPost,
+      };
+
+      return result;
+    } catch (err) {
+      const error: CustomError = new Error(err);
+      throw err;
+    }
+  }
+
+  async createPost(
+    postInput: PostInputDto,
+    userId: string,
+    files?: Express.Multer.File[]
+  ): Promise<DataResult<PostInputDto>> {
+    try {
+      if (!files && !postInput.caption) {
+        const result: DataResult<PostInputDto> = {
+          statusCode: 422,
+          message: "Post must have content or media!",
+          success: false,
+          data: null,
+        };
+        return result;
+      }
+
+      let sourceUrls: string[] = [];
+
+      if (files) {
+        if (files.length > 10) {
+          const result: DataResult<PostInputDto> = {
+            statusCode: 422,
+            message: "Too many files!",
+            success: false,
+            data: null,
+          };
+          return result;
+        }
+
+        if (files.length > 0) {
+          sourceUrls = files.map((file) => {
+            const extension = file.mimetype.split("/")[1];
+            const videoExtensions = ["mp4", "mov", "avi", "mkv", "webm", "m4v"];
+            const imageExtensions = ["jpg", "jpeg", "png"];
+
+            if (videoExtensions.includes(extension)) {
+              return "media/videos/" + file.filename;
+            } else if (imageExtensions.includes(extension)) {
+              return "media/images/" + file.filename;
+            } else {
+              const error: CustomError = new Error("Invalid file type!");
+              error.statusCode = 422; // Unprocessable Entity
+              throw error;
+            }
+          });
+        }
+      }
+
+      const postForCreate: PostForCreate = {
+        creator: new mongoose.Schema.Types.ObjectId(userId),
+        content: {
+          caption: postInput.caption,
+          mediaUrls: sourceUrls,
+        },
+        type: "post",
+      };
+
+      const post: PostDoc = await this._postRepository.createPost(
+        postForCreate
+      );
+
+      const result: DataResult<PostInputDto> = {
+        statusCode: 201,
+        message: "Post created!",
+        success: true,
+        data: postInput,
+      };
+
+      return result;
+    } catch (err) {
+      err.message = err.message || "Post creation failed";
       throw err;
     }
   }
