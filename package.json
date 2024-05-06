@@ -4,7 +4,9 @@
   "main": "/src/app.ts",
   "scripts": {
     "test": "mocha -r ts-node/register test/**.spec.ts",
-    "start": "nodemon"
+    "start": "nodemon",
+    "build": "tsc --outDir dist",
+    "dev": "nodemon --exec ts-node src/app.ts"
   },
   "author": "",
   "license": "ISC",
