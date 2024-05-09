@@ -184,15 +184,15 @@ export class PollService implements IPollService {
 
       if (voted) {
         if (voted.option === optionName) {
+          await this.pollRepository.deleteVote(post._id, voter._id);
           const result: DataResult<PostDetails> = {
             statusCode: 400,
-            message: "You have already voted this option!\nVote deleted!",
+            message: "You have already voted this option! Vote deleted!",
             success: false,
             data: null,
           };
           return result;
         }
-        await this.pollRepository.deleteVote(post._id, voter._id);
       }
 
       await this.pollRepository.votePoll(post._id, voter._id, optionName);

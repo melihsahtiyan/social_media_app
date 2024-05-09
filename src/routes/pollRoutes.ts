@@ -39,6 +39,16 @@ function routes(app: Express) {
       await controller.votePoll(req, res, next);
     }
   );
+
+  app.delete(
+    "/poll/deleteVote",
+    [body("pollId").not().isEmpty().withMessage("Poll ID is required")],
+    logRequest,
+    isAuth,
+    async (req: Request, res: Response, next: NextFunction) => {
+      await controller.deleteVote(req, res, next);
+    }
+  );
 }
 
 export default routes;

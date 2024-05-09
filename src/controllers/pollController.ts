@@ -42,4 +42,18 @@ export class PollController {
       next(err);
     }
   }
+
+  async deleteVote(req: Request, res: Response, next: NextFunction) {
+    try {
+      isValid(req, res, next);
+      const userId: string = req.userId;
+      const pollId: string = req.body.pollId;
+
+      const result = await this._pollService.deleteVote(pollId, userId);
+
+      res.status(result.statusCode).json(result);
+    } catch (err) {
+      next(err);
+    }
+  }
 }
