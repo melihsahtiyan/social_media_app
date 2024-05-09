@@ -37,7 +37,7 @@ export class UserRepository implements IUserRepository {
           firstName: user.firstName,
           lastName: user.lastName,
           email: user.email,
-          profilePicture: user.profilePicture,
+          profilePhotoUrl: user.profilePhotoUrl,
           friends: [],
           friendCount: user.friends.length,
           friendRequests: [],
@@ -86,6 +86,25 @@ export class UserRepository implements IUserRepository {
 
   async update(id: string, user: UserForUpdate): Promise<UserDoc> {
     return await users.findByIdAndUpdate(id, { ...user }, { new: true });
+  }
+
+  async updateprofilePhoto(
+    id: string,
+    profilePhotoUrl: string
+  ): Promise<UserDoc> {
+    return await users.findByIdAndUpdate(
+      id,
+      { profilePhotoUrl: profilePhotoUrl },
+      { new: true }
+    );
+  }
+
+  async deleteProfilePhoto(id: string): Promise<UserDoc> {
+    return await users.findByIdAndUpdate(
+      id,
+      { profilePhotoUrl: null },
+      { new: true }
+    );
   }
 
   async updateStatus(

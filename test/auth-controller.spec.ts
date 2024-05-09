@@ -16,7 +16,7 @@ describe("Auth Controller", function () {
         //   password: "test",
         //   email: "test@test.com",
         //   birthDate: "test",
-        //   profilePicture: null,
+        //   profilePhotoUrl: null,
         //   university: "test",
         //   department: "test",
         // });
@@ -38,7 +38,7 @@ describe("Auth Controller", function () {
     //   password: "test",
     //   email: "test@test.com",
     //   birthDate: "test",
-    //   profilePicture: null,
+    //   profilePhotoUrl: null,
     //   university: "test",
     //   department: "test",
     //   studentEmail: "test",

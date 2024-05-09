@@ -7,6 +7,7 @@ import { UserDetailDto } from "../../models/dtos/user/user-detail-dto";
 interface IUserService {
   getAllUsers(): Promise<DataResult<Array<UserDoc>>>;
   getUserById(userId: string): Promise<DataResult<UserDoc>>;
+  getAllDetails(): Promise<DataResult<Array<UserDetailDto>>>;
 
   sendFriendRequest(
     followingUserId: string,
@@ -27,7 +28,12 @@ interface IUserService {
     file?: Express.Multer.File
   ): Promise<Result>;
 
-  getAllDetails(): Promise<DataResult<Array<UserDetailDto>>>;
+  changeProfilePhoto(
+    userId: string,
+    file: Express.Multer.File
+  ): Promise<Result>;
+
+  deleteProfilePhoto(userId: string): Promise<Result>;
 }
 
 export default IUserService;

@@ -14,7 +14,7 @@ export interface User extends Entity {
     studentVerification: boolean;
     emailVerification: boolean;
   };
-  profilePicture: string;
+  profilePhotoUrl: string;
   friends: mongoose.Schema.Types.ObjectId[];
   friendRequests: mongoose.Schema.Types.ObjectId[];
   posts: mongoose.Schema.Types.ObjectId[];

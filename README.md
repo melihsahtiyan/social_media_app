@@ -172,7 +172,7 @@ status: {
   studentVerification: boolean;
   emailVerification: boolean;
  };
- profilePicture: string;
+ profilePhotoUrl: string;
  followers: UserId[];
  followRequests: UserId[];
  following: UserId[];

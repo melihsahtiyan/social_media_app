@@ -19,15 +19,15 @@ export class PostRepository implements IPostRepository {
   async getAllInUniversityPosts(university: string): Promise<Post[]> {
     return await posts
       .find({ "creator.university": university })
-      .populate("creator", "firstName lastName profilePicture")
-      .populate("likes", "firstName lastName profilePicture")
+      .populate("creator", "firstName lastName profilePhotoUrl")
+      .populate("likes", "firstName lastName profilePhotoUrl")
       .sort({ createdAt: -1 });
   }
 
   async getAllPosts(pages?: number): Promise<PostDoc[]> {
     return await posts
       .find()
-      .populate("creator", "firstName lastName profilePicture")
+      .populate("creator", "firstName lastName profilePhotoUrl")
       .sort({ createdAt: -1 })
       .limit(pages ? pages : null);
   }
@@ -40,13 +40,13 @@ export class PostRepository implements IPostRepository {
   async getPostById(id: string): Promise<PostDetails> {
     return await posts
       .findById(id)
-      .populate("creator", "_id firstName lastName profilePicture university");
+      .populate("creator", "_id firstName lastName profilePhotoUrl university");
   }
 
   async getPostDetailsById(id: string): Promise<PostDetails> {
     const postDetails: PostDetails = await posts
       .findById(id)
-      .populate("creator", "firstName lastName profilePicture university");
+      .populate("creator", "firstName lastName profilePhotoUrl university");
     return postDetails;
   }
 
@@ -58,7 +58,7 @@ export class PostRepository implements IPostRepository {
 
     return await posts
       .find({ creator: { $in: userIds } })
-      .populate("creator", "firstName lastName profilePicture")
+      .populate("creator", "firstName lastName profilePhotoUrl")
       .sort({ createdAt: -1 });
   }
 

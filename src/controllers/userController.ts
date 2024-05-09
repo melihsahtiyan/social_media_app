@@ -140,12 +140,36 @@ export class UserController {
         userForUpdate
       );
 
-      if (result.success)
-        return res.status(200).json({
-          message: "Profile updated!",
-        });
-
       return res.status(result.statusCode).json({ result });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async changeProfilePhoto(req: Request, res: Response, next: NextFunction) {
+    try {
+      isValid(req, res, next);
+      const file: Express.Multer.File = req.file;
+      const userId: string = req.userId;
+
+      const result: Result = await this.userService.changeProfilePhoto(
+        userId,
+        file
+      );
+
+      return res.status(result.statusCode).json(result);
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async deleteProfilePhoto(req: Request, res: Response, next: NextFunction) {
+    try {
+      const userId: string = req.userId;
+
+      const result: Result = await this.userService.deleteProfilePhoto(userId);
+
+      return res.status(result.statusCode).json(result);
     } catch (err) {
       next(err);
     }

@@ -1,22 +1,19 @@
-import { PollInputDto } from "src/models/dtos/post/poll/poll-input-dto";
+import { VoteInputDto } from "src/models/dtos/post/poll/vote-input-dto";
+import { PollInputDto } from "../../models/dtos/post/poll/poll-input-dto";
 import { PostDoc } from "../../models/schemas/post.schema";
 import { DataResult } from "../result/DataResult";
 import { Express } from "express";
-import { PostDetails } from "src/models/dtos/post/post-details";
+import { Poll } from "src/models/entites/Poll";
 
 export interface IPollService {
   createPoll(
     userId: string,
     poll: PollInputDto,
     files?: Express.Multer.File[]
-  ): Promise<DataResult<PostDoc>>;
-  votePoll(
-    pollId: string,
-    userId: string,
-    optionId: string
-  ): Promise<DataResult<PostDetails>>;
+  ): Promise<DataResult<PollInputDto>>;
+  votePoll(voteInput: VoteInputDto): Promise<DataResult<VoteInputDto>>;
 
-  deleteVote(pollId: string, userId: string): Promise<DataResult<PostDoc>>;
+  deleteVote(pollId: string, userId: string): Promise<DataResult<Poll>>;
 
   deletePoll(pollId: string): Promise<DataResult<PostDoc>>;
 }

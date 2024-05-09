@@ -3,5 +3,5 @@ export type UserForUpdate = {
   studentEmail: string;
   university: string;
   department: string;
-  profilePicture: string;
+  profilePhotoUrl: string;
 };

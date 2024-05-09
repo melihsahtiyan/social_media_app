@@ -15,7 +15,7 @@ import swaggerDocs from "./util/swagger";
 
 fs.mkdirSync(path.join(__dirname, "../media/images"), { recursive: true });
 fs.mkdirSync(path.join(__dirname, "../media/videos"), { recursive: true });
-fs.mkdirSync(path.join(__dirname, "../media/profilePictures"), {
+fs.mkdirSync(path.join(__dirname, "../media/profilePhotos"), {
   recursive: true,
 });
 

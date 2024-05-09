@@ -5,7 +5,7 @@ export interface UserDetailDto {
   firstName: string;
   lastName: string;
   email: string;
-  profilePicture: string;
+  profilePhotoUrl: string;
   friends: Array<{
     _id: string;
     firstName: string;

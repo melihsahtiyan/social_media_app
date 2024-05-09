@@ -12,6 +12,7 @@ import { PostForCreate } from "../models/dtos/post/post-for-create";
 import { Poll } from "../models/entites/Poll";
 import { CustomError } from "../types/error/CustomError";
 import { PostDetails } from "src/models/dtos/post/post-details";
+import { VoteInputDto } from "src/models/dtos/post/poll/vote-input-dto";
 
 @injectable()
 export class PollService implements IPollService {
@@ -32,12 +33,12 @@ export class PollService implements IPollService {
     userId: string,
     poll: PollInputDto,
     files?: Express.Multer.File[]
-  ): Promise<DataResult<PostDoc>> {
+  ): Promise<DataResult<PollInputDto>> {
     try {
       const user: UserDoc = await this.userRepository.getById(userId);
 
       if (!user) {
-        const result: DataResult<PostDoc> = {
+        const result: DataResult<PollInputDto> = {
           statusCode: 404,
           message: "User not found!",
           success: false,
@@ -77,7 +78,7 @@ export class PollService implements IPollService {
 
       if (files) {
         if (files.length > 10) {
-          const result: DataResult<PostDoc> = {
+          const result: DataResult<PollInputDto> = {
             statusCode: 422,
             message: "Too many files!",
             success: false,
@@ -118,11 +119,11 @@ export class PollService implements IPollService {
         postToCreate
       );
 
-      const result: DataResult<PostDoc> = {
+      const result: DataResult<PollInputDto> = {
         statusCode: 201,
         message: "Poll created successfully!",
         success: true,
-        data: newPoll,
+        data: poll,
       };
       return result;
     } catch (err) {
@@ -130,17 +131,15 @@ export class PollService implements IPollService {
     }
   }
   async votePoll(
-    pollId: string,
-    userId: string,
-    optionName: string
-  ): Promise<DataResult<PostDetails>> {
+    voteInput: VoteInputDto
+  ): Promise<DataResult<VoteInputDto>> {
     try {
-      const post: PostDetails = await this.postRepository.getPostById(pollId);
+      const post: PostDetails = await this.postRepository.getPostById(voteInput.pollId);
 
-      const voter: UserDoc = await this.userRepository.getById(userId);
+      const voter: UserDoc = await this.userRepository.getById(voteInput.userId);
 
       if (post.poll.expiresAt < new Date(Date.now())) {
-        const result: DataResult<PostDetails> = {
+        const result: DataResult<VoteInputDto> = {
           statusCode: 400,
           message: "Poll has expired!",
           success: false,
@@ -155,7 +154,7 @@ export class PollService implements IPollService {
           voter.university === post.creator.university
         )
       ) {
-        const result: DataResult<PostDetails> = {
+        const result: DataResult<VoteInputDto> = {
           statusCode: 403,
           message: "You are not authorized to vote this poll!",
           success: false,
@@ -165,12 +164,12 @@ export class PollService implements IPollService {
       }
 
       const option = post.poll.options.find(
-        (opt) => opt.optionName === optionName
+        (opt) => opt.optionName === voteInput.option
       );
 
       if (!option) {
-        const result: DataResult<PostDetails> = {
-          statusCode: 400,
+        const result: DataResult<VoteInputDto> = {
+          statusCode: 404,
           message: "Option not found!",
           success: false,
           data: null,
@@ -179,29 +178,38 @@ export class PollService implements IPollService {
       }
 
       const voted = post.poll.votes.find(
-        (vote) => vote.voter.toString() === userId
+        (vote) => vote.voter.toString() === voteInput.userId
       );
 
       if (voted) {
-        if (voted.option === optionName) {
-          await this.pollRepository.deleteVote(post._id, voter._id);
-          const result: DataResult<PostDetails> = {
+        await this.pollRepository.deleteVote(post._id, voter._id);
+        if (voted.option === voteInput.option) {
+          const result: DataResult<VoteInputDto> = {
             statusCode: 400,
             message: "You have already voted this option! Vote deleted!",
             success: false,
             data: null,
           };
           return result;
+        } else {
+          await this.pollRepository.votePoll(post._id, voter._id, voteInput.option);
+          const result: DataResult<VoteInputDto> = {
+            statusCode: 200,
+            message: "Vote changed successfully!",
+            success: true,
+            data: voteInput,
+          };
+          return result;
         }
       }
 
-      await this.pollRepository.votePoll(post._id, voter._id, optionName);
+      await this.pollRepository.votePoll(post._id, voter._id, voteInput.option);
 
-      const result: DataResult<PostDetails> = {
+      const result: DataResult<VoteInputDto> = {
         statusCode: 200,
         message: "Voted successfully!",
         success: true,
-        data: post,
+        data: voteInput,
       };
       return result;
     } catch (err) {
@@ -211,13 +219,13 @@ export class PollService implements IPollService {
   async deleteVote(
     pollId: string,
     userId: string
-  ): Promise<DataResult<PostDoc>> {
+  ): Promise<DataResult<Poll>> {
     try {
       const post: PostDetails = await this.postRepository.getPostById(pollId);
       const user: UserDoc = await this.userRepository.getById(userId);
 
       if (!post.poll.votes.find((vote) => vote.voter.toString() === userId)) {
-        const result: DataResult<PostDoc> = {
+        const result: DataResult<Poll> = {
           statusCode: 400,
           message: "You have not voted this poll!",
           success: false,
@@ -231,11 +239,11 @@ export class PollService implements IPollService {
         user._id
       );
 
-      const result: DataResult<PostDoc> = {
+      const result: DataResult<Poll> = {
         statusCode: 200,
         message: "Vote deleted successfully!",
         success: true,
-        data: updatedPost,
+        data: updatedPost.poll,
       };
       return result;
     } catch (err) {

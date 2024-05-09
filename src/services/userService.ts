@@ -9,7 +9,8 @@ import { UserForUpdate } from "../models/dtos/user/user-for-update";
 import { Result } from "../types/result/Result";
 import { DataResult } from "../types/result/DataResult";
 import IUserService from "../types/services/IUserService";
-import { UserDetailDto } from "src/models/dtos/user/user-detail-dto";
+import { UserDetailDto } from "../models/dtos/user/user-detail-dto";
+import { clearImage } from "../util/fileUtil";
 
 @injectable()
 export class UserService implements IUserService {
@@ -355,6 +356,105 @@ export class UserService implements IUserService {
       };
       return result;
       // TODO: Check the catch block
+    } catch (err) {
+      const error: CustomError = new Error(err.message);
+      error.statusCode = 500;
+      throw error;
+    }
+  }
+  async changeProfilePhoto(
+    userId: string,
+    file?: Express.Multer.File
+  ): Promise<Result> {
+    try {
+      const user: UserDoc = await this.userRepository.getById(userId);
+
+      // Check 1: if the user exists
+      if (!user) {
+        const result: Result = {
+          statusCode: 404,
+          message: "User not found!",
+          success: false,
+        };
+        return result;
+      }
+
+      if (!file) {
+        const result: Result = {
+          statusCode: 400,
+          message: "You have not uploaded profile photo!",
+          success: false,
+        };
+        return result;
+      }
+
+      if (!user.profilePhotoUrl) {
+        const updatedUser: UserDoc =
+          await this.userRepository.updateprofilePhoto(user._id, file.path);
+
+        const result: Result = {
+          statusCode: 200,
+          message: "Profile photo added!",
+          success: true,
+        };
+        return result;
+      } else {
+        clearImage(user.profilePhotoUrl);
+
+        const updatedUser: UserDoc =
+          await this.userRepository.updateprofilePhoto(user._id, file.path);
+
+        const result: Result = {
+          statusCode: 200,
+          message: "Profile photo updated!",
+          success: true,
+        };
+
+        return result;
+      }
+    } catch (err) {
+      const error: CustomError = new Error(err.message);
+      error.statusCode = 500;
+      throw error;
+    }
+  }
+
+  async deleteProfilePhoto(userId: string): Promise<Result> {
+    try {
+      const user: UserDoc = await this.userRepository.getById(userId);
+
+      // Check 1: if the user exists
+      if (!user) {
+        const result: Result = {
+          statusCode: 404,
+          message: "User not found!",
+          success: false,
+        };
+        return result;
+      }
+
+      if (!user.profilePhotoUrl) {
+        const result: Result = {
+          statusCode: 400,
+          message: "You have not uploaded profile photo yet!",
+          success: false,
+        };
+        return result;
+      }
+
+      clearImage(user.profilePhotoUrl);
+
+      const updatedUser: UserDoc = await this.userRepository.deleteProfilePhoto(
+        user._id
+      );
+
+      const result: Result = {
+        statusCode: 200,
+        message: "Profile photo deleted!",
+        success: true,
+      };
+
+      return result;
     } catch (err) {
       const error: CustomError = new Error(err.message);
       error.statusCode = 500;

@@ -21,6 +21,8 @@ interface IUserRepository {
     id: string,
     { studentVerification, emailVerification }
   ): Promise<UserDoc>;
+  updateprofilePhoto(id: string, profilePhotoUrl: string): Promise<UserDoc>;
+  deleteProfilePhoto(id: string): Promise<UserDoc>;
 
   delete(id: string): Promise<UserDoc>;
 

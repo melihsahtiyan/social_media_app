@@ -4,7 +4,7 @@ interface UserForCreate {
   birthDate: Date;
   email: string;
   password: string;
-  profilePicture?: string;
+  profilePhotoUrl?: string;
 }
 
 export default UserForCreate;

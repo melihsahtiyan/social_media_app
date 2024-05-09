@@ -29,8 +29,8 @@ export class AuthService implements IAuthService {
   }
   async register(userToRegister: UserForRegister): Promise<Result> {
     // TODO: profile picture addition will be on the update profile part
-    // const profilePicture: string = req.file
-    //   ? "/media/profilePictures/" + req.file.filename
+    // const profilePhotoUrl: string = req.file
+    //   ? "/media/profilePhotos/" + req.file.filename
     //   : null;
 
     try {
@@ -53,7 +53,7 @@ export class AuthService implements IAuthService {
         userToRegister.email
       );
 
-      if (!userToCheck) {
+      if (userToCheck) {
         const result: Result = {
           statusCode: 409,
           message: "User already exists",

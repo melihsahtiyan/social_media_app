@@ -69,5 +69,22 @@ function routes(app: Express) {
       await controller.getUserById(req, res, next);
     }
   );
+
+  app.put(
+    "/user/changeProfilePhoto",
+    fileUpload,
+    isAuth,
+    async (req: Request, res: Response, next: NextFunction) => {
+      await controller.changeProfilePhoto(req, res, next);
+    }
+  );
+
+  app.delete(
+    "/user/deleteProfilePhoto",
+    isAuth,
+    async (req: Request, res: Response, next: NextFunction) => {
+      await controller.deleteProfilePhoto(req, res, next);
+    }
+  );
 }
 export default routes;

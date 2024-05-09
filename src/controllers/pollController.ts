@@ -4,6 +4,7 @@ import { inject, injectable } from "inversify";
 import { PollService } from "../services/pollService";
 import { PollInputDto } from "../models/dtos/post/poll/poll-input-dto";
 import { isValid } from "../util/validationHandler";
+import { VoteInputDto } from "src/models/dtos/post/poll/vote-input-dto";
 
 @injectable()
 export class PollController {
@@ -35,7 +36,9 @@ export class PollController {
       const pollId: string = req.body.pollId;
       const option: string = req.body.option;
 
-      const result = await this._pollService.votePoll(pollId, userId, option);
+      const voteInput: VoteInputDto = { pollId, userId, option };
+
+      const result = await this._pollService.votePoll(voteInput);
 
       res.status(result.statusCode).json(result);
     } catch (err) {

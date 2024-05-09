@@ -6,6 +6,6 @@ export type UserForPost = {
   lastName: string;
   university: string;
   department: string;
-  profilePicture: string;
+  profilePhotoUrl: string;
   friends: mongoose.Schema.Types.ObjectId[];
 };

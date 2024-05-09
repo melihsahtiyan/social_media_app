@@ -23,7 +23,7 @@ const userSchema = new mongoose.Schema({
     },
     _id: false,
   },
-  profilePicture: String,
+  profilePhotoUrl: { type: String, default: null },
   friends: [
     {
       type: mongoose.Schema.Types.ObjectId,
