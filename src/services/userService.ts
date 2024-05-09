@@ -17,6 +17,34 @@ export class UserService implements IUserService {
   constructor(@inject(UserRepository) userRepository: UserRepository) {
     this.userRepository = userRepository;
   }
+  async getUserById(userId: string): Promise<DataResult<UserDoc>> {
+    try {
+      const user: UserDoc = await this.userRepository.getById(userId);
+
+      if (!user) {
+        const result: DataResult<UserDoc> = {
+          statusCode: 404,
+          message: "User not found!",
+          success: false,
+          data: null,
+        };
+        return result;
+      }
+
+      const result: DataResult<UserDoc> = {
+        statusCode: 200,
+        message: "User fetched successfully",
+        success: true,
+        data: user,
+      };
+
+      return result;
+    } catch (err) {
+      const error: CustomError = new Error(err.message);
+      error.statusCode = 500;
+      throw error;
+    }
+  }
 
   async getAllDetails(): Promise<DataResult<UserDetailDto[]>> {
     try {
@@ -269,10 +297,7 @@ export class UserService implements IUserService {
       if (response) {
         // 1st case: Accept the follow request
 
-        await this.userRepository.acceptFriendRequest(
-          receiverUser,
-          senderUser
-        );
+        await this.userRepository.acceptFriendRequest(receiverUser, senderUser);
         const result: Result = {
           statusCode: 200,
           message: "Friend request accepted!",
@@ -281,10 +306,7 @@ export class UserService implements IUserService {
         return result;
       } else {
         // 2nd case: Decline the follow request
-        await this.userRepository.rejectFriendRequest(
-          receiverUser,
-          senderUser
-        );
+        await this.userRepository.rejectFriendRequest(receiverUser, senderUser);
 
         const result: Result = {
           statusCode: 200,

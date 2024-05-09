@@ -9,7 +9,6 @@ import { UserRepository } from "../repositories/user-repository";
 import PostList from "../models/dtos/post/post-list";
 import { DataResult } from "../types/result/DataResult";
 import { PostForCreate } from "../models/dtos/post/post-for-create";
-import mongoose from "mongoose";
 import IPostService from "../types/services/IPostService";
 import { PostDetails } from "../models/dtos/post/post-details";
 import { PostForLike } from "../models/dtos/post/post-for-like";
@@ -33,11 +32,12 @@ export class PostService implements IPostService {
     userId: string
   ): Promise<DataResult<PostDetails>> {
     try {
-      const postDetails: PostDetails =
-        await this._postRepository.getPostDetailsById(postId);
+      const post: PostDetails = await this._postRepository.getPostDetailsById(
+        postId
+      );
       const user: UserDoc = await this._userRepository.getById(userId);
 
-      if (!postDetails) {
+      if (!post) {
         const result: DataResult<PostDetails> = {
           statusCode: 404,
           message: "Post not found!",
@@ -48,8 +48,8 @@ export class PostService implements IPostService {
       }
 
       if (
-        !user.friends.includes(postDetails.creator._id) &&
-        postDetails.creator.university !== user.university
+        !user.friends.includes(post.creator._id) &&
+        post.creator.university !== user.university
       ) {
         const result: DataResult<PostDetails> = {
           statusCode: 403,
@@ -59,6 +59,23 @@ export class PostService implements IPostService {
         };
         return result;
       }
+
+      const postDetails: PostDetails = {
+        _id: post._id,
+        creator: post.creator,
+        content: {
+          caption: post.content.caption,
+          mediaUrls: post.content.mediaUrls,
+        },
+        poll: post.poll,
+        likes: post.likes,
+        comments: post.comments,
+        createdAt: post.createdAt,
+        commentCount: post.comments.length,
+        likeCount: post.likes.length,
+        isUpdated: post.isUpdated,
+        isLiked: post.likes.includes(user._id),
+      };
 
       const result: DataResult<PostDetails> = {
         statusCode: 200,
@@ -73,7 +90,7 @@ export class PostService implements IPostService {
       throw error;
     }
   }
-  async getPosts(): Promise<DataResult<Array<PostDoc>>> {
+  async getAllPosts(): Promise<DataResult<Array<PostDoc>>> {
     try {
       const posts: PostDoc[] = await this._postRepository.getAllPosts();
 
@@ -109,10 +126,12 @@ export class PostService implements IPostService {
             caption: post.content.caption,
             files: post.content.mediaUrls,
           },
-          type: post.type,
           likes: post.likes,
           comments: post.comments,
+          poll: post.poll,
           isUpdated: post.isUpdated,
+          createdAt: post.createdAt,
+          isLiked: post.likes.includes(user._id),
         };
         return postForList;
       });
@@ -135,7 +154,7 @@ export class PostService implements IPostService {
     userId: string
   ): Promise<DataResult<PostForLike>> {
     try {
-      const post: PostDoc = await this._postRepository.getPostById(postId);
+      const post: PostDetails = await this._postRepository.getPostById(postId);
       const user: UserDoc = await this._userRepository.getById(userId);
 
       if (post.likes.includes(user._id)) {
@@ -171,7 +190,7 @@ export class PostService implements IPostService {
     userId: string
   ): Promise<DataResult<PostForLike>> {
     try {
-      const post: PostDoc = await this._postRepository.getPostById(postId);
+      const post: PostDetails = await this._postRepository.getPostById(postId);
       const user: UserDoc = await this._userRepository.getById(userId);
 
       if (!post.likes.includes(user._id)) {
@@ -219,6 +238,8 @@ export class PostService implements IPostService {
         return result;
       }
 
+      const user: UserDoc = await this._userRepository.getById(userId);
+
       let sourceUrls: string[] = [];
 
       if (files) {
@@ -252,12 +273,12 @@ export class PostService implements IPostService {
       }
 
       const postForCreate: PostForCreate = {
-        creator: new mongoose.Schema.Types.ObjectId(userId),
+        creator: user._id,
         content: {
           caption: postInput.caption,
           mediaUrls: sourceUrls,
         },
-        type: "post",
+        poll: null,
       };
 
       const post: PostDoc = await this._postRepository.createPost(

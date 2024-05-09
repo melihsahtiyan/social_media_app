@@ -8,6 +8,7 @@ import { UserForUpdate } from "../models/dtos/user/user-for-update";
 import jwt from "jsonwebtoken";
 import IUserRepository from "../types/repositories/IUserRepository";
 import { CustomError } from "../types/error/CustomError";
+import { User } from "src/models/entites/User";
 
 @injectable()
 export class UserRepository implements IUserRepository {
@@ -79,8 +80,8 @@ export class UserRepository implements IUserRepository {
     return user;
   }
 
-  async getByEmail(email: string): Promise<UserDoc | null> {
-    return (await users.findOne({ email })) as UserDoc;
+  async getByEmail(email: string): Promise<User> {
+    return (await users.findOne({ email: email })) as User;
   }
 
   async update(id: string, user: UserForUpdate): Promise<UserDoc> {
@@ -201,6 +202,7 @@ export class UserRepository implements IUserRepository {
         lastName: user.lastName,
       },
       process.env.SECRET_KEY
+      // { expiresIn: "1h" }
     );
     return token;
   }

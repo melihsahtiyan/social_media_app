@@ -11,7 +11,7 @@ import UserForCreate from "../models/dtos/user/user-for-create";
 import { Result } from "../types/result/Result";
 import { DataResult } from "../types/result/DataResult";
 import IAuthService from "../types/services/IAuthService";
-import TYPES from "../util/ioc/types";
+import { User } from "src/models/entites/User";
 
 const transporter: nodemailer.Transporter = nodemailer.createTransport({
   service: "gmail",
@@ -49,11 +49,11 @@ export class AuthService implements IAuthService {
         return result;
       }
       // Checking e-mail whether it exists.
-      const userToCheck = await this._userRepository.getByEmail(
+      const userToCheck: User = await this._userRepository.getByEmail(
         userToRegister.email
       );
 
-      if (userToCheck !== null) {
+      if (!userToCheck) {
         const result: Result = {
           statusCode: 409,
           message: "User already exists",
@@ -90,7 +90,7 @@ export class AuthService implements IAuthService {
 
   async login(userToLogin: UserForLogin): Promise<DataResult<String>> {
     try {
-      const user: UserDoc = await this._userRepository.getByEmail(
+      const user: User = await this._userRepository.getByEmail(
         userToLogin.email
       );
       if (!user) {
@@ -122,7 +122,9 @@ export class AuthService implements IAuthService {
         return result;
       }
 
-      const token = await this._userRepository.generateJsonWebToken(user._id);
+      const token = await this._userRepository.generateJsonWebToken(
+        user._id.toString()
+      );
 
       const result: DataResult<String> = {
         statusCode: 200,

@@ -3,6 +3,7 @@ import UserForCreate from "../../models/dtos/user/user-for-create";
 import { UserForUpdate } from "../../models/dtos/user/user-for-update";
 import { UserDoc } from "../../models/schemas/user.schema";
 import { UserDetailDto } from "src/models/dtos/user/user-detail-dto";
+import { User } from "src/models/entites/User";
 
 interface IUserRepository {
   create(userForCreate: UserForCreate): Promise<UserDoc>;
@@ -12,7 +13,7 @@ interface IUserRepository {
 
   getById(id: string): Promise<UserDoc>;
 
-  getByEmail(email: string): Promise<UserDoc | null>;
+  getByEmail(email: string): Promise<User>;
 
   update(id: string, user: UserForUpdate): Promise<UserDoc>;
 

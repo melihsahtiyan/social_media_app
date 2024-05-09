@@ -1,0 +1,45 @@
+import { Express, NextFunction, Response } from "express";
+import Request from "../types/Request";
+import { inject, injectable } from "inversify";
+import { PollService } from "../services/pollService";
+import { PollInputDto } from "../models/dtos/post/poll/poll-input-dto";
+import { isValid } from "../util/validationHandler";
+
+@injectable()
+export class PollController {
+  private _pollService: PollService;
+
+  constructor(@inject(PollService) pollService: PollService) {
+    this._pollService = pollService;
+  }
+
+  async createPoll(req: Request, res: Response, next: NextFunction) {
+    try {
+      isValid(req, res, next);
+      const userId: string = req.userId;
+      const files: Express.Multer.File[] = req.files;
+      const poll: PollInputDto = req.body;
+
+      const result = await this._pollService.createPoll(userId, poll, files);
+
+      res.status(result.statusCode).json(result);
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async votePoll(req: Request, res: Response, next: NextFunction) {
+    try {
+      isValid(req, res, next);
+      const userId: string = req.userId;
+      const pollId: string = req.body.pollId;
+      const option: string = req.body.option;
+
+      const result = await this._pollService.votePoll(pollId, userId, option);
+
+      res.status(result.statusCode).json(result);
+    } catch (err) {
+      next(err);
+    }
+  }
+}

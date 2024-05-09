@@ -6,6 +6,7 @@ import bodyParser from "body-parser";
 import path from "path";
 import authRoutes from "./routes/authRoutes";
 import postRoutes from "./routes/postRoutes";
+import pollRoutes from "./routes/pollRoutes";
 import userRoutes from "./routes/userRoutes";
 import { handleError } from "./middleware/errorHandlingMiddleware";
 import logger from "./util/loggingHandler";
@@ -42,12 +43,8 @@ app.use((req: Request, res: Response, next: NextFunction) => {
   next();
 });
 
-app.use(
-  (error: CustomError, req: Request, res: Response, next: NextFunction) => {
-    handleError(error, req, res, next);
-  }
-);
 postRoutes(app);
+pollRoutes(app);
 authRoutes(app);
 userRoutes(app);
 
@@ -56,6 +53,7 @@ mongoose
   .then(() => {
     app.listen({ port: 8080 }, () => {
       console.log("Server running, MongoDB connected");
+      app.use(handleError);
 
       swaggerDocs(app, 8080);
     });

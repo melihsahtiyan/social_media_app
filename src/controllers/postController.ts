@@ -21,8 +21,8 @@ export class PostController {
   }
 
   async getPostDetails(req: Request, res: Response, next: NextFunction) {
-    isValid(req, next);
     try {
+      isValid(req, res, next);
       const postId: string = req.params.postId;
       const userId: string = req.userId;
 
@@ -30,28 +30,26 @@ export class PostController {
         await this._postService.getPostDetails(postId, userId);
 
       if (result.success) {
-        return res.status(200).json({
-          message: "Post fetched successfully",
+        return res.status(result.statusCode).json({
+          message: result.message,
           data: result.data,
         });
       }
 
       return res.status(result.statusCode).json({ result });
     } catch (err) {
-      const error: CustomError = new Error(err.message);
-      error.statusCode = 500;
-      next(error);
+      next(err);
     }
   }
 
   async getPosts(req: Request, res: Response, next: NextFunction) {
     try {
       const result: DataResult<Array<PostDoc>> =
-        await this._postService.getPosts();
+        await this._postService.getAllPosts();
 
       if (result.success)
-        return res.status(200).json({
-          message: "Posts fetched successfully",
+        return res.status(result.statusCode).json({
+          message: result.message,
           data: result.data,
         });
 
@@ -63,16 +61,20 @@ export class PostController {
   }
 
   async getFriendsPosts(req: Request, res: Response, next: NextFunction) {
-    const result: DataResult<Array<PostList>> =
-      await this._postService.getAllFriendsPosts(req.userId);
+    try {
+      const result: DataResult<Array<PostList>> =
+        await this._postService.getAllFriendsPosts(req.userId);
 
-    if (result.success)
-      return res.status(200).json({
-        message: "Following posts fetched successfully",
-        data: result.data,
-      });
+      if (result.success)
+        return res.status(result.statusCode).json({
+          message: result.message,
+          data: result.data,
+        });
 
-    return res.status(result.statusCode).json({ result });
+      return res.status(result.statusCode).json({ result });
+    } catch (err) {
+      next(err);
+    }
   }
 
   async likePost(req: Request, res: Response, next: NextFunction) {
@@ -113,6 +115,7 @@ export class PostController {
 
   async createPost(req: Request, res: Response, next: NextFunction) {
     try {
+      isValid(req, res, next);
       const files: Express.Multer.File[] = req.files;
       const userId: string = req.userId;
       const postInput: PostInputDto = req.body;

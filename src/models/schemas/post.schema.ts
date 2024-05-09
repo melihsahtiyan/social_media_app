@@ -37,9 +37,19 @@ export const postSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
-  type: {
-    type: String,
-    Enum: ["post", "poll"],
+  poll: {
+    type: {
+      question: String,
+      options: Array<{ optionName: String; voteCount: Number }>,
+      votes: Array<{
+        voter: mongoose.Schema.Types.ObjectId;
+        option: String;
+      }>,
+      totalVotes: Number,
+      expiresAt: Date,
+    },
+    _id: false,
+    required: false,
   },
   isUpdated: {
     type: Boolean,

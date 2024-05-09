@@ -6,7 +6,7 @@
     "test": "mocha -r ts-node/register test/**.spec.ts",
     "start": "nodemon",
     "build": "tsc --outDir dist",
-    "dev": "nodemon --exec ts-node src/app.ts"
+    "dev": "nodemon --watch src --ext ts --exec ts-node src/app.ts"
   },
   "author": "",
   "license": "ISC",

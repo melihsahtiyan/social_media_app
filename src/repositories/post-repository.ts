@@ -7,15 +7,20 @@ import { PostForCreate } from "../models/dtos/post/post-for-create";
 import mongoose from "mongoose";
 import IPostRepository from "../types/repositories/IPostRepository";
 import { PostForLike } from "src/models/dtos/post/post-for-like";
+import { Post } from "src/models/entites/Post";
 
 @injectable()
 export class PostRepository implements IPostRepository {
   constructor() {}
 
-  async getAllInUniversityPosts(university: string): Promise<PostDoc[]> {
+  async createPost(postForCreate: PostForCreate): Promise<PostDoc> {
+    return await posts.create({ ...postForCreate });
+  }
+  async getAllInUniversityPosts(university: string): Promise<Post[]> {
     return await posts
       .find({ "creator.university": university })
       .populate("creator", "firstName lastName profilePicture")
+      .populate("likes", "firstName lastName profilePicture")
       .sort({ createdAt: -1 });
   }
 
@@ -24,7 +29,7 @@ export class PostRepository implements IPostRepository {
       .find()
       .populate("creator", "firstName lastName profilePicture")
       .sort({ createdAt: -1 })
-      .limit(pages ? pages : 10);
+      .limit(pages ? pages : null);
   }
   async getPostsByUserId(
     userId: mongoose.Schema.Types.ObjectId
@@ -32,10 +37,10 @@ export class PostRepository implements IPostRepository {
     throw new Error("Method not implemented.");
   }
 
-  async getPostById(id: string): Promise<PostDoc | null> {
-    return (await posts
+  async getPostById(id: string): Promise<PostDetails> {
+    return await posts
       .findById(id)
-      .populate("creator", "firstName lastName profilePicture")) as PostDoc;
+      .populate("creator", "_id firstName lastName profilePicture university");
   }
 
   async getPostDetailsById(id: string): Promise<PostDetails> {
@@ -57,27 +62,17 @@ export class PostRepository implements IPostRepository {
       .sort({ createdAt: -1 });
   }
 
-  async createPost({
-    creator,
-    content: { caption, mediaUrls },
-    type,
-  }: PostForCreate): Promise<PostDoc> {
-    const postForCreate: PostForCreate = {
-      creator,
-      content: {
-        caption,
-        mediaUrls,
-      },
-      type,
-    };
-
-    return await posts.create({ ...postForCreate });
-  }
-
-  async updatePost(id: string, caption: string): Promise<PostDoc> {
+  async updateCaption(id: string, caption: string): Promise<PostDoc> {
     return await posts.findByIdAndUpdate(
       id,
       { "content.caption": caption, isUpdated: true },
+      { new: true }
+    );
+  }
+  async updatePost(post: PostDoc): Promise<PostDoc> {
+    return await posts.findByIdAndUpdate(
+      post._id,
+      { ...post, isUpdated: true },
       { new: true }
     );
   }

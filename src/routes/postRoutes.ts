@@ -1,10 +1,12 @@
 import { NextFunction, Response, Express } from "express";
 import Request from "../types/Request";
-import { sourceUpload } from "../util/fileUtil";
+import { mediaUpload } from "../util/fileUtil";
 import isAuth from "../middleware/is-auth";
 import { logRequest } from "../util/loggingHandler";
 import { PostController } from "../controllers/postController";
 import container from "../util/ioc/iocContainer";
+import { isValid } from "src/util/validationHandler";
+import { param } from "express-validator";
 
 const controller: PostController =
   container.get<PostController>(PostController);
@@ -13,7 +15,7 @@ function routes(app: Express) {
   app.post(
     "/post/create",
     logRequest,
-    sourceUpload,
+    mediaUpload,
     isAuth,
     async (req: Request, res: Response, next: NextFunction) => {
       await controller.createPost(req, res, next);
@@ -39,6 +41,13 @@ function routes(app: Express) {
 
   app.get(
     "/post/getPostDetails/postId=:postId",
+    [
+      param("postId")
+        .isMongoId()
+        .not()
+        .isEmpty()
+        .withMessage("Post id is required"),
+    ],
     isAuth,
     logRequest,
     async (req: Request, res: Response, next: NextFunction) => {

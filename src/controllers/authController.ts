@@ -20,33 +20,41 @@ export class AuthController {
   }
 
   async register(req: Request, res: Response, next: NextFunction) {
-    isValid(req, next);
-    const userToRegister: UserForRegister = req.body;
+    try {
+      isValid(req, res, next);
+      const userToRegister: UserForRegister = req.body;
 
-    const result: Result = await this._authService.register(userToRegister);
+      const result: Result = await this._authService.register(userToRegister);
 
-    if (result.success)
-      return res.status(201).json({
-        message: "User registered successfully",
-      });
+      if (result.success)
+        return res.status(result.statusCode).json({
+          message: result.message,
+        });
 
-    return res.status(result.statusCode).json({ result });
+      return res.status(result.statusCode).json({ result });
+    } catch (err) {
+      next(err);
+    }
   }
 
   async login(req: Request, res: Response, next: NextFunction) {
-    isValid(req, next);
-    const userToLogin: UserForLogin = req.body;
+    try {
+      isValid(req, res, next);
+      const userToLogin: UserForLogin = req.body;
 
-    const result: DataResult<String> = await this._authService.login(
-      userToLogin
-    );
+      const result: DataResult<String> = await this._authService.login(
+        userToLogin
+      );
 
-    if (result.success)
-      return res.status(200).json({
-        message: "Token generated",
-        token: result.data,
-      });
+      if (result.success)
+        return res.status(200).json({
+          message: "Token generated",
+          token: result.data,
+        });
 
-    return res.status(result.statusCode).json({ result });
+      return res.status(result.statusCode).json({ result });
+    } catch (err) {
+      next(err);
+    }
   }
 }

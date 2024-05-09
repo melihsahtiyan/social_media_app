@@ -12,10 +12,13 @@ This API is built using _[Node.js (TypeScript)](#node.js-and-typescript), [Expre
 ### Getting Started
 
 - To use this template, follow these steps:
+
   1. Clone the repository: `git clone https://github.com/melihsahtiyan/social_media_app.git`
   2. Install dependencies: `npm install`
-  3. Start the development server: npm start
+  3. Start the development server: `npm run dev`
+
   <br>
+
 - Packages Used
   - [bcrypt](https://www.npmjs.com/package/bcrypt) is a library to help you hash passwords.
   - [body-parser](https://www.npmjs.com/package/body-parser) is a Node.js body parsing middleware.

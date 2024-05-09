@@ -1,7 +1,6 @@
 import "reflect-metadata";
 import { inject, injectable } from "inversify";
 import { UserService } from "../services/userService";
-import TYPES from "../util/ioc/types";
 import Request from "../types/Request";
 import { Response, NextFunction } from "express";
 import { isValid } from "../util/validationHandler";
@@ -21,9 +20,8 @@ export class UserController {
   }
 
   async sendFriendRequest(req: Request, res: Response, next: NextFunction) {
-    isValid(req, next);
-
     try {
+      isValid(req, res, next);
       const userToFollow: string = req.body.userId;
       const followingUser: string = req.userId;
 
@@ -45,9 +43,8 @@ export class UserController {
   }
 
   async handleFollowRequest(req: Request, res: Response, next: NextFunction) {
-    isValid(req, next);
-
     try {
+      isValid(req, res, next);
       const receiverUserId: string = req.userId;
       const senderUserId: string = req.body.userId;
       const response: boolean = req.body.response;
@@ -113,21 +110,44 @@ export class UserController {
     }
   }
 
+  async getUserById(req: Request, res: Response, next: NextFunction) {
+    try {
+      const userId: string = req.userId;
+      const result: DataResult<UserDoc> = await this.userService.getUserById(
+        userId
+      );
+
+      if (result.success)
+        return res.status(200).json({
+          message: result.message,
+          data: result.data,
+        });
+
+      return res.status(result.statusCode).json({ result });
+    } catch (err) {
+      next(err);
+    }
+  }
+
   async updateProfile(req: Request, res: Response, next: NextFunction) {
-    isValid(req, next);
-    isAuth(req, res, next);
-    const userForUpdate: UserForUpdate = req.body;
+    try {
+      isValid(req, res, next);
+      isAuth(req, res, next);
+      const userForUpdate: UserForUpdate = req.body;
 
-    const result: Result = await this.userService.updateProfile(
-      req.userId,
-      userForUpdate
-    );
+      const result: Result = await this.userService.updateProfile(
+        req.userId,
+        userForUpdate
+      );
 
-    if (result.success)
-      return res.status(200).json({
-        message: "Profile updated!",
-      });
+      if (result.success)
+        return res.status(200).json({
+          message: "Profile updated!",
+        });
 
-    return res.status(result.statusCode).json({ result });
+      return res.status(result.statusCode).json({ result });
+    } catch (err) {
+      next(err);
+    }
   }
 }

@@ -6,8 +6,12 @@ import { UserDetailDto } from "../../models/dtos/user/user-detail-dto";
 
 interface IUserService {
   getAllUsers(): Promise<DataResult<Array<UserDoc>>>;
+  getUserById(userId: string): Promise<DataResult<UserDoc>>;
 
-  sendFriendRequest(followingUserId: string, userToFollowId: string): Promise<Result>;
+  sendFriendRequest(
+    followingUserId: string,
+    userToFollowId: string
+  ): Promise<Result>;
 
   handleFollowRequest(
     followingUserId: string,

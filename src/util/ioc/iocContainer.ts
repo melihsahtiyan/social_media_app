@@ -9,6 +9,9 @@ import { AuthService } from "../../services/authService";
 import { AuthController } from "../../controllers/authController";
 import { UserController } from "../../controllers/userController";
 import { PostController } from "../../controllers/postController";
+import { PollRepository } from "../../repositories/poll-repository";
+import { PollService } from "../../services/pollService";
+import { PollController } from "../../controllers/pollController";
 
 const container: Container = new Container();
 
@@ -16,32 +19,33 @@ container
   .bind<PostRepository>(PostRepository)
   .to(PostRepository)
   .inSingletonScope();
-container
-  .bind<PostService>(PostService)
-  .to(PostService)
-  .inSingletonScope();
+container.bind<PostService>(PostService).to(PostService).inSingletonScope();
 container
   .bind<PostController>(PostController)
   .to(PostController)
   .inSingletonScope();
 
 container
+  .bind<PollRepository>(PollRepository)
+  .to(PollRepository)
+  .inSingletonScope();
+container.bind<PollService>(PollService).to(PollService).inSingletonScope();
+container
+  .bind<PollController>(PollController)
+  .to(PollController)
+  .inSingletonScope();
+
+container
   .bind<UserRepository>(UserRepository)
   .to(UserRepository)
   .inSingletonScope();
-container
-  .bind<UserService>(UserService)
-  .to(UserService)
-  .inSingletonScope();
+container.bind<UserService>(UserService).to(UserService).inSingletonScope();
 container
   .bind<UserController>(UserController)
   .to(UserController)
   .inSingletonScope();
 
-container
-  .bind<AuthService>(AuthService)
-  .to(AuthService)
-  .inSingletonScope();
+container.bind<AuthService>(AuthService).to(AuthService).inSingletonScope();
 container
   .bind<AuthController>(AuthController)
   .to(AuthController)

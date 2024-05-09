@@ -1,9 +1,8 @@
 import mongoose from "mongoose";
-import { UserForPost } from "../../user/user-for-post";
 
 export type PollDetails = {
   _id: mongoose.Schema.Types.ObjectId;
-  creator: UserForPost;
+  creator: mongoose.Schema.Types.ObjectId;
   options: { optionName: Array<String>; totalVotes: Number }[];
   votes: [
     {

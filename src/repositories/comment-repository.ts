@@ -1,5 +1,6 @@
 import { CommentDoc, comments } from "../models/schemas/comment.schema";
 import { CommentForCreate } from "../models/dtos/comment/comment-for-create";
+import { Comment } from "src/models/entites/Comment";
 
 export class CommentRepository {
   constructor() {}
@@ -8,7 +9,7 @@ export class CommentRepository {
     creator,
     postId,
     content,
-  }: CommentForCreate): Promise<CommentDoc> {
+  }: CommentForCreate): Promise<Comment> {
     return await comments.create({
       creator,
       postId,

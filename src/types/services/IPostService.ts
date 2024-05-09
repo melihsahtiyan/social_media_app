@@ -12,7 +12,7 @@ interface IPostService {
     files?: Express.Multer.File[]
   ): Promise<DataResult<PostInputDto>>;
 
-  getPosts(): Promise<DataResult<Array<PostDoc>>>;
+  getAllPosts(): Promise<DataResult<Array<PostDoc>>>;
 
   getPostById(id: string): Promise<PostDoc | null>;
 

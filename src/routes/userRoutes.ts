@@ -61,5 +61,13 @@ function routes(app: Express) {
       await controller.getAllDetails(req, res, next);
     }
   );
+
+  app.get(
+    "/user/getUserById",
+    isAuth,
+    async (req: Request, res: Response, next: NextFunction) => {
+      await controller.getUserById(req, res, next);
+    }
+  );
 }
 export default routes;

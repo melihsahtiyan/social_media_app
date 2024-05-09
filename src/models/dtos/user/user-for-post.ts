@@ -7,5 +7,5 @@ export type UserForPost = {
   university: string;
   department: string;
   profilePicture: string;
-  followers: mongoose.Schema.Types.ObjectId[];
+  friends: mongoose.Schema.Types.ObjectId[];
 };
