@@ -109,7 +109,7 @@ export class PollService implements IPollService {
       const postToCreate: PostForCreate = {
         creator: user._id,
         content: {
-          caption: poll.question,
+          caption: poll.content.caption,
           mediaUrls: sourceUrls,
         },
         poll: pollToCreate,
@@ -130,13 +130,15 @@ export class PollService implements IPollService {
       throw new Error(err);
     }
   }
-  async votePoll(
-    voteInput: VoteInputDto
-  ): Promise<DataResult<VoteInputDto>> {
+  async votePoll(voteInput: VoteInputDto): Promise<DataResult<VoteInputDto>> {
     try {
-      const post: PostDetails = await this.postRepository.getPostById(voteInput.pollId);
+      const post: PostDetails = await this.postRepository.getPostById(
+        voteInput.pollId
+      );
 
-      const voter: UserDoc = await this.userRepository.getById(voteInput.userId);
+      const voter: UserDoc = await this.userRepository.getById(
+        voteInput.userId
+      );
 
       if (post.poll.expiresAt < new Date(Date.now())) {
         const result: DataResult<VoteInputDto> = {
@@ -192,7 +194,11 @@ export class PollService implements IPollService {
           };
           return result;
         } else {
-          await this.pollRepository.votePoll(post._id, voter._id, voteInput.option);
+          await this.pollRepository.votePoll(
+            post._id,
+            voter._id,
+            voteInput.option
+          );
           const result: DataResult<VoteInputDto> = {
             statusCode: 200,
             message: "Vote changed successfully!",
@@ -216,10 +222,7 @@ export class PollService implements IPollService {
       throw new Error(err);
     }
   }
-  async deleteVote(
-    pollId: string,
-    userId: string
-  ): Promise<DataResult<Poll>> {
+  async deleteVote(pollId: string, userId: string): Promise<DataResult<Poll>> {
     try {
       const post: PostDetails = await this.postRepository.getPostById(pollId);
       const user: UserDoc = await this.userRepository.getById(userId);

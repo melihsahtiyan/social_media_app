@@ -16,7 +16,11 @@ function routes(app: Express) {
     "/poll/create",
     [
       body("question").not().isEmpty().withMessage("Question is required"),
-      body("options").isArray().withMessage("Options are required"),
+      body("options")
+        .isArray({ min: 2, max: 7 })
+        .withMessage(
+          "Options are required and must be between 2 and 7 items long"
+        ),
       body("expiresAt").not().isEmpty().withMessage("Expiry date is required"),
     ],
     logRequest,
