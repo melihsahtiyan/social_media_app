@@ -109,7 +109,7 @@ export class PollService implements IPollService {
       const postToCreate: PostForCreate = {
         creator: user._id,
         content: {
-          caption: poll.content.caption,
+          caption: poll.content?.caption,
           mediaUrls: sourceUrls,
         },
         poll: pollToCreate,
