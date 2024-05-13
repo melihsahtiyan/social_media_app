@@ -12,6 +12,7 @@ interface IUserRepository {
   getAllPopulated(): Promise<UserDetailDto[]>;
   getById(id: string): Promise<UserDoc>;
   getByEmail(email: string): Promise<User>;
+  searchByName(name: string): Promise<Array<UserDoc>>;
   update(id: string, user: UserForUpdate): Promise<UserDoc>;
   updateStatus(
     id: string,

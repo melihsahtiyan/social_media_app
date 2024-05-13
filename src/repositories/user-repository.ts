@@ -15,6 +15,19 @@ import { PostDetails } from "../models/dtos/post/post-details";
 @injectable()
 export class UserRepository implements IUserRepository {
   constructor() {}
+  async searchByName(name: string): Promise<Array<UserDoc>> {
+    const usersByName: Array<UserDoc> = await users.find({
+      $or: [
+        { firstName: { $regex: name, $options: "i" } },
+        { lastName: { $regex: name, $options: "i" } },
+      ],
+      // $and: [
+      //   { status: { studentVerification: true, emailVerification: true } },
+      // ],
+    });
+
+    return usersByName;
+  }
 
   async create(userForCreate: UserForCreate): Promise<UserDoc> {
     return await users.create({
@@ -26,7 +39,10 @@ export class UserRepository implements IUserRepository {
   }
 
   async getUserDetails(id: string): Promise<UserDetailDto> {
-    const user: User = await users.findById(id);
+    const user: User = await users
+      .findById(id)
+      .populate("friends", "_id firstName lastName")
+      .exec();
     const userPosts: PostDetails[] = (await posts.find({
       creator: user._id,
     })) as PostDetails[];
@@ -46,6 +62,32 @@ export class UserRepository implements IUserRepository {
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
     };
+
+    if (user.friends.length > 0) {
+      userDetail.friends = await Promise.all(
+        user.friends.map(async (followerId) => {
+          const follower: UserDoc = await users.findById(followerId);
+          return {
+            _id: follower._id.toString(),
+            firstName: follower.firstName,
+            lastName: follower.lastName,
+          };
+        })
+      );
+    }
+
+    if (user.friendRequests.length > 0) {
+      userDetail.friendRequests = await Promise.all(
+        user.friendRequests.map(async (requestId) => {
+          const request: UserDoc = await users.findById(requestId);
+          return {
+            _id: request._id.toString(),
+            firstName: request.firstName,
+            lastName: request.lastName,
+          };
+        })
+      );
+    }
 
     userDetail.posts = userPosts
       .map((post) => {
@@ -102,7 +144,6 @@ export class UserRepository implements IUserRepository {
           detailedUser.friends = await Promise.all(
             user.friends.map(async (followerId) => {
               const follower: UserDoc = await users.findById(followerId);
-              console.log("GetAllPopulated: ", follower);
               return {
                 _id: follower._id.toString(),
                 firstName: follower.firstName,

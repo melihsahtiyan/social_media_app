@@ -72,6 +72,15 @@ function routes(app: Express) {
   );
 
   app.get(
+    "/user/searchByName",
+    [body("name").isString().not().isEmpty()],
+    isAuth,
+    async (req: Request, res: Response, next: NextFunction) => {
+      await controller.searchByName(req, res, next);
+    }
+  );
+
+  app.get(
     "/user/getUserByToken",
     isAuth,
     async (req: Request, res: Response, next: NextFunction) => {

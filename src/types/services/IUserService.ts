@@ -7,6 +7,7 @@ import { UserDetailDto } from "../../models/dtos/user/user-detail-dto";
 interface IUserService {
   getAllUsers(): Promise<DataResult<Array<UserDoc>>>;
   getUserById(userId: string): Promise<DataResult<UserDoc>>;
+  searchByName(name: string): Promise<DataResult<Array<UserDoc>>>;
   viewUserDetails(
     userId: string,
     viewerId: string

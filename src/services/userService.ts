@@ -19,6 +19,26 @@ export class UserService implements IUserService {
   constructor(@inject(UserRepository) userRepository: UserRepository) {
     this.userRepository = userRepository;
   }
+  async searchByName(name: string): Promise<DataResult<UserDoc[]>> {
+    try {
+      const usersByName: UserDoc[] = await this.userRepository.searchByName(
+        name
+      );
+      
+      const result: DataResult<UserDoc[]> = {
+        statusCode: 200,
+        message: "Users fetched successfully",
+        success: true,
+        data: usersByName,
+      };
+
+      return result;
+    } catch (err) {
+      const error: CustomError = new Error(err.message);
+      error.statusCode = 500;
+      throw error;
+    }
+  }
   async viewUserDetails(
     userId: string,
     viewerId: string

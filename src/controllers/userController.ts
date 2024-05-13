@@ -130,6 +130,25 @@ export class UserController {
       next(err);
     }
   }
+  async searchByName(req: Request, res: Response, next: NextFunction) {
+    try {
+      isValid(req, res, next);
+      const name: string = req.body.name;
+
+      const result: DataResult<Array<UserDoc>> =
+        await this.userService.searchByName(name);
+
+      if (result.success)
+        return res.status(200).json({
+          message: result.message,
+          data: result.data,
+        });
+
+      return res.status(result.statusCode).json({ result });
+    } catch (err) {
+      next(err);
+    }
+  }
 
   async getUserByToken(req: Request, res: Response, next: NextFunction) {
     try {
