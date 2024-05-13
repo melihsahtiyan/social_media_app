@@ -16,15 +16,12 @@ import { PostDetails } from "../models/dtos/post/post-details";
 export class UserRepository implements IUserRepository {
   constructor() {}
   async searchByName(name: string): Promise<Array<UserDoc>> {
-    const usersByName: Array<UserDoc> = await users.find({
-      $or: [
-        { firstName: { $regex: name, $options: "i" } },
-        { lastName: { $regex: name, $options: "i" } },
-      ],
-      // $and: [
-      //   { status: { studentVerification: true, emailVerification: true } },
-      // ],
-    });
+    const usersByName: Array<UserDoc> = await users
+      .aggregate()
+      .project({ fullName: { $concat: ["$firstName", " ", "$lastName"] } })
+      .match({ fullName: { $regex: name, $options: "i" } })
+      .sort({ fullName: 1 })
+      .exec();
 
     return usersByName;
   }
