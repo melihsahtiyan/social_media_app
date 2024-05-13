@@ -58,6 +58,6 @@ export const postSchema = new mongoose.Schema({
 });
 
 const posts: mongoose.Model<PostDoc> =
-  mongoose.models.posts || mongoose.model<PostDoc>("posts", postSchema);
+  mongoose.models.posts || mongoose.model<PostDoc>("Post", postSchema);
 
 export { posts };

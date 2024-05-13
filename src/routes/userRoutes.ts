@@ -63,10 +63,19 @@ function routes(app: Express) {
   );
 
   app.get(
-    "/user/getUserById",
+    "/user/viewUserDetails",
+    [body("userId").isAlphanumeric().not().isEmpty()],
     isAuth,
     async (req: Request, res: Response, next: NextFunction) => {
-      await controller.getUserById(req, res, next);
+      await controller.viewUserDetails(req, res, next);
+    }
+  );
+
+  app.get(
+    "/user/getUserByToken",
+    isAuth,
+    async (req: Request, res: Response, next: NextFunction) => {
+      await controller.getUserByToken(req, res, next);
     }
   );
 

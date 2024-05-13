@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { PostDetails } from "../post/post-details";
 
 export interface UserDetailDto {
   _id: mongoose.Schema.Types.ObjectId;
@@ -6,6 +7,8 @@ export interface UserDetailDto {
   lastName: string;
   email: string;
   profilePhotoUrl: string;
+  university: string;
+  department: string;
   friends: Array<{
     _id: string;
     firstName: string;
@@ -17,7 +20,7 @@ export interface UserDetailDto {
     firstName: string;
     lastName: string;
   }>;
-  posts: Array<string>;
+  posts: Array<PostDetails>;
   createdAt: Date;
   updatedAt: Date;
 }

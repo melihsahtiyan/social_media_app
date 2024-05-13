@@ -2,7 +2,7 @@ import "reflect-metadata";
 import { inject, injectable } from "inversify";
 import { CustomError } from "../types/error/CustomError";
 import { UserDoc } from "../models/schemas/user.schema";
-import SchemaTypes from "mongoose";
+import { Schema } from "mongoose";
 import { UserRepository } from "../repositories/user-repository";
 import mongoose from "mongoose";
 import { UserForUpdate } from "../models/dtos/user/user-for-update";
@@ -11,12 +11,68 @@ import { DataResult } from "../types/result/DataResult";
 import IUserService from "../types/services/IUserService";
 import { UserDetailDto } from "../models/dtos/user/user-detail-dto";
 import { clearImage } from "../util/fileUtil";
+import { PostDetails } from "../models/dtos/post/post-details";
 
 @injectable()
 export class UserService implements IUserService {
   public userRepository: UserRepository;
   constructor(@inject(UserRepository) userRepository: UserRepository) {
     this.userRepository = userRepository;
+  }
+  async viewUserDetails(
+    userId: string,
+    viewerId: string
+  ): Promise<DataResult<UserDetailDto>> {
+    try {
+      const user: UserDetailDto = await this.userRepository.getUserDetails(
+        userId
+      );
+
+      const viewer: UserDoc = await this.userRepository.getById(viewerId);
+
+      if (!user) {
+        const result: DataResult<UserDetailDto> = {
+          statusCode: 404,
+          message: "User not found!",
+          success: false,
+          data: null,
+        };
+        return result;
+      }
+
+      if (
+        !user.friends.includes(viewer._id) &&
+        user.university !== viewer.university
+      ) {
+        const result: DataResult<UserDetailDto> = {
+          statusCode: 403,
+          message: "You are not authorized to view this user!",
+          success: false,
+          data: null,
+        };
+        return result;
+      }
+
+      user.posts = user.posts.map((post: PostDetails) => {
+        if (post.likes.includes(viewer._id)) {
+          post.isLiked = true;
+        }
+        return post;
+      });
+
+      const result: DataResult<UserDetailDto> = {
+        statusCode: 200,
+        message: "User fetched successfully",
+        success: true,
+        data: user,
+      };
+
+      return result;
+    } catch (err) {
+      const error: CustomError = new Error(err.message);
+      error.statusCode = err.statusCode || 500;
+      throw error;
+    }
   }
   async getUserById(userId: string): Promise<DataResult<UserDoc>> {
     try {
@@ -123,7 +179,9 @@ export class UserService implements IUserService {
 
       if (
         // Check if the user is already following the user
-        followingUser.friends.includes(userToFollow._id as SchemaTypes.ObjectId)
+        followingUser.friends.includes(
+          userToFollow._id as Schema.Types.ObjectId
+        )
       ) {
         // If yes, unfollow the user
 

@@ -54,12 +54,10 @@ mongoose
     app.listen({ port: 8080 }, () => {
       console.log("Server running, MongoDB connected");
       app.use(handleError);
-
-      swaggerDocs(app, 8080);
     });
   })
   .catch((err) => {
     const error: CustomError = new Error(err.message + " | MongoDB connection");
     error.statusCode = 500;
-    console.log(error);
+    throw error;
   });

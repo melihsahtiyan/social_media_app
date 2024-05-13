@@ -19,6 +19,27 @@ export class UserController {
     this.userService = userService;
   }
 
+  async viewUserDetails(req: Request, res: Response, next: NextFunction) {
+    try {
+      isValid(req, res, next);
+      const userId: string = req.body.userId;
+      const viewerId: string = req.userId;
+
+      const result: DataResult<UserDetailDto> =
+        await this.userService.viewUserDetails(userId, viewerId);
+
+      if (result.success)
+        return res.status(200).json({
+          message: result.message,
+          data: result.data,
+        });
+
+      return res.status(result.statusCode).json({ result });
+    } catch (err) {
+      next(err);
+    }
+  }
+
   async sendFriendRequest(req: Request, res: Response, next: NextFunction) {
     try {
       isValid(req, res, next);
@@ -110,7 +131,7 @@ export class UserController {
     }
   }
 
-  async getUserById(req: Request, res: Response, next: NextFunction) {
+  async getUserByToken(req: Request, res: Response, next: NextFunction) {
     try {
       const userId: string = req.userId;
       const result: DataResult<UserDoc> = await this.userService.getUserById(

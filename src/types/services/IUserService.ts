@@ -7,6 +7,10 @@ import { UserDetailDto } from "../../models/dtos/user/user-detail-dto";
 interface IUserService {
   getAllUsers(): Promise<DataResult<Array<UserDoc>>>;
   getUserById(userId: string): Promise<DataResult<UserDoc>>;
+  viewUserDetails(
+    userId: string,
+    viewerId: string
+  ): Promise<DataResult<UserDetailDto>>;
   getAllDetails(): Promise<DataResult<Array<UserDetailDto>>>;
 
   sendFriendRequest(

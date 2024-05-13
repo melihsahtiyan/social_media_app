@@ -99,7 +99,10 @@ export class PostRepository implements IPostRepository {
     const postForLike: PostForLike = {
       _id: updatedPost._id,
       creator: updatedPost.creator,
-      caption: updatedPost.content.caption,
+      content: {
+        caption: updatedPost.content.caption,
+        mediaUrls: updatedPost.content.mediaUrls,
+      },
       likes: updatedPost.likes,
       likeCount: updatedPost.likeCount,
       isUpdated: updatedPost.isUpdated,
@@ -123,7 +126,10 @@ export class PostRepository implements IPostRepository {
     const postForLike: PostForLike = {
       _id: post._id,
       creator: post.creator,
-      caption: post.content.caption,
+      content: {
+        caption: post.content.caption,
+        mediaUrls: post.content.mediaUrls,
+      },
       likes: post.likes,
       likeCount: post.likeCount,
       isUpdated: post.isUpdated,
