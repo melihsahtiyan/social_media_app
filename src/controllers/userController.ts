@@ -133,7 +133,7 @@ export class UserController {
   async searchByName(req: Request, res: Response, next: NextFunction) {
     try {
       isValid(req, res, next);
-      const name: string = req.body.name;
+      const name: string = req.params.name;
 
       const result: DataResult<Array<UserDoc>> =
         await this.userService.searchByName(name);

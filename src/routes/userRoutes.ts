@@ -1,5 +1,5 @@
 import { Express, NextFunction, Response } from "express";
-import { body } from "express-validator";
+import { body, param } from "express-validator";
 import { fileUpload } from "../util/fileUtil";
 import isAuth from "../middleware/is-auth";
 import { UserController } from "../controllers/userController";
@@ -72,8 +72,8 @@ function routes(app: Express) {
   );
 
   app.get(
-    "/user/searchByName",
-    [body("name").isString().not().isEmpty()],
+    "/user/searchByName/name=:name",
+    [param("name").isString().not().isEmpty().withMessage("Name is required")],
     isAuth,
     async (req: Request, res: Response, next: NextFunction) => {
       await controller.searchByName(req, res, next);

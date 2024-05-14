@@ -40,6 +40,13 @@ export class UserRepository implements IUserRepository {
       .findById(id)
       .populate("friends", "_id firstName lastName")
       .exec();
+
+    if (!user) {
+      const error: CustomError = new Error("User not found");
+      error.statusCode = 404;
+      throw error;
+    }
+
     const userPosts: PostDetails[] = (await posts.find({
       creator: user._id,
     })) as PostDetails[];

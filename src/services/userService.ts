@@ -24,7 +24,7 @@ export class UserService implements IUserService {
       const usersByName: UserDoc[] = await this.userRepository.searchByName(
         name
       );
-      
+
       const result: DataResult<UserDoc[]> = {
         statusCode: 200,
         message: "Users fetched successfully",
@@ -54,6 +54,16 @@ export class UserService implements IUserService {
         const result: DataResult<UserDetailDto> = {
           statusCode: 404,
           message: "User not found!",
+          success: false,
+          data: null,
+        };
+        return result;
+      }
+
+      if (!viewer) {
+        const result: DataResult<UserDetailDto> = {
+          statusCode: 404,
+          message: "You must be logged in!",
           success: false,
           data: null,
         };
