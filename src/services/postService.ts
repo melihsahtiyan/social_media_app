@@ -12,6 +12,7 @@ import { PostForCreate } from "../models/dtos/post/post-for-create";
 import IPostService from "../types/services/IPostService";
 import { PostDetails } from "../models/dtos/post/post-details";
 import { PostForLike } from "../models/dtos/post/post-for-like";
+import { Post } from "../models/entites/Post";
 
 @injectable()
 export class PostService implements IPostService {
@@ -24,8 +25,90 @@ export class PostService implements IPostService {
     this._postRepository = postRepository;
     this._userRepository = userRepository;
   }
-  async getPostById(id: string): Promise<PostDoc> {
-    throw new Error("Method not implemented.");
+  async getAllUniversityPosts(
+    userId: string
+  ): Promise<DataResult<Array<PostList>>> {
+    try {
+      const user: UserDoc = await this._userRepository.getById(userId);
+      const posts: Array<Post> =
+        await this._postRepository.getAllUniversityPosts(
+          user._id,
+          user.university
+        );
+
+      const postList: Array<PostList> = posts.map((post) => {
+        const postForList: PostList = {
+          _id: post._id,
+          creator: post.creator,
+          content: {
+            caption: post.content.caption,
+            files: post.content.mediaUrls,
+          },
+          likes: post.likes,
+          comments: post.comments,
+          poll: post.poll,
+          isUpdated: post.isUpdated,
+          createdAt: post.createdAt,
+          isLiked: post.likes.includes(user._id),
+        };
+        return postForList;
+      });
+
+      const result: DataResult<Array<PostList>> = {
+        statusCode: 200,
+        message: "University posts fetched!",
+        success: true,
+        data: postList,
+      };
+
+      return result;
+    } catch (err) {
+      err.message = err.message || "Fetching posts failed";
+      throw err;
+    }
+  }
+  async getPostById(
+    postId: string,
+    userId: string
+  ): Promise<DataResult<PostDetails>> {
+    try {
+      const post: PostDetails = await this._postRepository.getPostById(postId);
+
+      if (!post) {
+        const error: CustomError = new Error("Post not found!");
+        error.statusCode = 404;
+        throw error;
+      }
+
+      const user: UserDoc = await this._userRepository.getById(userId);
+
+      if (
+        !user.friends.includes(post.creator._id) &&
+        post.creator.university !== user.university
+      ) {
+        const error: CustomError = new Error(
+          "You are not authorized to view this post!"
+        );
+        error.statusCode = 403;
+        throw error;
+      }
+
+      if (post.likes.includes(user._id)) {
+        post.isLiked = true;
+      }
+
+      const result: DataResult<PostDetails> = {
+        statusCode: 200,
+        message: "Post fetched!",
+        success: true,
+        data: post,
+      };
+
+      return result;
+    } catch (err) {
+      err.message = err.message || "Fetching post failed";
+      throw err;
+    }
   }
   async getPostDetails(
     postId: string,
@@ -35,7 +118,6 @@ export class PostService implements IPostService {
       const post: PostDetails = await this._postRepository.getPostDetailsById(
         postId
       );
-      const user: UserDoc = await this._userRepository.getById(userId);
 
       if (!post) {
         const result: DataResult<PostDetails> = {
@@ -46,6 +128,8 @@ export class PostService implements IPostService {
         };
         return result;
       }
+
+      const user: UserDoc = await this._userRepository.getById(userId);
 
       if (
         !user.friends.includes(post.creator._id) &&

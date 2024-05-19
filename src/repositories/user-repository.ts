@@ -11,6 +11,7 @@ import { CustomError } from "../types/error/CustomError";
 import { User } from "../models/entites/User";
 import { posts } from "../models/schemas/post.schema";
 import { PostDetails } from "../models/dtos/post/post-details";
+import { UserProfileDto } from "src/models/dtos/user/user-profile-dto";
 
 @injectable()
 export class UserRepository implements IUserRepository {
@@ -61,7 +62,6 @@ export class UserRepository implements IUserRepository {
       department: user.department,
       friends: [],
       friendCount: user.friends.length,
-      friendRequests: [],
       posts: [],
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
@@ -75,19 +75,6 @@ export class UserRepository implements IUserRepository {
             _id: follower._id.toString(),
             firstName: follower.firstName,
             lastName: follower.lastName,
-          };
-        })
-      );
-    }
-
-    if (user.friendRequests.length > 0) {
-      userDetail.friendRequests = await Promise.all(
-        user.friendRequests.map(async (requestId) => {
-          const request: UserDoc = await users.findById(requestId);
-          return {
-            _id: request._id.toString(),
-            firstName: request.firstName,
-            lastName: request.lastName,
           };
         })
       );
@@ -120,15 +107,15 @@ export class UserRepository implements IUserRepository {
     return await users.find();
   }
 
-  async getAllPopulated(): Promise<UserDetailDto[]> {
+  async getAllPopulated(): Promise<UserProfileDto[]> {
     const allUsers = await users.find();
 
-    const detailedUsers: UserDetailDto[] = await Promise.all(
+    const detailedUsers: UserProfileDto[] = await Promise.all(
       allUsers.map(async (user: UserDoc) => {
         const userPosts = (await posts.find({
           creator: user._id,
         })) as PostDetails[];
-        const detailedUser: UserDetailDto = {
+        const detailedUser: UserProfileDto = {
           _id: user._id,
           firstName: user.firstName,
           lastName: user.lastName,
@@ -146,8 +133,9 @@ export class UserRepository implements IUserRepository {
 
         if (user.friends.length > 0) {
           detailedUser.friends = await Promise.all(
-            user.friends.map(async (followerId) => {
-              const follower: UserDoc = await users.findById(followerId);
+            user.friends.map(async (friendId) => {
+              const follower: UserDoc = await users.findById(friendId);
+
               return {
                 _id: follower._id.toString(),
                 firstName: follower.firstName,
@@ -170,11 +158,11 @@ export class UserRepository implements IUserRepository {
           );
         }
 
-        return detailedUser as UserDetailDto;
+        return detailedUser as UserProfileDto;
       })
     );
 
-    return await Promise.resolve<UserDetailDto[]>(detailedUsers);
+    return await Promise.resolve<UserProfileDto[]>(detailedUsers);
   }
 
   async getById(id: string): Promise<UserDoc> {

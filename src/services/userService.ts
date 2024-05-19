@@ -489,6 +489,8 @@ export class UserService implements IUserService {
       } else {
         clearImage(user.profilePhotoUrl);
 
+        const profilePhotoUrl: string = `media/profilephotos/${file.path}`;
+
         const updatedUser: UserDoc =
           await this.userRepository.updateprofilePhoto(user._id, file.path);
 

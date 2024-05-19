@@ -4,10 +4,11 @@ import { posts, PostDoc } from "../models/schemas/post.schema";
 import { UserDoc, users } from "../models/schemas/user.schema";
 import { PostDetails } from "../models/dtos/post/post-details";
 import { PostForCreate } from "../models/dtos/post/post-for-create";
-import mongoose from "mongoose";
+import mongoose, { Schema } from "mongoose";
 import IPostRepository from "../types/repositories/IPostRepository";
 import { PostForLike } from "src/models/dtos/post/post-for-like";
 import { Post } from "src/models/entites/Post";
+import { UserForPost } from "../models/dtos/user/user-for-post";
 
 @injectable()
 export class PostRepository implements IPostRepository {
@@ -16,9 +17,12 @@ export class PostRepository implements IPostRepository {
   async createPost(postForCreate: PostForCreate): Promise<PostDoc> {
     return await posts.create({ ...postForCreate });
   }
-  async getAllInUniversityPosts(university: string): Promise<Post[]> {
+  async getAllUniversityPosts(
+    userId: Schema.Types.ObjectId,
+    university: string
+  ): Promise<Array<Post>> {
     return await posts
-      .find({ "creator.university": university })
+      .find({ "creator.university": university, creator: { $ne: userId } })
       .populate("creator", "firstName lastName profilePhotoUrl")
       .populate("likes", "firstName lastName profilePhotoUrl")
       .sort({ createdAt: -1 });
@@ -38,9 +42,30 @@ export class PostRepository implements IPostRepository {
   }
 
   async getPostById(id: string): Promise<PostDetails> {
-    return await posts
-      .findById(id)
-      .populate("creator", "_id firstName lastName profilePhotoUrl university");
+    const post: PostDoc = await posts.findById(id);
+
+    const creator: UserForPost = await users.findById(post.creator);
+
+    const postDetails: PostDetails = {
+      _id: post._id,
+      creator: {
+        ...creator,
+      },
+      content: {
+        caption: post.content.caption,
+        mediaUrls: post.content.mediaUrls,
+      },
+      poll: post.poll,
+      likes: post.likes,
+      likeCount: post.likeCount,
+      comments: post.comments,
+      commentCount: post.commentCount,
+      createdAt: post.createdAt,
+      isUpdated: post.isUpdated,
+      isLiked: false,
+    };
+
+    return postDetails;
   }
 
   async getPostDetailsById(id: string): Promise<PostDetails> {

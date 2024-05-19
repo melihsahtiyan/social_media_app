@@ -14,7 +14,7 @@ interface IPostService {
 
   getAllPosts(): Promise<DataResult<Array<PostDoc>>>;
 
-  getPostById(id: string): Promise<PostDoc | null>;
+  getPostById(postId: string, userId: string): Promise<DataResult<PostDetails>>;
 
   getPostDetails(
     postId: string,
@@ -22,6 +22,7 @@ interface IPostService {
   ): Promise<DataResult<PostDetails>>;
 
   getAllFriendsPosts(userId: string): Promise<DataResult<Array<PostList>>>;
+  getAllUniversityPosts(userId: string): Promise<DataResult<Array<PostList>>>;
   likePost(postId: string, userId: string): Promise<DataResult<PostForLike>>;
   unlikePost(postId: string, userId: string): Promise<DataResult<PostForLike>>;
 

@@ -11,7 +11,10 @@ interface IPostRepository {
   getPostDetailsById(id: string): Promise<PostDetails>;
   getPostsByUserId(userId: Schema.Types.ObjectId): Promise<PostDoc[]>;
   getFriendsPosts(userId: Schema.Types.ObjectId): Promise<PostDoc[]>;
-  getAllInUniversityPosts(university: string): Promise<Post[]>;
+  getAllUniversityPosts(
+    userId: Schema.Types.ObjectId,
+    university: string
+  ): Promise<Array<Post>>;
   createPost(post: PostForCreate): Promise<PostDoc>;
   updateCaption(id: string, caption: string): Promise<PostDoc>;
   updatePost(post: PostDoc): Promise<PostDoc>;

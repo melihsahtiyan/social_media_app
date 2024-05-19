@@ -1,15 +1,15 @@
-import mongoose from "mongoose";
+import { Schema } from "mongoose";
 import { Entity } from "./Entity";
 
 export interface Club extends Entity {
-  name: String;
-  logoUrl: String;
-  bannerUrl: String;
-  biography: String;
+  name: string;
+  logo: string;
+  banner: string;
+  biography: string;
   status: boolean;
-  president: mongoose.Schema.Types.ObjectId;
-  organizers: mongoose.Schema.Types.ObjectId[];
-  members: mongoose.Schema.Types.ObjectId[];
-  posts: mongoose.Schema.Types.ObjectId[];
-  events: mongoose.Schema.Types.ObjectId[];
+  president: Schema.Types.ObjectId;
+  organizers: Schema.Types.ObjectId[];
+  members: Schema.Types.ObjectId[];
+  posts: Schema.Types.ObjectId[];
+  events: Schema.Types.ObjectId[];
 }

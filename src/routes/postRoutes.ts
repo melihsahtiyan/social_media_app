@@ -5,8 +5,7 @@ import isAuth from "../middleware/is-auth";
 import { logRequest } from "../util/loggingHandler";
 import { PostController } from "../controllers/postController";
 import container from "../util/ioc/iocContainer";
-import { isValid } from "src/util/validationHandler";
-import { param } from "express-validator";
+import { body, param } from "express-validator";
 
 const controller: PostController =
   container.get<PostController>(PostController);
@@ -40,7 +39,32 @@ function routes(app: Express) {
   );
 
   app.get(
+    "/post/getAllUniversityPosts",
+    isAuth,
+    logRequest,
+    async (req: Request, res: Response, next: NextFunction) => {
+      await controller.getAllUniversityPosts(req, res, next);
+    }
+  );
+
+  app.get(
     "/post/getPostDetails/postId=:postId",
+    [
+      param("postId")
+        .isMongoId()
+        .not()
+        .isEmpty()
+        .withMessage("Post id is required"),
+    ],
+    isAuth,
+    logRequest,
+    async (req: Request, res: Response, next: NextFunction) => {
+      await controller.getPostDetails(req, res, next);
+    }
+  );
+
+  app.get(
+    "/post/getPostById/postId=:postId",
     [
       param("postId")
         .isMongoId()

@@ -9,7 +9,6 @@ import { DataResult } from "../types/result/DataResult";
 import { PostDoc } from "../models/schemas/post.schema";
 import PostList from "../models/dtos/post/post-list";
 import { PostDetails } from "../models/dtos/post/post-details";
-import { CustomError } from "../types/error/CustomError";
 import { PostForLike } from "../models/dtos/post/post-for-like";
 
 @injectable()
@@ -28,6 +27,28 @@ export class PostController {
 
       const result: DataResult<PostDetails> =
         await this._postService.getPostDetails(postId, userId);
+
+      if (result.success) {
+        return res.status(result.statusCode).json({
+          message: result.message,
+          data: result.data,
+        });
+      }
+
+      return res.status(result.statusCode).json({ result });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async getPostById(req: Request, res: Response, next: NextFunction) {
+    try {
+      isValid(req, res, next);
+      const postId: string = req.params.postId;
+      const userId: string = req.userId;
+
+      const result: DataResult<PostDetails> =
+        await this._postService.getPostById(postId, userId);
 
       if (result.success) {
         return res.status(result.statusCode).json({
@@ -64,6 +85,26 @@ export class PostController {
     try {
       const result: DataResult<Array<PostList>> =
         await this._postService.getAllFriendsPosts(req.userId);
+
+      if (result.success)
+        return res.status(result.statusCode).json({
+          message: result.message,
+          data: result.data,
+        });
+
+      return res.status(result.statusCode).json({ result });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async getAllUniversityPosts(req: Request, res: Response, next: NextFunction) {
+    try {
+      isValid(req, res, next);
+      const userId: string = req.userId;
+
+      const result: DataResult<Array<PostList>> =
+        await this._postService.getAllUniversityPosts(userId);
 
       if (result.success)
         return res.status(result.statusCode).json({

@@ -7,10 +7,10 @@ const clubSchema = new mongoose.Schema({
   name: {
     type: String,
   },
-  logoUrl: {
+  logo: {
     type: String,
   },
-  bannerUrl: {
+  banner: {
     type: String,
   },
   biography: {
