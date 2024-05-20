@@ -2,14 +2,15 @@ import mongoose from "mongoose";
 import UserForCreate from "../../models/dtos/user/user-for-create";
 import { UserForUpdate } from "../../models/dtos/user/user-for-update";
 import { UserDoc } from "../../models/schemas/user.schema";
-import { UserDetailDto } from "src/models/dtos/user/user-detail-dto";
-import { User } from "src/models/entites/User";
-import { UserProfileDto } from "src/models/dtos/user/user-profile-dto";
+import { UserDetailDto } from "../../models/dtos/user/user-detail-dto";
+import { User } from "../../models/entites/User";
+import { UserProfileDto } from "../../models/dtos/user/user-profile-dto";
+import { UserListDto } from "../../models/dtos/user/user-list-dto";
 
 interface IUserRepository {
   create(userForCreate: UserForCreate): Promise<UserDoc>;
   getUserDetails(id: string): Promise<UserDetailDto>;
-  getAll(): Promise<UserDoc[]>;
+  getAll(): Promise<Array<UserListDto>>;
   getAllPopulated(): Promise<UserProfileDto[]>;
   getById(id: string): Promise<UserDoc>;
   getByEmail(email: string): Promise<User>;

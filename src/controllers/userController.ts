@@ -9,7 +9,8 @@ import isAuth from "../middleware/is-auth";
 import { UserForUpdate } from "../models/dtos/user/user-for-update";
 import { DataResult } from "../types/result/DataResult";
 import { UserDoc } from "../models/schemas/user.schema";
-import { UserDetailDto } from "src/models/dtos/user/user-detail-dto";
+import { UserDetailDto } from "../models/dtos/user/user-detail-dto";
+import { UserListDto } from "../models/dtos/user/user-list-dto";
 
 @injectable()
 export class UserController {
@@ -90,15 +91,7 @@ export class UserController {
 
   async getAllUsers(req: Request, res: Response, next: NextFunction) {
     try {
-      console.log("====================================");
-      console.log("Controller: ");
-      console.log(typeof this.userService);
-      console.log(this.userService);
-      console.log("====================================");
-      console.log(this);
-      console.log("====================================");
-
-      const result: DataResult<Array<UserDoc>> =
+      const result: DataResult<Array<UserListDto>> =
         await this.userService.getAllUsers();
 
       if (result.success)

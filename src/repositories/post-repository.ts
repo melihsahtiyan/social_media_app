@@ -6,8 +6,8 @@ import { PostDetails } from "../models/dtos/post/post-details";
 import { PostForCreate } from "../models/dtos/post/post-for-create";
 import mongoose, { Schema } from "mongoose";
 import IPostRepository from "../types/repositories/IPostRepository";
-import { PostForLike } from "src/models/dtos/post/post-for-like";
-import { Post } from "src/models/entites/Post";
+import { PostForLike } from "../models/dtos/post/post-for-like";
+import { Post } from "../models/entites/Post";
 import { UserForPost } from "../models/dtos/user/user-for-post";
 
 @injectable()
@@ -15,14 +15,23 @@ export class PostRepository implements IPostRepository {
   constructor() {}
 
   async createPost(postForCreate: PostForCreate): Promise<PostDoc> {
-    return await posts.create({ ...postForCreate });
+    const createdPost: PostDoc = await posts.create({ ...postForCreate });
+
+    const creator: UserDoc = await users.findById(createdPost.creator);
+    creator.posts.push(createdPost._id);
+    await creator.save();
+
+    return createdPost;
   }
   async getAllUniversityPosts(
-    userId: Schema.Types.ObjectId,
     university: string
   ): Promise<Array<Post>> {
+    const usersFromUniversity: UserDoc[] = await users.find({
+      university: university,
+    });
+
     return await posts
-      .find({ "creator.university": university, creator: { $ne: userId } })
+      .find({ creator: { $in: usersFromUniversity.map((user) => user._id) } })
       .populate("creator", "firstName lastName profilePhotoUrl")
       .populate("likes", "firstName lastName profilePhotoUrl")
       .sort({ createdAt: -1 });
@@ -103,6 +112,16 @@ export class PostRepository implements IPostRepository {
   }
 
   async deletePost(id: string): Promise<PostDoc> {
+    const postToDelete: PostDoc = await posts.findById(id);
+
+    const creator: UserDoc = await users.findById(postToDelete.creator);
+
+    creator.posts = creator.posts.filter(
+      (postId) => postId.toString() !== id.toString()
+    );
+
+    await creator.save();
+
     return await posts.findByIdAndDelete(id);
   }
 

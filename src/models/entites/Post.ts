@@ -1,13 +1,14 @@
-import mongoose from "mongoose";
+import { Schema } from "mongoose";
 import { Entity } from "./Entity";
 import { Poll } from "./Poll";
 export interface Post extends Entity {
-  creator: mongoose.Schema.Types.ObjectId;
+  creator: Schema.Types.ObjectId;
   content: { caption: string; mediaUrls: Array<string> };
-  likes: mongoose.Schema.Types.ObjectId[];
+  likes: Schema.Types.ObjectId[];
   likeCount: number;
-  comments: mongoose.Schema.Types.ObjectId[];
+  comments: Schema.Types.ObjectId[];
   commentCount: number;
   poll: Poll;
+  event?: Schema.Types.ObjectId;
   isUpdated: boolean;
 }

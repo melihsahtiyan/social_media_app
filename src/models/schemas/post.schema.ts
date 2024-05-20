@@ -51,6 +51,11 @@ export const postSchema = new mongoose.Schema({
     _id: false,
     required: false,
   },
+  event: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Event",
+    required: false,
+  },
   isUpdated: {
     type: Boolean,
     default: false,

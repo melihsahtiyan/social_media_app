@@ -11,7 +11,8 @@ import { CustomError } from "../types/error/CustomError";
 import { User } from "../models/entites/User";
 import { posts } from "../models/schemas/post.schema";
 import { PostDetails } from "../models/dtos/post/post-details";
-import { UserProfileDto } from "src/models/dtos/user/user-profile-dto";
+import { UserProfileDto } from "../models/dtos/user/user-profile-dto";
+import { UserListDto } from "../models/dtos/user/user-list-dto";
 
 @injectable()
 export class UserRepository implements IUserRepository {
@@ -103,8 +104,14 @@ export class UserRepository implements IUserRepository {
     return await Promise.resolve<UserDetailDto>(userDetail);
   }
 
-  async getAll(): Promise<UserDoc[]> {
-    return await users.find();
+  async getAll(): Promise<Array<UserListDto>> {
+    return (await users
+      .find()
+      .populate("friends", "_id firstName lastName")
+      .populate(
+        "friendRequests",
+        "_id firstName lastName"
+      )) as Array<UserListDto>;
   }
 
   async getAllPopulated(): Promise<UserProfileDto[]> {

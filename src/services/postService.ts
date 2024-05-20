@@ -31,10 +31,7 @@ export class PostService implements IPostService {
     try {
       const user: UserDoc = await this._userRepository.getById(userId);
       const posts: Array<Post> =
-        await this._postRepository.getAllUniversityPosts(
-          user._id,
-          user.university
-        );
+        await this._postRepository.getAllUniversityPosts(user.university);
 
       const postList: Array<PostList> = posts.map((post) => {
         const postForList: PostList = {
@@ -341,7 +338,14 @@ export class PostService implements IPostService {
           sourceUrls = files.map((file) => {
             const extension = file.mimetype.split("/")[1];
             const videoExtensions = ["mp4", "mov", "avi", "mkv", "webm", "m4v"];
-            const imageExtensions = ["jpg", "jpeg", "png"];
+            const imageExtensions = [
+              "jpg",
+              "jpeg",
+              "png",
+              "webp",
+              "heic",
+              "gif",
+            ];
 
             if (videoExtensions.includes(extension)) {
               return "media/videos/" + file.filename;

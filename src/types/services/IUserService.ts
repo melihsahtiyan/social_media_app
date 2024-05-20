@@ -3,9 +3,10 @@ import { DataResult } from "../result/DataResult";
 import { Result } from "./../result/Result";
 import { UserForUpdate } from "../../models/dtos/user/user-for-update";
 import { UserDetailDto } from "../../models/dtos/user/user-detail-dto";
+import { UserListDto } from "../../models/dtos/user/user-list-dto";
 
 interface IUserService {
-  getAllUsers(): Promise<DataResult<Array<UserDoc>>>;
+  getAllUsers(): Promise<DataResult<Array<UserListDto>>>;
   getUserById(userId: string): Promise<DataResult<UserDoc>>;
   searchByName(name: string): Promise<DataResult<Array<UserDoc>>>;
   viewUserDetails(

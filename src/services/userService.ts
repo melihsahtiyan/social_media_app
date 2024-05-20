@@ -12,6 +12,7 @@ import IUserService from "../types/services/IUserService";
 import { UserDetailDto } from "../models/dtos/user/user-detail-dto";
 import { clearImage } from "../util/fileUtil";
 import { PostDetails } from "../models/dtos/post/post-details";
+import { UserListDto } from "../models/dtos/user/user-list-dto";
 
 @injectable()
 export class UserService implements IUserService {
@@ -151,10 +152,10 @@ export class UserService implements IUserService {
     }
   }
 
-  async getAllUsers(): Promise<DataResult<Array<UserDoc>>> {
+  async getAllUsers(): Promise<DataResult<Array<UserListDto>>> {
     try {
-      const users: Array<UserDoc> = await this.userRepository.getAll();
-      const result: DataResult<Array<UserDoc>> = {
+      const users: Array<UserListDto> = await this.userRepository.getAll();
+      const result: DataResult<Array<UserListDto>> = {
         statusCode: 200,
         message: "Users fetched successfully",
         success: true,
@@ -331,7 +332,7 @@ export class UserService implements IUserService {
       if (!receiverUser) {
         const result: Result = {
           statusCode: 404,
-          message: "User not found!",
+          message: "You must be logged in!",
           success: false,
         };
         return result;
@@ -345,7 +346,7 @@ export class UserService implements IUserService {
       if (!senderUser) {
         const result: Result = {
           statusCode: 404,
-          message: "You must be logged in!",
+          message: "User not found!",
           success: false,
         };
         return result;
@@ -413,7 +414,6 @@ export class UserService implements IUserService {
     }
   }
 
-  // TODO: Global exception handling
   async updateProfile(
     userId: string,
     userForUpdate: UserForUpdate,
