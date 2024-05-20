@@ -40,6 +40,9 @@ export class ClubRepository implements IClubRepository {
         "firstName lastName email profilePicture university department"
       );
   }
+  async getClubByOrganizerId(organizerId: string): Promise<Club> {
+    return await clubs.findOne({ organizers: organizerId });
+  }
   public async updateClub(id: string, club: ClubForUpdateDto): Promise<Club> {
     return await clubs.findByIdAndUpdate(
       id,

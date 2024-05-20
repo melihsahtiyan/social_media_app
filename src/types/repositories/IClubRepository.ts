@@ -7,6 +7,7 @@ export interface IClubRepository {
   getClubs(): Promise<Club[]>;
   getClubById(id: string): Promise<Club>;
   getById(id: string): Promise<Club>;
+  getClubByOrganizerId(organizerId: string): Promise<Club>;
   createClub(club: ClubForCreate): Promise<Club>;
   updateClub(id: string, club: ClubForUpdateDto): Promise<Club>;
   updateClubImage(id: string, logo?: string, banner?: string): Promise<Club>;

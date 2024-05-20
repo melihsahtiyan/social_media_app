@@ -9,7 +9,7 @@ export interface EventListDto {
   time: string;
   club: { _id: Schema.Types.ObjectId; name: string };
   isPublic: boolean;
-  isOnilne: boolean;
+  isOnline: boolean;
   attendeeCount: number;
   isUpdated: boolean;
 }

@@ -4,13 +4,9 @@ import mongoose from "mongoose";
 import { CustomError } from "./types/error/CustomError";
 import bodyParser from "body-parser";
 import path from "path";
-import authRoutes from "./routes/authRoutes";
-import postRoutes from "./routes/postRoutes";
-import pollRoutes from "./routes/pollRoutes";
-import userRoutes from "./routes/userRoutes";
-import clubRoutes from "./routes/clubRoutes";
 import { handleError } from "./middleware/errorHandlingMiddleware";
 import fs from "fs";
+import routes from "./routes/routes";
 
 fs.mkdirSync(path.join(__dirname, "../media/images"), { recursive: true });
 fs.mkdirSync(path.join(__dirname, "../media/videos"), { recursive: true });
@@ -42,11 +38,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
   next();
 });
 
-postRoutes(app);
-pollRoutes(app);
-clubRoutes(app);
-authRoutes(app);
-userRoutes(app);
+routes(app);
 
 mongoose
   .connect(process.env.MONGO_URL)

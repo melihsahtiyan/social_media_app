@@ -10,7 +10,7 @@ export interface Event extends Entity {
   time: string;
   club: Schema.Types.ObjectId;
   isPublic: boolean;
-  isOnilne: boolean;
+  isOnline: boolean;
   attendees: Schema.Types.ObjectId[];
   posts: Schema.Types.ObjectId[];
   isUpdated: boolean;

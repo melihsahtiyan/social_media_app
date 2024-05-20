@@ -34,7 +34,7 @@ function routes(app: Express) {
     "/club/create",
     logRequest,
     fileUpload,
-    [body("name").isString().isLength({ min: 3 }), body("status").isBoolean()],
+    [body("name").not().isEmpty().isString().isLength({ min: 3 }), body("status").isBoolean()],
     isAuth,
     async (req: Request, res: Response, next: NextFunction) => {
       await controller.createClub(req, res, next);

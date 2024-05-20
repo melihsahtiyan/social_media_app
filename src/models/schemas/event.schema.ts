@@ -1,6 +1,5 @@
 import mongoose from "mongoose";
-import { Event } from "../entites/event";
-
+import { Event } from "../entites/Event";
 export type EventDoc = mongoose.Document & Event;
 
 export const eventSchema = new mongoose.Schema({
