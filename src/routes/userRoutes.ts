@@ -43,6 +43,7 @@ function routes(app: Express) {
       body("response").isBoolean().not().isEmpty(),
     ],
     isAuth,
+    logRequest,
     async (req: Request, res: Response, next: NextFunction) => {
       await controller.handleFollowRequest(req, res, next);
     }
@@ -50,6 +51,7 @@ function routes(app: Express) {
 
   app.get(
     "/user/getAllUsers",
+    logRequest,
     async (req: Request, res: Response, next: NextFunction) => {
       await controller.getAllUsers(req, res, next);
     }
@@ -57,15 +59,17 @@ function routes(app: Express) {
 
   app.get(
     "/user/getAllDetails",
+    logRequest,
     async (req: Request, res: Response, next: NextFunction) => {
       await controller.getAllDetails(req, res, next);
     }
   );
 
   app.get(
-    "/user/viewUserDetails",
-    [body("userId").isAlphanumeric().not().isEmpty()],
+    "/user/viewUserDetails/userId=:userId",
+    [param("userId").isAlphanumeric().not().isEmpty()],
     isAuth,
+    logRequest,
     async (req: Request, res: Response, next: NextFunction) => {
       await controller.viewUserDetails(req, res, next);
     }
@@ -75,6 +79,7 @@ function routes(app: Express) {
     "/user/searchByName/name=:name",
     [param("name").isString().not().isEmpty().withMessage("Name is required")],
     isAuth,
+    logRequest,
     async (req: Request, res: Response, next: NextFunction) => {
       await controller.searchByName(req, res, next);
     }
@@ -83,6 +88,7 @@ function routes(app: Express) {
   app.get(
     "/user/getUserByToken",
     isAuth,
+    logRequest,
     async (req: Request, res: Response, next: NextFunction) => {
       await controller.getUserByToken(req, res, next);
     }
@@ -92,6 +98,7 @@ function routes(app: Express) {
     "/user/changeProfilePhoto",
     fileUpload,
     isAuth,
+    logRequest,
     async (req: Request, res: Response, next: NextFunction) => {
       await controller.changeProfilePhoto(req, res, next);
     }
@@ -100,6 +107,7 @@ function routes(app: Express) {
   app.delete(
     "/user/deleteProfilePhoto",
     isAuth,
+    logRequest,
     async (req: Request, res: Response, next: NextFunction) => {
       await controller.deleteProfilePhoto(req, res, next);
     }

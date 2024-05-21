@@ -36,9 +36,7 @@ export const logRequest = (req: Request, res: Response, next: NextFunction) => {
   Header: ${req.headers["user-agent"]}
   Body: ${JSON.stringify(req.body)}
   Form Data: ${
-    req.file
-      ? JSON.stringify(req.files.map((file) => file.filename))
-      : "No files"
+    req.files ? req.files.map((file) => file.filename) : req.file.filename
   }
   Query: ${JSON.stringify(req.query)}
   Params: ${JSON.stringify(req.params)}

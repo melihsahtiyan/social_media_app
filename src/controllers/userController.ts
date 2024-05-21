@@ -23,7 +23,7 @@ export class UserController {
   async viewUserDetails(req: Request, res: Response, next: NextFunction) {
     try {
       isValid(req, res, next);
-      const userId: string = req.body.userId;
+      const userId: string = req.params.userId;
       const viewerId: string = req.userId;
 
       const result: DataResult<UserDetailDto> =
