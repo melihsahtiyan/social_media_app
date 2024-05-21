@@ -6,7 +6,12 @@ import bodyParser from "body-parser";
 import path from "path";
 import { handleError } from "./middleware/errorHandlingMiddleware";
 import fs from "fs";
-import routes from "./routes/routes";
+import authRoutes from "./routes/authRoutes";
+import userRoutes from "./routes/userRoutes";
+import eventRoutes from "./routes/eventRoutes";
+import clubRoutes from "./routes/clubRoutes";
+import postRoutes from "./routes/postRoutes";
+import pollRoutes from "./routes/pollRoutes";
 
 fs.mkdirSync(path.join(__dirname, "../media/images"), { recursive: true });
 fs.mkdirSync(path.join(__dirname, "../media/videos"), { recursive: true });
@@ -38,7 +43,12 @@ app.use((req: Request, res: Response, next: NextFunction) => {
   next();
 });
 
-routes(app);
+authRoutes(app);
+userRoutes(app);
+eventRoutes(app);
+clubRoutes(app);
+postRoutes(app);
+pollRoutes(app);
 
 mongoose
   .connect(process.env.MONGO_URL)
