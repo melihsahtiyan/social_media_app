@@ -13,9 +13,9 @@ import { EventListDto } from "../models/dtos/event/event-list-dto";
 
 @injectable()
 export class EventService implements IEventService {
-  private readonly _eventRepository: EventRepository;
-  private readonly _userRepository: UserRepository;
-  private readonly _clubRepository: ClubRepository;
+  private _eventRepository: EventRepository;
+  private _userRepository: UserRepository;
+  private _clubRepository: ClubRepository;
   constructor(
     @inject(EventRepository) eventRepository: EventRepository,
     @inject(UserRepository) userRepository: UserRepository,

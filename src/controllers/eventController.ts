@@ -12,8 +12,8 @@ import { EventInputDto } from "../models/dtos/event/event-input-dto";
 
 @injectable()
 export class EventController {
-  private readonly _eventService: EventService;
-  constructor(@inject(EventService) eventService) {
+  private _eventService: EventService;
+  constructor(@inject(EventService) eventService: EventService) {
     this._eventService = eventService;
   }
   async createEvent(req: Request, res: Response, next: NextFunction) {

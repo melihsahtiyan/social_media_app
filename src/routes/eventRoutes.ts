@@ -13,7 +13,6 @@ function routes(app: Express) {
   app.post(
     "/event/create",
     logRequest,
-    isAuth,
     [
       body("title").not().isEmpty().isString().withMessage("Title is required"),
       body("description")
@@ -38,6 +37,7 @@ function routes(app: Express) {
         .isBoolean()
         .withMessage("isOnline is required"),
     ],
+    isAuth,
     async (req: Request, res: Response, next: NextFunction) => {
       await controller.createEvent(req, res, next);
     }

@@ -1,6 +1,5 @@
 import "reflect-metadata";
 import { Container } from "inversify";
-import TYPES from "./types";
 import { PostRepository } from "../../repositories/post-repository";
 import { PostService } from "../../services/postService";
 import { UserRepository } from "../../repositories/user-repository";
