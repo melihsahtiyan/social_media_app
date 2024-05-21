@@ -1,14 +1,28 @@
 import { injectable } from "inversify";
 import { ClubForCreate } from "../models/dtos/club/club-for-create";
 import { Club } from "../models/entites/Club";
-import { clubs } from "../models/schemas/club.schema";
+import { ClubDoc, clubs } from "../models/schemas/club.schema";
 import { IClubRepository } from "../types/repositories/IClubRepository";
 import { ClubForUpdateDto } from "../models/dtos/club/club-for-update-dto";
+import { ClubDetailDto } from "../models/dtos/club/club-detail-dto";
 
 @injectable() /* TODO extends BaseRepository<Club>  */
 export class ClubRepository implements IClubRepository {
-  public async createClub(club: ClubForCreate): Promise<Club> {
-    return await clubs.create({ ...club });
+  public async createClub(club: ClubForCreate): Promise<ClubForCreate> {
+    const createdClub = await clubs.create({ ...club });
+
+    const clubForCreate: ClubForCreate = {
+      name: createdClub.name,
+      logoUrl: club.logoUrl,
+      bannerUrl: club.bannerUrl,
+      biography: createdClub.biography,
+      status: createdClub.status,
+      president: createdClub.president,
+      organizers: createdClub.organizers,
+      members: createdClub.members,
+    };
+
+    return clubForCreate;
   }
   public async getById(id: string): Promise<Club> {
     return await clubs.findById(id);
@@ -40,7 +54,7 @@ export class ClubRepository implements IClubRepository {
         "firstName lastName email profilePicture university department"
       );
   }
-  async getClubByOrganizerId(organizerId: string): Promise<Club> {
+  async getClubByOrganizerId(organizerId: string): Promise<ClubDoc> {
     return await clubs.findOne({ organizers: organizerId });
   }
   public async updateClub(id: string, club: ClubForUpdateDto): Promise<Club> {

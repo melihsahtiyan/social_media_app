@@ -4,7 +4,7 @@ import { inject, injectable } from "inversify";
 import { PollService } from "../services/pollService";
 import { PollInputDto } from "../models/dtos/post/poll/poll-input-dto";
 import { isValid } from "../util/validationHandler";
-import { VoteInputDto } from "src/models/dtos/post/poll/vote-input-dto";
+import { VoteInputDto } from "../models/dtos/post/poll/vote-input-dto";
 
 @injectable()
 export class PollController {

@@ -3,6 +3,7 @@ import { DataResult } from "../result/DataResult";
 import { Result } from "../result/Result";
 import { Club } from "../../models/entites/Club";
 import { ClubForUpdateDto } from "../../models/dtos/club/club-for-update-dto";
+import { ClubForCreate } from "../../models/dtos/club/club-for-create";
 
 export interface IClubService {
   getAllClubs(): Promise<DataResult<Array<Club>>>;
@@ -10,7 +11,7 @@ export interface IClubService {
   createClub(
     club: ClubInputDto,
     logo: Express.Multer.File
-  ): Promise<DataResult<Club>>;
+  ): Promise<DataResult<ClubForCreate>>;
   updateClub(
     id: string,
     club: ClubForUpdateDto,

@@ -43,12 +43,12 @@ app.use((req: Request, res: Response, next: NextFunction) => {
   next();
 });
 
-authRoutes(app);
 userRoutes(app);
 eventRoutes(app);
 clubRoutes(app);
 postRoutes(app);
 pollRoutes(app);
+authRoutes(app);
 
 mongoose
   .connect(process.env.MONGO_URL)

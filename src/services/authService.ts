@@ -11,7 +11,7 @@ import UserForCreate from "../models/dtos/user/user-for-create";
 import { Result } from "../types/result/Result";
 import { DataResult } from "../types/result/DataResult";
 import IAuthService from "../types/services/IAuthService";
-import { User } from "src/models/entites/User";
+import { User } from "../models/entites/User";
 
 const transporter: nodemailer.Transporter = nodemailer.createTransport({
   service: "gmail",

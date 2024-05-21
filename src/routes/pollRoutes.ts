@@ -4,7 +4,7 @@ import { mediaUpload } from "../util/fileUtil";
 import isAuth from "../middleware/is-auth";
 import { logRequest } from "../util/loggingHandler";
 import container from "../util/ioc/iocContainer";
-import { isValid } from "src/util/validationHandler";
+import { isValid } from "../util/validationHandler";
 import { body, param } from "express-validator";
 import { PollController } from "../controllers/pollController";
 

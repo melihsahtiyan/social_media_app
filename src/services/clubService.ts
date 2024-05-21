@@ -66,12 +66,12 @@ export class ClubService implements IClubService {
   public async createClub(
     club: ClubInputDto,
     logo?: Express.Multer.File
-  ): Promise<DataResult<Club>> {
+  ): Promise<DataResult<ClubForCreate>> {
     try {
       const president: User = await this.userRepository.getById(club.president);
 
       if (!president) {
-        const result: DataResult<Club> = {
+        const result: DataResult<ClubForCreate> = {
           data: null,
           message: "President not found",
           success: false,
@@ -83,7 +83,7 @@ export class ClubService implements IClubService {
       const clubExist = await this.clubRepository.getClubByName(club.name);
 
       if (clubExist) {
-        const result: DataResult<Club> = {
+        const result: DataResult<ClubForCreate> = {
           data: null,
           message: "Club with this name already exists!",
           success: false,
@@ -111,7 +111,7 @@ export class ClubService implements IClubService {
 
       const createdClub = await this.clubRepository.createClub(clubForCreate);
 
-      const result: DataResult<Club> = {
+      const result: DataResult<ClubForCreate> = {
         data: createdClub,
         message: "Club created",
         success: true,

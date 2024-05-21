@@ -1,9 +1,9 @@
-import { VoteInputDto } from "src/models/dtos/post/poll/vote-input-dto";
+import { VoteInputDto } from "../../models/dtos/post/poll/vote-input-dto";
 import { PollInputDto } from "../../models/dtos/post/poll/poll-input-dto";
 import { PostDoc } from "../../models/schemas/post.schema";
 import { DataResult } from "../result/DataResult";
 import { Express } from "express";
-import { Poll } from "src/models/entites/Poll";
+import { Poll } from "../../models/entites/Poll";
 
 export interface IPollService {
   createPoll(

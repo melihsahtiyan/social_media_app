@@ -1,6 +1,6 @@
 import { CommentDoc, comments } from "../models/schemas/comment.schema";
 import { CommentForCreate } from "../models/dtos/comment/comment-for-create";
-import { Comment } from "src/models/entites/Comment";
+import { Comment } from "../models/entites/Comment";
 
 export class CommentRepository {
   constructor() {}

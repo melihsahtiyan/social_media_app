@@ -4,7 +4,7 @@ import { body } from "express-validator";
 import { AuthController } from "../controllers/authController";
 import container from "../util/ioc/iocContainer";
 import { authRequestLogger } from "../util/loggingHandler";
-import { isValid } from "src/util/validationHandler";
+import { isValid } from "../util/validationHandler";
 
 const controller: AuthController =
   container.get<AuthController>(AuthController);

@@ -11,8 +11,8 @@ import { PollInputDto } from "../models/dtos/post/poll/poll-input-dto";
 import { PostForCreate } from "../models/dtos/post/post-for-create";
 import { Poll } from "../models/entites/Poll";
 import { CustomError } from "../types/error/CustomError";
-import { PostDetails } from "src/models/dtos/post/post-details";
-import { VoteInputDto } from "src/models/dtos/post/poll/vote-input-dto";
+import { PostDetails } from "../models/dtos/post/post-details";
+import { VoteInputDto } from "../models/dtos/post/poll/vote-input-dto";
 
 @injectable()
 export class PollService implements IPollService {
