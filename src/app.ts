@@ -8,7 +8,6 @@ import { handleError } from "./middleware/errorHandlingMiddleware";
 import fs from "fs";
 import authRoutes from "./routes/authRoutes";
 import userRoutes from "./routes/userRoutes";
-import eventRoutes from "./routes/eventRoutes";
 import clubRoutes from "./routes/clubRoutes";
 import postRoutes from "./routes/postRoutes";
 import pollRoutes from "./routes/pollRoutes";
@@ -44,7 +43,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 });
 
 userRoutes(app);
-eventRoutes(app);
+// eventRoutes(app);
 clubRoutes(app);
 postRoutes(app);
 pollRoutes(app);

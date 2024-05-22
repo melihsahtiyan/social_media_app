@@ -14,9 +14,9 @@ import { PollController } from "../../controllers/pollController";
 import { ClubRepository } from "../../repositories/club-repository";
 import { ClubService } from "../../services/clubService";
 import { ClubController } from "../../controllers/clubController";
-import { EventService } from "../../services/eventService";
-import { EventRepository } from "../../repositories/event-repository";
-import { EventController } from "../../controllers/eventController";
+// import { EventService } from "../../services/eventService";
+// import { EventRepository } from "../../repositories/event-repository";
+// import { EventController } from "../../controllers/eventController";
 
 const container: Container = new Container();
 
@@ -60,15 +60,15 @@ container
   .to(ClubController)
   .inSingletonScope();
 
-container
-  .bind<EventRepository>(EventRepository)
-  .to(EventRepository)
-  .inSingletonScope();
-container.bind<EventService>(EventService).to(EventService).inSingletonScope();
-container
-  .bind<EventController>(EventController)
-  .to(EventController)
-  .inSingletonScope();
+// container
+//   .bind<EventRepository>(EventRepository)
+//   .to(EventRepository)
+//   .inSingletonScope();
+// container.bind<EventService>(EventService).to(EventService).inSingletonScope();
+// container
+//   .bind<EventController>(EventController)
+//   .to(EventController)
+//   .inSingletonScope();
 
 container.bind<AuthService>(AuthService).to(AuthService).inSingletonScope();
 container
