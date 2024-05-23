@@ -14,6 +14,7 @@ import { clearImage } from "../util/fileUtil";
 import { PostDetails } from "../models/dtos/post/post-details";
 import { UserListDto } from "../models/dtos/user/user-list-dto";
 import { UserForSearchDto } from "../models/dtos/user/user-for-search-dto";
+import { UserProfileDto } from "src/models/dtos/user/user-profile-dto";
 
 @injectable()
 export class UserService implements IUserService {
@@ -94,11 +95,66 @@ export class UserService implements IUserService {
         return result;
       }
 
+      const result: DataResult<UserDetailDto> = {
+        statusCode: 200,
+        message: "User fetched successfully",
+        success: true,
+        data: user,
+      };
+
+      return result;
+    } catch (err) {
+      const error: CustomError = new Error(err.message);
+      error.statusCode = err.statusCode || 500;
+      throw error;
+    }
+  }
+  async viewUserProfile(
+    userId: string,
+    viewerId: string
+  ): Promise<DataResult<UserProfileDto | UserDetailDto>> {
+    try {
+      const user: UserProfileDto = await this.userRepository.getUserProfile(
+        userId
+      );
+
+      const viewer: UserDoc = await this.userRepository.getById(viewerId);
+
+      if (!viewer) {
+        const result: DataResult<UserProfileDto> = {
+          statusCode: 404,
+          message: "You must be logged in!",
+          success: false,
+          data: null,
+        };
+        return result;
+      }
+
+      if (!user) {
+        const result: DataResult<UserProfileDto> = {
+          statusCode: 404,
+          message: "User not found!",
+          success: false,
+          data: null,
+        };
+        return result;
+      }
+
+      if (user._id === viewer._id) {
+        const result: DataResult<UserProfileDto> = {
+          statusCode: 200,
+          message: "User fetched successfully!",
+          success: true,
+          data: user,
+        };
+        return result;
+      }
+
       if (
         !user.friends.includes(viewer._id) &&
         user.university !== viewer.university
       ) {
-        const result: DataResult<UserDetailDto> = {
+        const result: DataResult<UserProfileDto> = {
           statusCode: 403,
           message: "You are not authorized to view this user!",
           success: false,
@@ -107,20 +163,12 @@ export class UserService implements IUserService {
         return result;
       }
 
-      user.posts = user.posts.map((post: PostDetails) => {
-        if (post.likes.includes(viewer._id)) {
-          post.isLiked = true;
-        }
-        return post;
-      });
-
-      const result: DataResult<UserDetailDto> = {
+      const result: DataResult<UserProfileDto> = {
         statusCode: 200,
-        message: "User fetched successfully",
+        message: "User fetched successfully!",
         success: true,
         data: user,
       };
-
       return result;
     } catch (err) {
       const error: CustomError = new Error(err.message);
@@ -157,11 +205,11 @@ export class UserService implements IUserService {
     }
   }
 
-  async getAllDetails(): Promise<DataResult<UserDetailDto[]>> {
+  async getAllDetails(): Promise<DataResult<UserProfileDto[]>> {
     try {
-      const userDetailDtos: Array<UserDetailDto> =
+      const userDetailDtos: Array<UserProfileDto> =
         await this.userRepository.getAllPopulated();
-      const result: DataResult<Array<UserDetailDto>> = {
+      const result: DataResult<Array<UserProfileDto>> = {
         statusCode: 200,
         message: "Users fetched successfully",
         success: true,

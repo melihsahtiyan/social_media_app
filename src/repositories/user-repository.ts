@@ -18,16 +18,6 @@ import { UserForSearchDto } from "../models/dtos/user/user-for-search-dto";
 @injectable()
 export class UserRepository implements IUserRepository {
   constructor() {}
-  async searchByName(name: string): Promise<Array<UserForSearchDto>> {
-    const usersByName: Array<UserForSearchDto> = await users
-      .aggregate()
-      .project({ fullName: { $concat: ["$firstName", " ", "$lastName"] } })
-      .match({ fullName: { $regex: name, $options: "i" } })
-      .sort({ fullName: 1 })
-      .exec();
-
-    return usersByName;
-  }
 
   async create(userForCreate: UserForCreate): Promise<UserDoc> {
     return await users.create({
@@ -64,9 +54,9 @@ export class UserRepository implements IUserRepository {
       department: user.department,
       friends: [],
       friendCount: user.friends.length,
-      posts: [],
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
+      isFriend: false,
     };
 
     if (user.friends.length > 0) {
@@ -77,6 +67,69 @@ export class UserRepository implements IUserRepository {
             _id: follower._id.toString(),
             firstName: follower.firstName,
             lastName: follower.lastName,
+          };
+        })
+      );
+    }
+
+    return await Promise.resolve<UserDetailDto>(userDetail);
+  }
+  async getUserProfile(id: string): Promise<UserProfileDto> {
+    const user: User = await users
+      .findById(id)
+      .populate("friends", "_id firstName lastName")
+      .exec();
+
+    if (!user) {
+      const error: CustomError = new Error("User not found");
+      error.statusCode = 404;
+      throw error;
+    }
+
+    const userPosts: PostDetails[] = (await posts.find({
+      creator: user._id,
+    })) as PostDetails[];
+
+    const userDetail: UserProfileDto = {
+      _id: user._id,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+      profilePhotoUrl: user.profilePhotoUrl,
+      university: user.university,
+      department: user.department,
+      friends: [],
+      friendRequests: [],
+      friendCount: user.friends.length,
+      posts: [],
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+      isFriend: false,
+    };
+
+    if (user.friends.length > 0) {
+      userDetail.friends = await Promise.all(
+        user.friends.map(async (followerId) => {
+          const follower: UserDoc = await users.findById(followerId);
+          return {
+            _id: follower._id,
+            firstName: follower.firstName,
+            lastName: follower.lastName,
+            profilePhotoUrl: follower.profilePhotoUrl,
+          };
+        })
+      );
+    }
+
+    if (user.friendRequests.length > 0) {
+      userDetail.friendRequests = await Promise.all(
+        user.friendRequests.map(async (requestId) => {
+          const request: UserDoc = await users.findById(requestId);
+          return {
+            _id: request._id,
+            firstName: request.firstName,
+            lastName: request.lastName,
+            profilePhotoUrl: request.profilePhotoUrl,
           };
         })
       );
@@ -102,7 +155,7 @@ export class UserRepository implements IUserRepository {
       })
       .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
 
-    return await Promise.resolve<UserDetailDto>(userDetail);
+    return await Promise.resolve<UserProfileDto>(userDetail);
   }
 
   async getAll(): Promise<Array<UserListDto>> {
@@ -132,11 +185,12 @@ export class UserRepository implements IUserRepository {
           university: user.university,
           department: user.department,
           friends: [],
-          friendCount: user.friends.length,
           friendRequests: [],
+          friendCount: user.friends.length,
           posts: userPosts,
           createdAt: user.createdAt,
           updatedAt: user.updatedAt,
+          isFriend: false,
         };
 
         if (user.friends.length > 0) {
@@ -145,9 +199,10 @@ export class UserRepository implements IUserRepository {
               const follower: UserDoc = await users.findById(friendId);
 
               return {
-                _id: follower._id.toString(),
+                _id: follower._id,
                 firstName: follower.firstName,
                 lastName: follower.lastName,
+                profilePhotoUrl: follower.profilePhotoUrl,
               };
             })
           );
@@ -157,10 +212,12 @@ export class UserRepository implements IUserRepository {
           detailedUser.friendRequests = await Promise.all(
             user.friendRequests.map(async (requestId) => {
               const request: UserDoc = await users.findById(requestId);
+
               return {
-                _id: request._id.toString(),
+                _id: request._id,
                 firstName: request.firstName,
                 lastName: request.lastName,
+                profilePhotoUrl: request.profilePhotoUrl,
               };
             })
           );
@@ -180,6 +237,17 @@ export class UserRepository implements IUserRepository {
 
   async getByEmail(email: string): Promise<User> {
     return (await users.findOne({ email: email })) as User;
+  }
+
+  async searchByName(name: string): Promise<Array<UserForSearchDto>> {
+    const usersByName: Array<UserForSearchDto> = await users
+      .aggregate()
+      .project({ fullName: { $concat: ["$firstName", " ", "$lastName"] } })
+      .match({ fullName: { $regex: name, $options: "i" } })
+      .sort({ fullName: 1 })
+      .exec();
+
+    return usersByName;
   }
 
   async update(id: string, user: UserForUpdate): Promise<UserDoc> {

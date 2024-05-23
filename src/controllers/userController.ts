@@ -12,6 +12,7 @@ import { UserDoc } from "../models/schemas/user.schema";
 import { UserDetailDto } from "../models/dtos/user/user-detail-dto";
 import { UserListDto } from "../models/dtos/user/user-list-dto";
 import { UserForSearchDto } from "../models/dtos/user/user-for-search-dto";
+import { UserProfileDto } from "../models/dtos/user/user-profile-dto";
 
 @injectable()
 export class UserController {
@@ -29,6 +30,27 @@ export class UserController {
 
       const result: DataResult<UserDetailDto> =
         await this.userService.viewUserDetails(userId, viewerId);
+
+      if (result.success)
+        return res.status(200).json({
+          message: result.message,
+          data: result.data,
+        });
+
+      return res.status(result.statusCode).json({ result });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async viewUserProfile(req: Request, res: Response, next: NextFunction) {
+    try {
+      isValid(req, res, next);
+      const userId: string = req.params.userId;
+      const viewerId: string = req.userId;
+
+      const result: DataResult<UserProfileDto | UserDetailDto> =
+        await this.userService.viewUserProfile(userId, viewerId);
 
       if (result.success)
         return res.status(200).json({
@@ -110,7 +132,7 @@ export class UserController {
 
   async getAllDetails(req: Request, res: Response, next: NextFunction) {
     try {
-      const result: DataResult<Array<UserDetailDto>> =
+      const result: DataResult<Array<UserProfileDto>> =
         await this.userService.getAllDetails();
 
       if (result.success)
@@ -148,9 +170,8 @@ export class UserController {
   async getUserByToken(req: Request, res: Response, next: NextFunction) {
     try {
       const userId: string = req.userId;
-      const result: DataResult<UserDoc> = await this.userService.getUserById(
-        userId
-      );
+      const result: DataResult<UserProfileDto | UserDetailDto> =
+        await this.userService.viewUserProfile(userId, userId);
 
       if (result.success)
         return res.status(200).json({

@@ -11,6 +11,7 @@ import { UserForSearchDto } from "../../models/dtos/user/user-for-search-dto";
 interface IUserRepository {
   create(userForCreate: UserForCreate): Promise<UserDoc>;
   getUserDetails(id: string): Promise<UserDetailDto>;
+  getUserProfile(id: string): Promise<UserProfileDto>;
   getAll(): Promise<Array<UserListDto>>;
   getAllPopulated(): Promise<UserProfileDto[]>;
   getById(id: string): Promise<UserDoc>;

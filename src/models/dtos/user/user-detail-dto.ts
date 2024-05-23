@@ -15,7 +15,7 @@ export interface UserDetailDto {
     lastName: string;
   }>;
   friendCount: number;
-  posts: Array<PostDetails>;
   createdAt: Date;
   updatedAt: Date;
+  isFriend: boolean;
 }

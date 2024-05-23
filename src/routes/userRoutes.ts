@@ -76,6 +76,16 @@ function routes(app: Express) {
   );
 
   app.get(
+    "/user/viewUserProfile/userId=:userId",
+    [param("userId").isAlphanumeric().not().isEmpty()],
+    isAuth,
+    logRequest,
+    async (req: Request, res: Response, next: NextFunction) => {
+      await controller.viewUserProfile(req, res, next);
+    }
+  );
+
+  app.get(
     "/user/searchByName/name=:name",
     [param("name").isString().not().isEmpty().withMessage("Name is required")],
     isAuth,

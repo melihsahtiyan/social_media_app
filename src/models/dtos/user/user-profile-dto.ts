@@ -10,17 +10,20 @@ export interface UserProfileDto {
   university: string;
   department: string;
   friends: Array<{
-    _id: string;
+    _id: mongoose.Schema.Types.ObjectId;
     firstName: string;
     lastName: string;
+    profilePhotoUrl: string;
   }>;
   friendCount: number;
   friendRequests: Array<{
-    _id: string;
+    _id: mongoose.Schema.Types.ObjectId;
     firstName: string;
     lastName: string;
+    profilePhotoUrl: string;
   }>;
   posts: Array<PostDetails>;
   createdAt: Date;
   updatedAt: Date;
+  isFriend: boolean;
 }
