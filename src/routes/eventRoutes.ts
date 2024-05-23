@@ -11,7 +11,7 @@ const controller: EventController =
 
 function routes(app: Express) {
   app.post(
-    "/event/create",
+    "/api/event/create",
     logRequest,
     [
       body("title").not().isEmpty().isString().withMessage("Title is required"),
