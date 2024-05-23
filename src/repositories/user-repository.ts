@@ -13,12 +13,13 @@ import { posts } from "../models/schemas/post.schema";
 import { PostDetails } from "../models/dtos/post/post-details";
 import { UserProfileDto } from "../models/dtos/user/user-profile-dto";
 import { UserListDto } from "../models/dtos/user/user-list-dto";
+import { UserForSearchDto } from "../models/dtos/user/user-for-search-dto";
 
 @injectable()
 export class UserRepository implements IUserRepository {
   constructor() {}
-  async searchByName(name: string): Promise<Array<UserDoc>> {
-    const usersByName: Array<UserDoc> = await users
+  async searchByName(name: string): Promise<Array<UserForSearchDto>> {
+    const usersByName: Array<UserForSearchDto> = await users
       .aggregate()
       .project({ fullName: { $concat: ["$firstName", " ", "$lastName"] } })
       .match({ fullName: { $regex: name, $options: "i" } })

@@ -11,6 +11,7 @@ import { DataResult } from "../types/result/DataResult";
 import { UserDoc } from "../models/schemas/user.schema";
 import { UserDetailDto } from "../models/dtos/user/user-detail-dto";
 import { UserListDto } from "../models/dtos/user/user-list-dto";
+import { UserForSearchDto } from "../models/dtos/user/user-for-search-dto";
 
 @injectable()
 export class UserController {
@@ -127,9 +128,10 @@ export class UserController {
     try {
       isValid(req, res, next);
       const name: string = req.params.name;
+      const userId: string = req.userId;
 
-      const result: DataResult<Array<UserDoc>> =
-        await this.userService.searchByName(name);
+      const result: DataResult<Array<UserForSearchDto>> =
+        await this.userService.searchByName(name, userId);
 
       if (result.success)
         return res.status(200).json({

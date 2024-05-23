@@ -6,6 +6,7 @@ import { UserDetailDto } from "../../models/dtos/user/user-detail-dto";
 import { User } from "../../models/entites/User";
 import { UserProfileDto } from "../../models/dtos/user/user-profile-dto";
 import { UserListDto } from "../../models/dtos/user/user-list-dto";
+import { UserForSearchDto } from "../../models/dtos/user/user-for-search-dto";
 
 interface IUserRepository {
   create(userForCreate: UserForCreate): Promise<UserDoc>;
@@ -14,7 +15,7 @@ interface IUserRepository {
   getAllPopulated(): Promise<UserProfileDto[]>;
   getById(id: string): Promise<UserDoc>;
   getByEmail(email: string): Promise<User>;
-  searchByName(name: string): Promise<Array<UserDoc>>;
+  searchByName(name: string): Promise<Array<UserForSearchDto>>;
   update(id: string, user: UserForUpdate): Promise<UserDoc>;
   updateStatus(
     id: string,

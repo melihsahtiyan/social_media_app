@@ -13,6 +13,7 @@ import { UserDetailDto } from "../models/dtos/user/user-detail-dto";
 import { clearImage } from "../util/fileUtil";
 import { PostDetails } from "../models/dtos/post/post-details";
 import { UserListDto } from "../models/dtos/user/user-list-dto";
+import { UserForSearchDto } from "../models/dtos/user/user-for-search-dto";
 
 @injectable()
 export class UserService implements IUserService {
@@ -20,13 +21,35 @@ export class UserService implements IUserService {
   constructor(@inject(UserRepository) userRepository: UserRepository) {
     this.userRepository = userRepository;
   }
-  async searchByName(name: string): Promise<DataResult<UserDoc[]>> {
+  async searchByName(
+    name: string,
+    userId: string
+  ): Promise<DataResult<UserForSearchDto[]>> {
     try {
-      const usersByName: UserDoc[] = await this.userRepository.searchByName(
-        name
-      );
+      const usersByName: UserForSearchDto[] =
+        await this.userRepository.searchByName(name);
 
-      const result: DataResult<UserDoc[]> = {
+      const viewer: UserDoc = await this.userRepository.getById(userId);
+
+      if (!viewer) {
+        const result: DataResult<UserForSearchDto[]> = {
+          statusCode: 404,
+          message: "You must be logged in!",
+          success: false,
+          data: null,
+        };
+        return result;
+      }
+
+      usersByName.forEach((user: UserForSearchDto) => {
+        if (viewer.friends.includes(user._id)) {
+          user.isFriend = true;
+        } else {
+          user.isFriend = false;
+        }
+      });
+
+      const result: DataResult<UserForSearchDto[]> = {
         statusCode: 200,
         message: "Users fetched successfully",
         success: true,
