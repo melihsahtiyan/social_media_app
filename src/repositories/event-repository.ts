@@ -10,10 +10,14 @@ import { Event } from "../models/entites/Event";
 @injectable()
 export class EventRepository implements IEventRepository {
   async getEventsByOrganizerId(organizerId: string): Promise<EventListDto[]> {
-    throw new Error("Method not implemented.");
+    return (await events
+      .find({ organizer: organizerId })
+      .populate("club", "_id name")) as EventListDto[];
   }
   async getEventsByAttendeeId(attendeeId: string): Promise<EventListDto[]> {
-    throw new Error("Method not implemented.");
+    return (await events
+      .find({ attendees: attendeeId })
+      .populate("club", "_id name")) as EventListDto[];
   }
   async create(event: EventForCreate): Promise<EventForCreate> {
     return await events.create({ ...event });
@@ -28,13 +32,14 @@ export class EventRepository implements IEventRepository {
     return (await events.find({ club: clubId })) as Array<EventListDto>;
   }
   async updateEvent(eventId: string, event: EventForUpdate): Promise<Event> {
-    return await events.findByIdAndUpdate(
+    return (await events.findByIdAndUpdate(
       eventId,
       { ...event, updatedAt: new Date(Date.now()) },
       { new: true }
-    ) as Event;
+    )) as Event;
   }
   async deleteEvent(eventId: string): Promise<boolean> {
-    throw new Error("Method not implemented.");
+    const result = await events.findByIdAndDelete(eventId);
+    return result ? true : false;
   }
 }

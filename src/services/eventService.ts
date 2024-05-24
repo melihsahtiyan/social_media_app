@@ -30,12 +30,20 @@ export class EventService implements IEventService {
   getEventsByOrganizerId(
     organizerId: string
   ): Promise<DataResult<EventListDto[]>> {
-    throw new Error("Method not implemented.");
+    try {
+      throw new Error("Method not implemented.");
+    } catch (error) {
+      throw error;
+    }
   }
   getEventsByAttendeeId(
     attendeeId: string
   ): Promise<DataResult<EventListDto[]>> {
-    throw new Error("Method not implemented.");
+    try {
+      throw new Error("Method not implemented.");
+    } catch (error) {
+      throw error;
+    }
   }
   async createEvent(
     organizerId: string,
@@ -188,6 +196,29 @@ export class EventService implements IEventService {
     }
   }
   async deleteEvent(eventId: string): Promise<Result> {
-    throw new Error("Method not implemented.");
+    try {
+      const isDeleted: boolean = await this._eventRepository.deleteEvent(
+        eventId
+      );
+
+      if (!isDeleted) {
+        const result: Result = {
+          message: "Event not found",
+          statusCode: 404,
+          success: false,
+        };
+        return result;
+      }
+
+      const result: Result = {
+        message: "Event deleted successfully",
+        statusCode: 200,
+        success: true,
+      };
+
+      return result;
+    } catch (error) {
+      throw error;
+    }
   }
 }
