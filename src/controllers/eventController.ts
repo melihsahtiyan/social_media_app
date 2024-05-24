@@ -1,4 +1,4 @@
-import { NextFunction, Response, Express } from "express";
+import { NextFunction, Response } from "express";
 import Request from "../types/Request";
 import { inject, injectable } from "inversify";
 import { EventService } from "../services/eventService";
@@ -95,7 +95,4 @@ export class EventController {
       next(error);
     }
   }
-  //   async getEventsByClubId(req: Request, res: Response, next: NextFunction) {
-  //     return await this._eventService.getEventsByClubId(clubId);
-  //   }
 }
