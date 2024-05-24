@@ -1,12 +1,10 @@
-import { Schema } from "mongoose";
-
 export interface EventInputDto {
   title: string;
   description: string;
   location: string;
   date: Date;
   time: string;
-  club: Schema.Types.ObjectId;
+  club: string;
   isPublic: boolean;
   isOnline: boolean;
 }

@@ -10,6 +10,8 @@ import { DataResult } from "../types/result/DataResult";
 import { Result } from "../types/result/Result";
 import { EventDetailDto } from "../models/dtos/event/event-detail-dto";
 import { EventListDto } from "../models/dtos/event/event-list-dto";
+import { Club } from "../models/entites/Club";
+import { Event } from "src/models/entites/Event";
 
 @injectable()
 export class EventService implements IEventService {
@@ -24,6 +26,16 @@ export class EventService implements IEventService {
     this._eventRepository = eventRepository;
     this._userRepository = userRepository;
     this._clubRepository = clubRepository;
+  }
+  getEventsByOrganizerId(
+    organizerId: string
+  ): Promise<DataResult<EventListDto[]>> {
+    throw new Error("Method not implemented.");
+  }
+  getEventsByAttendeeId(
+    attendeeId: string
+  ): Promise<DataResult<EventListDto[]>> {
+    throw new Error("Method not implemented.");
   }
   async createEvent(
     organizerId: string,
@@ -42,7 +54,7 @@ export class EventService implements IEventService {
         return result;
       }
 
-      const club = await this._clubRepository.getClubByOrganizerId(organizerId);
+      const club: Club = await this._clubRepository.getById(event.club);
       if (!club) {
         const result: DataResult<EventForCreate> = {
           data: null,
@@ -91,16 +103,89 @@ export class EventService implements IEventService {
     }
   }
   async getEventById(eventId: string): Promise<DataResult<EventDetailDto>> {
-    throw new Error("Method not implemented.");
+    try {
+      const event = await this._eventRepository.getEventById(eventId);
+
+      if (!event) {
+        const result: DataResult<EventDetailDto> = {
+          data: null,
+          message: "Event not found",
+          statusCode: 404,
+          success: false,
+        };
+        return result;
+      }
+
+      const result: DataResult<EventDetailDto> = {
+        data: event,
+        message: "Event fetched successfully",
+        statusCode: 200,
+        success: true,
+      };
+
+      return result;
+    } catch (error) {
+      throw error;
+    }
   }
   async getEvents(): Promise<DataResult<Array<EventListDto>>> {
-    throw new Error("Method not implemented.");
+    try {
+      const events = await this._eventRepository.getEvents();
+
+      const result: DataResult<Array<EventListDto>> = {
+        data: events,
+        message: "Events fetched successfully",
+        statusCode: 200,
+        success: true,
+      };
+
+      return result;
+    } catch (error) {
+      throw error;
+    }
   }
   async getEventsByClubId(clubId: string): Promise<DataResult<EventListDto[]>> {
-    throw new Error("Method not implemented.");
+    try {
+      const events = await this._eventRepository.getEventsByClubId(clubId);
+
+      const result: DataResult<EventListDto[]> = {
+        data: events,
+        message: "Events fetched successfully",
+        statusCode: 200,
+        success: true,
+      };
+
+      return result;
+    } catch (error) {
+      throw error;
+    }
   }
   async updateEvent(eventId: string, event: EventForUpdate): Promise<Result> {
-    throw new Error("Method not implemented.");
+    try {
+      const updatedEvent: Event = await this._eventRepository.updateEvent(
+        eventId,
+        event
+      );
+
+      if (!updatedEvent) {
+        const result: Result = {
+          message: "Event not found",
+          statusCode: 404,
+          success: false,
+        };
+        return result;
+      }
+
+      const result: Result = {
+        message: "Event updated successfully",
+        statusCode: 200,
+        success: true,
+      };
+
+      return result;
+    } catch (error) {
+      throw error;
+    }
   }
   async deleteEvent(eventId: string): Promise<Result> {
     throw new Error("Method not implemented.");

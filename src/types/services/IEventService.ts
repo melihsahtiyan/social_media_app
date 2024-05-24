@@ -15,6 +15,12 @@ export interface IEventService {
   getEventById(eventId: string): Promise<DataResult<EventDetailDto>>;
   getEvents(): Promise<DataResult<EventListDto[]>>;
   getEventsByClubId(clubId: string): Promise<DataResult<EventListDto[]>>;
+  getEventsByOrganizerId(
+    organizerId: string
+  ): Promise<DataResult<Array<EventListDto>>>;
+  getEventsByAttendeeId(
+    attendeeId: string
+  ): Promise<DataResult<Array<EventListDto>>>;
   updateEvent(eventId: string, event: EventForUpdate): Promise<Result>;
   deleteEvent(eventId: string): Promise<Result>;
 }

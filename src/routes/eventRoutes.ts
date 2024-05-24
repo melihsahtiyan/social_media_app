@@ -3,7 +3,7 @@ import { EventController } from "../controllers/eventController";
 import container from "../util/ioc/iocContainer";
 import Request from "../types/Request";
 import isAuth from "../middleware/is-auth";
-import { body } from "express-validator";
+import { body, param } from "express-validator";
 import { logRequest } from "../util/loggingHandler";
 
 const controller: EventController =
@@ -11,35 +11,40 @@ const controller: EventController =
 
 function routes(app: Express) {
   app.post(
-    "/api/event/create",
+    "/event/create",
     logRequest,
-    [
-      body("title").not().isEmpty().isString().withMessage("Title is required"),
-      body("description")
-        .not()
-        .isEmpty()
-        .isString()
-        .withMessage("Description is required"),
-      body("date").not().isEmpty().isDate().withMessage("Date is required"),
-      body("location")
-        .not()
-        .isEmpty()
-        .isString()
-        .withMessage("Location is required"),
-      body("isPublic")
-        .not()
-        .isEmpty()
-        .isBoolean()
-        .withMessage("isPublic is required"),
-      body("isOnline")
-        .not()
-        .isEmpty()
-        .isBoolean()
-        .withMessage("isOnline is required"),
-    ],
     isAuth,
     async (req: Request, res: Response, next: NextFunction) => {
       await controller.createEvent(req, res, next);
+    }
+  );
+
+  app.get(
+    "/event/id=:id",
+    logRequest,
+    isAuth,
+    [param("id").isMongoId().withMessage("Invalid event id!")],
+    async (req: Request, res: Response, next: NextFunction) => {
+      await controller.getEventById(req, res, next);
+    }
+  );
+
+  app.get(
+    "/event/getAll",
+    logRequest,
+    isAuth,
+    async (req: Request, res: Response, next: NextFunction) => {
+      await controller.getEvents(req, res, next);
+    }
+  );
+
+  app.get(
+    "/event/getAllByClubId/id=:id",
+    logRequest,
+    isAuth,
+    [param("id").isMongoId().withMessage("Invalid event id!")],
+    async (req: Request, res: Response, next: NextFunction) => {
+      await controller.getEventsByClubId(req, res, next);
     }
   );
 }

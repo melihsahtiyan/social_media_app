@@ -5,9 +5,16 @@ import { EventForUpdate } from "../models/dtos/event/event-for-update";
 import { EventListDto } from "../models/dtos/event/event-list-dto";
 import { IEventRepository } from "../types/repositories/IEventRepository";
 import { events } from "../models/schemas/event.schema";
+import { Event } from "../models/entites/Event";
 
 @injectable()
 export class EventRepository implements IEventRepository {
+  async getEventsByOrganizerId(organizerId: string): Promise<EventListDto[]> {
+    throw new Error("Method not implemented.");
+  }
+  async getEventsByAttendeeId(attendeeId: string): Promise<EventListDto[]> {
+    throw new Error("Method not implemented.");
+  }
   async create(event: EventForCreate): Promise<EventForCreate> {
     return await events.create({ ...event });
   }
@@ -25,7 +32,7 @@ export class EventRepository implements IEventRepository {
       eventId,
       { ...event, updatedAt: new Date(Date.now()) },
       { new: true }
-    );
+    ) as Event;
   }
   async deleteEvent(eventId: string): Promise<boolean> {
     throw new Error("Method not implemented.");

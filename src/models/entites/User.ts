@@ -18,4 +18,6 @@ export interface User extends Entity {
   friends: mongoose.Schema.Types.ObjectId[];
   friendRequests: mongoose.Schema.Types.ObjectId[];
   posts: mongoose.Schema.Types.ObjectId[];
+  organizations: mongoose.Schema.Types.ObjectId[];
+  attendances: mongoose.Schema.Types.ObjectId[];
 }

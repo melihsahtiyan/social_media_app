@@ -45,6 +45,20 @@ const userSchema = new mongoose.Schema({
       default: [],
     },
   ],
+  organizations: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Club",
+      default: [],
+    },
+  ],
+  attendances: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Event",
+      default: [],
+    },
+  ],
   createdAt: {
     type: Date,
     default: Date.now(),

@@ -56,6 +56,19 @@ export class EventController {
       next(error);
     }
   }
+
+  async getEventsByClubId(req: Request, res: Response, next: NextFunction) {
+    try {
+      isValid(req, res, next);
+      const clubId: string = req.params.id;
+      const result: DataResult<Array<EventListDto>> =
+        await this._eventService.getEventsByClubId(clubId);
+
+      return res.status(result.statusCode).json(result);
+    } catch (error) {
+      next(error);
+    }
+  }
   async updateEvent(req: Request, res: Response, next: NextFunction) {
     try {
       isValid(req, res, next);
