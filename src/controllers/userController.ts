@@ -13,6 +13,7 @@ import { UserDetailDto } from "../models/dtos/user/user-detail-dto";
 import { UserListDto } from "../models/dtos/user/user-list-dto";
 import { UserForSearchDto } from "../models/dtos/user/user-for-search-dto";
 import { UserProfileDto } from "../models/dtos/user/user-profile-dto";
+import { UserForRequestDto } from "../models/dtos/user/user-for-request-dto";
 
 @injectable()
 export class UserController {
@@ -172,6 +173,26 @@ export class UserController {
       const userId: string = req.userId;
       const result: DataResult<UserProfileDto | UserDetailDto> =
         await this.userService.viewUserProfile(userId, userId);
+
+      if (result.success)
+        return res.status(200).json({
+          message: result.message,
+          data: result.data,
+        });
+
+      return res.status(result.statusCode).json({ result });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async getAllFriendRequests(req: Request, res: Response, next: NextFunction) {
+    try {
+      isValid(req, res, next);
+      const userId: string = req.userId;
+
+      const result: DataResult<Array<UserForRequestDto>> =
+        await this.userService.getAllFriendRequests(userId);
 
       if (result.success)
         return res.status(200).json({

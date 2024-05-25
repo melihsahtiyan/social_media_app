@@ -104,6 +104,15 @@ function routes(app: Express) {
     }
   );
 
+  app.get(
+    "/user/getFriendRequests",
+    isAuth,
+    logRequest,
+    async (req: Request, res: Response, next: NextFunction) => {
+      await controller.getAllFriendRequests(req, res, next);
+    }
+  );
+
   app.put(
     "/user/changeProfilePhoto",
     fileUpload,

@@ -15,6 +15,7 @@ import { PostDetails } from "../models/dtos/post/post-details";
 import { UserListDto } from "../models/dtos/user/user-list-dto";
 import { UserForSearchDto } from "../models/dtos/user/user-for-search-dto";
 import { UserProfileDto } from "../models/dtos/user/user-profile-dto";
+import { UserForRequestDto } from "../models/dtos/user/user-for-request-dto";
 
 @injectable()
 export class UserService implements IUserService {
@@ -232,6 +233,40 @@ export class UserService implements IUserService {
         success: true,
         data: users,
       };
+      return result;
+    } catch (err) {
+      const error: CustomError = new Error(err.message);
+      error.statusCode = 500;
+      throw error;
+    }
+  }
+
+  async getAllFriendRequests(
+    userId: string
+  ): Promise<DataResult<UserForRequestDto[]>> {
+    try {
+      const user: UserDoc = await this.userRepository.getById(userId);
+
+      if (!user) {
+        const result: DataResult<UserForRequestDto[]> = {
+          statusCode: 404,
+          message: "You must be logged in!",
+          success: false,
+          data: null,
+        };
+        return result;
+      }
+
+      const friendRequests: UserForRequestDto[] =
+        await this.userRepository.getAllFriendRequests(user._id);
+
+      const result: DataResult<UserForRequestDto[]> = {
+        statusCode: 200,
+        message: "Friend requests fetched successfully",
+        success: true,
+        data: friendRequests,
+      };
+
       return result;
     } catch (err) {
       const error: CustomError = new Error(err.message);

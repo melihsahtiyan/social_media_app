@@ -14,6 +14,7 @@ import { PostDetails } from "../models/dtos/post/post-details";
 import { UserProfileDto } from "../models/dtos/user/user-profile-dto";
 import { UserListDto } from "../models/dtos/user/user-list-dto";
 import { UserForSearchDto } from "../models/dtos/user/user-for-search-dto";
+import { UserForRequestDto } from "../models/dtos/user/user-for-request-dto";
 
 @injectable()
 export class UserRepository implements IUserRepository {
@@ -78,6 +79,7 @@ export class UserRepository implements IUserRepository {
     const user: User = await users
       .findById(id)
       .populate("friends", "_id firstName lastName")
+      .populate("friendRequests", "_id firstName lastName")
       .exec();
 
     if (!user) {
@@ -250,6 +252,25 @@ export class UserRepository implements IUserRepository {
       .exec();
 
     return usersByName;
+  }
+
+  async getAllFriendRequests(id: string): Promise<Array<UserForRequestDto>> {
+    const user: UserDoc = await users.findById(id);
+    const friendRequests: Array<UserForRequestDto> = await Promise.all(
+      user.friendRequests.map(async (requestId) => {
+        const request: UserDoc = await users.findById(requestId);
+        const requestDto: UserForRequestDto = {
+          id: request._id,
+          firstName: request.firstName,
+          lastName: request.lastName,
+          profilePhotoUrl: request.profilePhotoUrl,
+        };
+
+        return requestDto;
+      })
+    );
+
+    return friendRequests;
   }
 
   async update(id: string, user: UserForUpdate): Promise<UserDoc> {
