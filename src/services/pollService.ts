@@ -136,8 +136,16 @@ export class PollService implements IPollService {
         voteInput.pollId
       );
 
+      const postDoc: PostDoc = await this.postRepository.getById(
+        voteInput.pollId
+      );
+
       const voter: UserDoc = await this.userRepository.getById(
         voteInput.userId
+      );
+
+      const creator: UserDoc = await this.userRepository.getById(
+        postDoc.creator.toString()
       );
 
       if (post.poll.expiresAt < new Date(Date.now())) {
@@ -152,8 +160,8 @@ export class PollService implements IPollService {
 
       if (
         !(
-          voter.friends.includes(post.creator._id) ||
-          voter.university === post.creator.university
+          voter.friends.includes(creator._id) ||
+          voter.university === creator.university
         )
       ) {
         const result: DataResult<VoteInputDto> = {
