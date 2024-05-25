@@ -548,8 +548,12 @@ export class UserService implements IUserService {
       }
 
       if (!user.profilePhotoUrl) {
+        const profilePhotoUrl: string = file.path.replace(/\\/g, "/");
         const updatedUser: UserDoc =
-          await this.userRepository.updateprofilePhoto(user._id, file.path);
+          await this.userRepository.updateprofilePhoto(
+            user._id,
+            profilePhotoUrl
+          );
 
         const result: Result = {
           statusCode: 200,
@@ -560,10 +564,13 @@ export class UserService implements IUserService {
       } else {
         clearImage(user.profilePhotoUrl);
 
-        const profilePhotoUrl: string = `media/profilephotos/${file.path}`;
+        let profilePhotoUrl: string = file.path.replace(/\\/g, "/");
 
         const updatedUser: UserDoc =
-          await this.userRepository.updateprofilePhoto(user._id, file.path);
+          await this.userRepository.updateprofilePhoto(
+            user._id,
+            profilePhotoUrl
+          );
 
         const result: Result = {
           statusCode: 200,

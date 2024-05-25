@@ -105,7 +105,8 @@ export class ClubService implements IClubService {
 
       if (logo) {
         const extension = logo.mimetype.split("/")[1];
-        const path = `media/profilePhotos/${logo.filename}-logo.${extension}`;
+        const fileName = logo.filename.split(".")[0];
+        const path = `media/profilePhotos/${fileName}-logo.${extension}`;
         clubForCreate.logoUrl = path;
       }
 
@@ -222,7 +223,8 @@ export class ClubService implements IClubService {
       }
 
       const extension = logo.mimetype.split("/")[1];
-      const path = `media/profilePhotos/${logo.filename}-logo.${extension}`;
+      const fileName = logo.filename.split(".")[0];
+      const path = `media/profilePhotos/${fileName}-logo.${extension}`;
 
       const updatedClub = await this.clubRepository.updateClubImage(
         id,

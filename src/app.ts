@@ -11,6 +11,7 @@ import userRoutes from "./routes/userRoutes";
 import clubRoutes from "./routes/clubRoutes";
 import postRoutes from "./routes/postRoutes";
 import pollRoutes from "./routes/pollRoutes";
+import fileRoute from "./routes/fileRoute";
 
 fs.mkdirSync(path.join(__dirname, "../media/images"), { recursive: true });
 fs.mkdirSync(path.join(__dirname, "../media/videos"), { recursive: true });
@@ -47,6 +48,7 @@ clubRoutes(app);
 postRoutes(app);
 pollRoutes(app);
 authRoutes(app);
+fileRoute(app);
 
 mongoose
   .connect(process.env.MONGO_URL)

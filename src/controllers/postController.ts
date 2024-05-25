@@ -12,6 +12,7 @@ import { PostDetails } from "../models/dtos/post/post-details";
 import { PostForLike } from "../models/dtos/post/post-for-like";
 import { Result } from "../types/result/Result";
 
+
 @injectable()
 export class PostController {
   private _postService: PostService;
@@ -29,12 +30,21 @@ export class PostController {
       const result: DataResult<PostDetails> =
         await this._postService.getPostDetails(postId, userId);
 
-      if (result.success) {
-        return res.status(result.statusCode).json({
-          message: result.message,
-          data: result.data,
-        });
-      }
+      // if (result.success) {
+      //   for (let media in result.data.content.mediaUrls) {
+      //     const extension = media.split(".").pop();
+      //     const mimeType = videoMimetypes.find((type) => type === extension)
+      //       ? "video"
+      //       : "image";
+      //     const filePath = path.join(__dirname, media); // assuming media is relative to this file
+      //     res.download(filePath);
+      //   }
+
+      //   return res.status(result.statusCode).json({
+      //     message: result.message,
+      //     data: result.data,
+      //   });
+      // }
 
       return res.status(result.statusCode).json({ result });
     } catch (err) {
