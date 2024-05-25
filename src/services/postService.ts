@@ -13,6 +13,7 @@ import IPostService from "../types/services/IPostService";
 import { PostDetails } from "../models/dtos/post/post-details";
 import { PostForLike } from "../models/dtos/post/post-for-like";
 import { Post } from "../models/entites/Post";
+import { Result } from "../types/result/Result";
 
 @injectable()
 export class PostService implements IPostService {
@@ -383,6 +384,61 @@ export class PostService implements IPostService {
       return result;
     } catch (err) {
       err.message = err.message || "Post creation failed";
+      throw err;
+    }
+  }
+
+  async deletePost(id: string, userId: string): Promise<Result> {
+    try {
+      const user: UserDoc = await this._userRepository.getById(userId);
+
+      if (!user) {
+        const result: Result = {
+          statusCode: 404,
+          message: "User not found!",
+          success: false,
+        };
+        return result;
+      }
+
+      const post: PostDoc = await this._postRepository.getById(id);
+
+      if (!post) {
+        const result: Result = {
+          statusCode: 404,
+          message: "Post not found!",
+          success: false,
+        };
+        return result;
+      }
+
+      if (post.creator.toString() !== user._id.toString()) {
+        const result: Result = {
+          statusCode: 403,
+          message: "You are not authorized to delete this post!",
+          success: false,
+        };
+        return result;
+      }
+
+      const isDeleted: boolean = await this._postRepository.deletePost(id);
+
+      if (!isDeleted) {
+        const result: Result = {
+          statusCode: 500,
+          message: "Post deletion failed!",
+          success: false,
+        };
+        return result;
+      }
+
+      const result: Result = {
+        statusCode: 200,
+        message: "Post deleted!",
+        success: true,
+      };
+      return result;
+    } catch (err) {
       throw err;
     }
   }

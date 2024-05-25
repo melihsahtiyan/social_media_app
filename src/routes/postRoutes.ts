@@ -96,6 +96,22 @@ function routes(app: Express) {
       await controller.unlikePost(req, res, next);
     }
   );
+
+  app.delete(
+    "/post/deletePost/postId=:postId",
+    [
+      param("postId")
+        .isMongoId()
+        .not()
+        .isEmpty()
+        .withMessage("Post id is required"),
+    ],
+    isAuth,
+    logRequest,
+    async (req: Request, res: Response, next: NextFunction) => {
+      await controller.deletePost(req, res, next);
+    }
+  );
 }
 
 export default routes;

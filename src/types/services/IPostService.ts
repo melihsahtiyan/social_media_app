@@ -4,6 +4,7 @@ import { PostDoc } from "../../models/schemas/post.schema";
 import PostList from "../../models/dtos/post/post-list";
 import { PostDetails } from "../../models/dtos/post/post-details";
 import { PostForLike } from "../../models/dtos/post/post-for-like";
+import { Result } from "../result/Result";
 
 interface IPostService {
   createPost(
@@ -28,7 +29,7 @@ interface IPostService {
 
   //   updatePost(id: string, caption: string): Promise<PostDoc>;
 
-  //   deletePost(id: string): Promise<PostDoc>;
+  deletePost(id: string, userId: string): Promise<Result>;
 }
 
 export default IPostService;

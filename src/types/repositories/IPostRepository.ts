@@ -8,6 +8,7 @@ import { Post } from "../../models/entites/Post";
 interface IPostRepository {
   getAllPosts(pages?: number): Promise<PostDoc[]>;
   getPostById(id: string): Promise<PostDetails>;
+  getById(id: string): Promise<PostDoc>;
   getPostDetailsById(id: string): Promise<PostDetails>;
   getPostsByUserId(userId: Schema.Types.ObjectId): Promise<PostDoc[]>;
   getFriendsPosts(userId: Schema.Types.ObjectId): Promise<PostDoc[]>;
@@ -15,7 +16,7 @@ interface IPostRepository {
   createPost(post: PostForCreate): Promise<PostDoc>;
   updateCaption(id: string, caption: string): Promise<PostDoc>;
   updatePost(post: PostDoc): Promise<PostDoc>;
-  deletePost(id: string): Promise<PostDoc>;
+  deletePost(id: string): Promise<boolean>;
   likePost(
     postId: Schema.Types.ObjectId,
     userId: Schema.Types.ObjectId

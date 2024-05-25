@@ -10,6 +10,7 @@ import { PostDoc } from "../models/schemas/post.schema";
 import PostList from "../models/dtos/post/post-list";
 import { PostDetails } from "../models/dtos/post/post-details";
 import { PostForLike } from "../models/dtos/post/post-for-like";
+import { Result } from "../types/result/Result";
 
 @injectable()
 export class PostController {
@@ -168,6 +169,20 @@ export class PostController {
         message: result.message,
         data: result.data,
       });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async deletePost(req: Request, res: Response, next: NextFunction) {
+    try {
+      isValid(req, res, next);
+      const postId: string = req.params.postId;
+      const userId: string = req.userId;
+
+      const result: Result = await this._postService.deletePost(postId, userId);
+
+      return res.status(result.statusCode).json({ message: result.message });
     } catch (err) {
       next(err);
     }

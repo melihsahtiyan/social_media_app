@@ -23,9 +23,7 @@ export class PostRepository implements IPostRepository {
 
     return createdPost;
   }
-  async getAllUniversityPosts(
-    university: string
-  ): Promise<Array<Post>> {
+  async getAllUniversityPosts(university: string): Promise<Array<Post>> {
     const usersFromUniversity: UserDoc[] = await users.find({
       university: university,
     });
@@ -76,7 +74,9 @@ export class PostRepository implements IPostRepository {
 
     return postDetails;
   }
-
+  async getById(postId: string): Promise<PostDoc> {
+    return await posts.findById(postId);
+  }
   async getPostDetailsById(id: string): Promise<PostDetails> {
     const postDetails: PostDetails = await posts
       .findById(id)
@@ -111,7 +111,7 @@ export class PostRepository implements IPostRepository {
     );
   }
 
-  async deletePost(id: string): Promise<PostDoc> {
+  async deletePost(id: string): Promise<boolean> {
     const postToDelete: PostDoc = await posts.findById(id);
 
     const creator: UserDoc = await users.findById(postToDelete.creator);
@@ -122,7 +122,9 @@ export class PostRepository implements IPostRepository {
 
     await creator.save();
 
-    return await posts.findByIdAndDelete(id);
+    const deletedPost = await posts.findByIdAndDelete(id);
+
+    return deletedPost ? true : false;
   }
 
   async likePost(
