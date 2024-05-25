@@ -141,6 +141,12 @@ export class UserService implements IUserService {
         return result;
       }
 
+      if (viewer.friends.includes(user._id)) {
+        user.isFriend = true;
+      } else {
+        user.isFriend = false;
+      }
+
       // if (user._id === viewer._id) {
       //   const result: DataResult<UserProfileDto> = {
       //     statusCode: 200,
