@@ -140,28 +140,28 @@ export class UserService implements IUserService {
         return result;
       }
 
-      if (user._id === viewer._id) {
-        const result: DataResult<UserProfileDto> = {
-          statusCode: 200,
-          message: "User fetched successfully!",
-          success: true,
-          data: user,
-        };
-        return result;
-      }
+      // if (user._id === viewer._id) {
+      //   const result: DataResult<UserProfileDto> = {
+      //     statusCode: 200,
+      //     message: "User fetched successfully!",
+      //     success: true,
+      //     data: user,
+      //   };
+      //   return result;
+      // }
 
-      if (
-        !user.friends.includes(viewer._id) &&
-        user.university !== viewer.university
-      ) {
-        const result: DataResult<UserProfileDto> = {
-          statusCode: 403,
-          message: "You are not authorized to view this user!",
-          success: false,
-          data: null,
-        };
-        return result;
-      }
+      // if (
+      //   !user.friends.includes(viewer._id) &&
+      //   user.university !== viewer.university
+      // ) {
+      //   const result: DataResult<UserProfileDto> = {
+      //     statusCode: 403,
+      //     message: "You are not authorized to view this user!",
+      //     success: false,
+      //     data: null,
+      //   };
+      //   return result;
+      // }
 
       const result: DataResult<UserProfileDto> = {
         statusCode: 200,
