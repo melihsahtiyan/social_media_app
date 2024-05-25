@@ -39,7 +39,7 @@ export class PostService implements IPostService {
           creator: post.creator,
           content: {
             caption: post.content.caption,
-            medias: post.content.mediaUrls,
+            mediaUrls: post.content.mediaUrls,
           },
           likes: post.likes,
           comments: post.comments,
@@ -205,7 +205,7 @@ export class PostService implements IPostService {
           creator: post.creator,
           content: {
             caption: post.content.caption,
-            medias: post.content.mediaUrls,
+            mediaUrls: post.content.mediaUrls,
           },
           likes: post.likes,
           comments: post.comments,
