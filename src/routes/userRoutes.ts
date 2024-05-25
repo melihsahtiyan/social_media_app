@@ -49,6 +49,16 @@ function routes(app: Express) {
     }
   );
 
+  app.put(
+    "/user/unfriend",
+    [body("userId").isAlphanumeric().not().isEmpty()],
+    isAuth,
+    logRequest,
+    async (req: Request, res: Response, next: NextFunction) => {
+      await controller.unfriendUser(req, res, next);
+    }
+  );
+
   app.get(
     "/user/getAllUsers",
     logRequest,

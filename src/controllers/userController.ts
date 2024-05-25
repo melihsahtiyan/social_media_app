@@ -113,6 +113,26 @@ export class UserController {
     }
   }
 
+  async unfriendUser(req: Request, res: Response, next: NextFunction) {
+    try {
+      isValid(req, res, next);
+      const userId: string = req.userId;
+      const friendId: string = req.params.friendId;
+
+      const result: Result = await this.userService.unfriend(userId, friendId);
+
+      if (result.success)
+        return res.status(200).json({
+          message: result.message,
+        });
+
+      return res.status(result.statusCode).json({ result });
+    } catch (err) {
+      console.log(err);
+      next(err);
+    }
+  }
+
   async getAllUsers(req: Request, res: Response, next: NextFunction) {
     try {
       const result: DataResult<Array<UserListDto>> =
