@@ -177,7 +177,7 @@ export class PostController {
   async deletePost(req: Request, res: Response, next: NextFunction) {
     try {
       isValid(req, res, next);
-      const postId: string = req.params.postId;
+      const postId: string = req.params.id;
       const userId: string = req.userId;
 
       const result: Result = await this._postService.deletePost(postId, userId);

@@ -98,9 +98,9 @@ function routes(app: Express) {
   );
 
   app.delete(
-    "/post/deletePost/postId=:postId",
+    "/post/delete/id=:id",
     [
-      param("postId")
+      param("id")
         .isMongoId()
         .not()
         .isEmpty()

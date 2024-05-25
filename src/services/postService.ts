@@ -14,6 +14,7 @@ import { PostDetails } from "../models/dtos/post/post-details";
 import { PostForLike } from "../models/dtos/post/post-for-like";
 import { Post } from "../models/entites/Post";
 import { Result } from "../types/result/Result";
+import { clearImage } from "../util/fileUtil";
 
 @injectable()
 export class PostService implements IPostService {
@@ -419,6 +420,12 @@ export class PostService implements IPostService {
           success: false,
         };
         return result;
+      }
+
+      if (post.content.mediaUrls.length > 0) {
+        post.content.mediaUrls.forEach((url) => {
+          clearImage(url);
+        });
       }
 
       const isDeleted: boolean = await this._postRepository.deletePost(id);
