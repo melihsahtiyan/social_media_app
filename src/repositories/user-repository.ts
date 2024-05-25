@@ -86,9 +86,11 @@ export class UserRepository implements IUserRepository {
       throw error;
     }
 
-    const userPosts: PostDetails[] = (await posts.find({
-      creator: user._id,
-    })) as PostDetails[];
+    const userPosts: PostDetails[] = (await posts
+      .find({
+        creator: user._id,
+      })
+      .populate("creator", "_id firstName lastName")) as PostDetails[];
 
     const userDetail: UserProfileDto = {
       _id: user._id,
