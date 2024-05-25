@@ -88,13 +88,15 @@ export class AuthService implements IAuthService {
     }
   }
 
-  async login(userToLogin: UserForLogin): Promise<DataResult<String>> {
+  async login(
+    userToLogin: UserForLogin
+  ): Promise<DataResult<{ token: string; id: string }>> {
     try {
       const user: User = await this._userRepository.getByEmail(
         userToLogin.email
       );
       if (!user) {
-        const result: DataResult<String> = {
+        const result: DataResult<{ token: string; id: string }> = {
           statusCode: 404,
           message: "Email or password is incorrect",
           success: false,
@@ -105,7 +107,7 @@ export class AuthService implements IAuthService {
       const isEqual = await bcrypt.compare(userToLogin.password, user.password);
 
       if (!isEqual) {
-        const result: DataResult<String> = {
+        const result: DataResult<{ token: string; id: string }> = {
           statusCode: 401,
           message: "Email or password is incorrect",
           success: false,
@@ -114,7 +116,7 @@ export class AuthService implements IAuthService {
       }
 
       if (!user.status.emailVerification) {
-        const result: DataResult<String> = {
+        const result: DataResult<{ token: string; id: string }> = {
           statusCode: 400,
           message: "Email is not verified! You must verify your email!!",
           success: false,
@@ -126,10 +128,10 @@ export class AuthService implements IAuthService {
         user._id.toString()
       );
 
-      const result: DataResult<String> = {
+      const result: DataResult<{ token: string; id: string }> = {
         statusCode: 200,
         message: "Token generated",
-        data: token,
+        data: { token: token, id: user._id.toString() },
         success: true,
       };
       return result;

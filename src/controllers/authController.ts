@@ -42,14 +42,14 @@ export class AuthController {
       isValid(req, res, next);
       const userToLogin: UserForLogin = req.body;
 
-      const result: DataResult<String> = await this._authService.login(
-        userToLogin
-      );
+      const result: DataResult<{ token: string; id: string }> =
+        await this._authService.login(userToLogin);
 
       if (result.success)
         return res.status(200).json({
           message: "Token generated",
-          token: result.data,
+          token: result.data.token,
+          id: result.data.id,
         });
 
       return res.status(result.statusCode).json({ result });

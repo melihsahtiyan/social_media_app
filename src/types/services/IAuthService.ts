@@ -6,7 +6,9 @@ import { DataResult } from "../result/DataResult";
 interface IAuthService {
   register(userToRegister: UserForRegister): Promise<Result>;
 
-  login(userToLogin: UserForLogin): Promise<DataResult<String>>;
+  login(
+    userToLogin: UserForLogin
+  ): Promise<DataResult<{ token: string; id: string }>>;
 
   // verifyEmail(token: string): Promise<Result>;
 
