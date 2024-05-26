@@ -15,6 +15,7 @@ import { PostForLike } from "../models/dtos/post/post-for-like";
 import { Post } from "../models/entites/Post";
 import { Result } from "../types/result/Result";
 import { clearImage } from "../util/fileUtil";
+import { handleUpload } from "../util/cloudinaryService";
 
 @injectable()
 export class PostService implements IPostService {
@@ -337,28 +338,44 @@ export class PostService implements IPostService {
         }
 
         if (files.length > 0) {
-          sourceUrls = files.map((file) => {
-            const extension = file.mimetype.split("/")[1];
-            const videoExtensions = ["mp4", "mov", "avi", "mkv", "webm", "m4v"];
-            const imageExtensions = [
-              "jpg",
-              "jpeg",
-              "png",
-              "webp",
-              "heic",
-              "gif",
-            ];
+          sourceUrls = await Promise.all(
+            files.map(async (file) => {
+              const extension = file.mimetype.split("/")[1];
+              const videoExtensions = [
+                "mp4",
+                "mov",
+                "avi",
+                "mkv",
+                "webm",
+                "m4v",
+              ];
+              const imageExtensions = [
+                "jpg",
+                "jpeg",
+                "png",
+                "webp",
+                "heic",
+                "gif",
+              ];
 
-            if (videoExtensions.includes(extension)) {
-              return "media/videos/" + file.filename;
-            } else if (imageExtensions.includes(extension)) {
-              return "media/images/" + file.filename;
-            } else {
-              const error: CustomError = new Error("Invalid file type!");
-              error.statusCode = 422; // Unprocessable Entity
-              throw error;
-            }
-          });
+              let folder: string;
+              if (videoExtensions.includes(extension)) {
+                folder = "media/videos/";
+              } else if (imageExtensions.includes(extension)) {
+                folder = "media/images/";
+              } else {
+                const error: CustomError = new Error("Invalid file type!");
+                error.statusCode = 422;
+                throw error;
+              }
+
+              const fileBuffer = file.buffer.toString("base64");
+              let dataURI = "data:" + file.mimetype + ";base64," + fileBuffer;
+
+              const fileResult: string = await handleUpload(dataURI, folder);
+              return fileResult;
+            })
+          );
         }
       }
 
@@ -384,7 +401,9 @@ export class PostService implements IPostService {
 
       return result;
     } catch (err) {
-      err.message = err.message || "Post creation failed";
+      const error: CustomError = new Error(err);
+      error.statusCode = err?.statusCode || 500;
+
       throw err;
     }
   }

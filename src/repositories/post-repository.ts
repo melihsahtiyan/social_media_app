@@ -32,14 +32,14 @@ export class PostRepository implements IPostRepository {
       .find({ creator: { $in: usersFromUniversity.map((user) => user._id) } })
       .populate("creator", "firstName lastName profilePhotoUrl")
       .populate("likes", "firstName lastName profilePhotoUrl")
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: 1 });
   }
 
   async getAllPosts(pages?: number): Promise<PostDoc[]> {
     return await posts
       .find()
       .populate("creator", "firstName lastName profilePhotoUrl")
-      .sort({ createdAt: -1 })
+      .sort({ createdAt: 1 })
       .limit(pages ? pages : null);
   }
   async getPostsByUserId(
@@ -93,7 +93,7 @@ export class PostRepository implements IPostRepository {
     return await posts
       .find({ creator: { $in: userIds } })
       .populate("creator", "firstName lastName profilePhotoUrl")
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: 1 });
   }
 
   async updateCaption(id: string, caption: string): Promise<PostDoc> {

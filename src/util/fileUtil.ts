@@ -16,35 +16,9 @@ const mimeTypes = {
   "video/avi": ".avi",
 };
 
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    const mimeType = mimeTypes[file.mimetype];
+const storage = multer.memoryStorage();
 
-    if (mimeType === ".mp4" || mimeType === ".mov" || mimeType === ".avi") {
-      cb(null, "media/videos");
-    } else {
-      cb(null, "media/images");
-    }
-  },
-  filename: function (req, file, cb) {
-    const uniqueSuffix = uuidv4() + "-" + Math.round(Math.random() * 1e9);
-
-    const mimeType = mimeTypes[file.mimetype];
-
-    cb(null, uniqueSuffix + mimeType);
-  },
-});
-
-const profilePhotoStorage = multer.diskStorage({
-  destination: function (req: Request, file, cb: Function) {
-    cb(null, "media/profilePhotos");
-  },
-  filename: function (req: Request, file, cb: Function) {
-    const uniqueSuffix = uuidv4() + "-" + Math.round(Math.random() * 1e9);
-    const mimeType = mimeTypes[file.mimetype];
-    cb(null, uniqueSuffix + mimeType);
-  },
-});
+const profilePhotoStorage = multer.memoryStorage();
 
 const profilePhotoFileFilter = (req: Request, file, cb: Function) => {
   const imageMimetypes: Array<string> = [
@@ -66,7 +40,6 @@ export const fileUpload = multer({
   storage: profilePhotoStorage,
   fileFilter: profilePhotoFileFilter,
 }).single("profilePhoto");
-
 
 const fileFilter = (req: Request, file, cb) => {
   const imageMimetypes = [

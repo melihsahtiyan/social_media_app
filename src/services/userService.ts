@@ -16,6 +16,7 @@ import { UserListDto } from "../models/dtos/user/user-list-dto";
 import { UserForSearchDto } from "../models/dtos/user/user-for-search-dto";
 import { UserProfileDto } from "../models/dtos/user/user-profile-dto";
 import { UserForRequestDto } from "../models/dtos/user/user-for-request-dto";
+import { handleDelete, handleUpload } from "../util/cloudinaryService";
 
 @injectable()
 export class UserService implements IUserService {
@@ -589,7 +590,14 @@ export class UserService implements IUserService {
       }
 
       if (!user.profilePhotoUrl) {
-        const profilePhotoUrl: string = file.path.replace(/\\/g, "/");
+        const fileBuffer = file.buffer.toString("base64");
+        let dataURI = "data:" + file.mimetype + ";base64," + fileBuffer;
+
+        const profilePhotoUrl: string = await handleUpload(
+          dataURI,
+          "media/profilePhotos/"
+        );
+
         const updatedUser: UserDoc =
           await this.userRepository.updateprofilePhoto(
             user._id,
@@ -603,9 +611,35 @@ export class UserService implements IUserService {
         };
         return result;
       } else {
-        clearImage(user.profilePhotoUrl);
+        console.log("Profile photo exists!", user.profilePhotoUrl);
 
-        let profilePhotoUrl: string = file.path.replace(/\\/g, "/");
+        const publicId: string =
+          user.profilePhotoUrl.split("/")[7] +
+          "/" +
+          user.profilePhotoUrl.split("/")[8] +
+          "/" +
+          user.profilePhotoUrl.split("/")[9].split(".")[0];
+
+        console.log("publicId: ", publicId);
+        const isDeleted: boolean = await handleDelete(publicId);
+
+        console.log("isDeleted: ", isDeleted);
+        if (!isDeleted) {
+          const result: Result = {
+            statusCode: 500,
+            message: "Profile photo deletion error!",
+            success: false,
+          };
+          return result;
+        }
+
+        const fileBuffer = file.buffer.toString("base64");
+        const dataURI = "data:" + file.mimetype + ";base64," + fileBuffer;
+
+        const profilePhotoUrl: string = await handleUpload(
+          dataURI,
+          "media/profilePhotos/"
+        );
 
         const updatedUser: UserDoc =
           await this.userRepository.updateprofilePhoto(
