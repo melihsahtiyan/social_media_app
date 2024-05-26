@@ -373,7 +373,14 @@ export class PostService implements IPostService {
               let dataURI = "data:" + file.mimetype + ";base64," + fileBuffer;
 
               const fileResult: string = await handleUpload(dataURI, folder);
-              return fileResult;
+
+              const publicId: string =
+                fileResult.split("/")[7] +
+                "/" +
+                fileResult.split("/")[8] +
+                "/" +
+                fileResult.split("/")[9].split(".")[0];
+              return publicId;
             })
           );
         }
@@ -443,14 +450,7 @@ export class PostService implements IPostService {
 
       if (post.content.mediaUrls.length > 0) {
         post.content.mediaUrls.forEach(async (url) => {
-          const publicId: string =
-            url.split("/")[7] +
-            "/" +
-            url.split("/")[8] +
-            "/" +
-            url.split("/")[9].split(".")[0];
-
-          const isDeleted: boolean = await handleDelete(publicId);
+          const isDeleted: boolean = await handleDelete(url);
           if (!isDeleted) {
             const result: Result = {
               statusCode: 500,

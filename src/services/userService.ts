@@ -593,10 +593,17 @@ export class UserService implements IUserService {
         const fileBuffer = file.buffer.toString("base64");
         let dataURI = "data:" + file.mimetype + ";base64," + fileBuffer;
 
-        const profilePhotoUrl: string = await handleUpload(
+        const fileResult: string = await handleUpload(
           dataURI,
           "media/profilePhotos/"
         );
+
+        const profilePhotoUrl: string =
+          fileResult.split("/")[7] +
+          "/" +
+          fileResult.split("/")[8] +
+          "/" +
+          fileResult.split("/")[9].split(".")[0];
 
         const updatedUser: UserDoc =
           await this.userRepository.updateprofilePhoto(
@@ -612,16 +619,7 @@ export class UserService implements IUserService {
         return result;
       } else {
         console.log("Profile photo exists!", user.profilePhotoUrl);
-
-        const publicId: string =
-          user.profilePhotoUrl.split("/")[7] +
-          "/" +
-          user.profilePhotoUrl.split("/")[8] +
-          "/" +
-          user.profilePhotoUrl.split("/")[9].split(".")[0];
-
-        console.log("publicId: ", publicId);
-        const isDeleted: boolean = await handleDelete(publicId);
+        const isDeleted: boolean = await handleDelete(user.profilePhotoUrl);
 
         console.log("isDeleted: ", isDeleted);
         if (!isDeleted) {
@@ -634,12 +632,19 @@ export class UserService implements IUserService {
         }
 
         const fileBuffer = file.buffer.toString("base64");
-        const dataURI = "data:" + file.mimetype + ";base64," + fileBuffer;
+        let dataURI = "data:" + file.mimetype + ";base64," + fileBuffer;
 
-        const profilePhotoUrl: string = await handleUpload(
+        const fileResult: string = await handleUpload(
           dataURI,
           "media/profilePhotos/"
         );
+
+        const profilePhotoUrl: string =
+          fileResult.split("/")[7] +
+          "/" +
+          fileResult.split("/")[8] +
+          "/" +
+          fileResult.split("/")[9].split(".")[0];
 
         const updatedUser: UserDoc =
           await this.userRepository.updateprofilePhoto(
