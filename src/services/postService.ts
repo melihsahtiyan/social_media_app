@@ -15,7 +15,7 @@ import { PostForLike } from "../models/dtos/post/post-for-like";
 import { Post } from "../models/entites/Post";
 import { Result } from "../types/result/Result";
 import { clearImage } from "../util/fileUtil";
-import { handleUpload } from "../util/cloudinaryService";
+import { handleDelete, handleUpload } from "../util/cloudinaryService";
 
 @injectable()
 export class PostService implements IPostService {
@@ -442,8 +442,23 @@ export class PostService implements IPostService {
       }
 
       if (post.content.mediaUrls.length > 0) {
-        post.content.mediaUrls.forEach((url) => {
-          clearImage(url);
+        post.content.mediaUrls.forEach(async (url) => {
+          const publicId: string =
+            url.split("/")[7] +
+            "/" +
+            url.split("/")[8] +
+            "/" +
+            url.split("/")[9].split(".")[0];
+
+          const isDeleted: boolean = await handleDelete(publicId);
+          if (!isDeleted) {
+            const result: Result = {
+              statusCode: 500,
+              message: "Profile photo deletion error!",
+              success: false,
+            };
+            return result;
+          }
         });
       }
 
