@@ -11,6 +11,7 @@ import userRoutes from "./routes/userRoutes";
 import clubRoutes from "./routes/clubRoutes";
 import postRoutes from "./routes/postRoutes";
 import pollRoutes from "./routes/pollRoutes";
+import commentRoutes from "./routes/commentRoutes";
 import fileRoute from "./routes/fileRoute";
 
 fs.mkdirSync(path.join(__dirname, "../media/images"), { recursive: true });
@@ -44,6 +45,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 });
 
 userRoutes(app);
+commentRoutes(app);
 clubRoutes(app);
 postRoutes(app);
 pollRoutes(app);

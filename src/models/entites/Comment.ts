@@ -1,10 +1,12 @@
-import mongoose from "mongoose";
+import { Schema } from "mongoose";
 import { Entity } from "./Entity";
 
 export interface Comment extends Entity {
-  creator: mongoose.Schema.Types.ObjectId;
+  _id: Schema.Types.ObjectId;
+  creator: Schema.Types.ObjectId;
+  post: Schema.Types.ObjectId;
   content: string;
-  isUpdated: Boolean;
-  likes: mongoose.Schema.Types.ObjectId[];
-  replies: mongoose.Schema.Types.ObjectId[];
+  isUpdated: boolean;
+  likes: Schema.Types.ObjectId[];
+  replies: Schema.Types.ObjectId[];
 }

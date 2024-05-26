@@ -121,11 +121,6 @@ export class UserController {
 
       const result: Result = await this.userService.unfriend(userId, friendId);
 
-      if (result.success)
-        return res.status(200).json({
-          message: result.message,
-        });
-
       return res.status(result.statusCode).json({ result });
     } catch (err) {
       console.log(err);

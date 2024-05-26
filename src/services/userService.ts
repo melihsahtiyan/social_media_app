@@ -394,7 +394,7 @@ export class UserService implements IUserService {
       );
 
       // Check 1: if the user exists
-      if (!followingUser || !userToUnfollow) {
+      if (followingUser && userToUnfollow) {
         const result: Result = {
           statusCode: 404,
           message: "User not found!",
@@ -405,6 +405,15 @@ export class UserService implements IUserService {
 
       // Check 2: if the user is friend with the user to unfollow
       if (!followingUser.friends.includes(userToUnfollow._id)) {
+        const result: Result = {
+          statusCode: 400,
+          message: "User is not your friend!",
+          success: false,
+        };
+        return result;
+      }
+
+      if (!userToUnfollow.friends.includes(followingUser._id)) {
         const result: Result = {
           statusCode: 400,
           message: "User is not your friend!",
@@ -676,7 +685,16 @@ export class UserService implements IUserService {
         return result;
       }
 
-      clearImage(user.profilePhotoUrl);
+      const isDeleted: boolean = await handleDelete(user.profilePhotoUrl);
+
+      if (!isDeleted) {
+        const result: Result = {
+          statusCode: 500,
+          message: "Profile photo deletion error!",
+          success: false,
+        };
+        return result;
+      }
 
       const updatedUser: UserDoc = await this.userRepository.deleteProfilePhoto(
         user._id

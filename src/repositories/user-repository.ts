@@ -254,13 +254,39 @@ export class UserRepository implements IUserRepository {
     return usersByName;
   }
 
+  async getUsersByIdsForDetails(
+    ids: Array<mongoose.Schema.Types.ObjectId>,
+    detailedUser: string
+  ): Promise<Array<UserForSearchDto>> {
+    const listedUsers = await users
+      .find({ _id: { $in: ids } })
+      .select("_id firstName lastName profilePhotoUrl")
+      .exec();
+
+    const detailedUserDoc: UserDoc = await users.findById(detailedUser);
+
+    const usersForDetails: Array<UserForSearchDto> = listedUsers.map(
+      (user: UserDoc) => {
+        const userDetail: UserForSearchDto = {
+          _id: user._id,
+          fullName: `${user.firstName} ${user.lastName}`,
+          profilePhotoUrl: user.profilePhotoUrl,
+          isFriend: user.friends.includes(detailedUserDoc._id),
+        };
+        return userDetail;
+      }
+    );
+
+    return usersForDetails;
+  }
+
   async getAllFriendRequests(id: string): Promise<Array<UserForRequestDto>> {
     const user: UserDoc = await users.findById(id);
     const friendRequests: Array<UserForRequestDto> = await Promise.all(
       user.friendRequests.map(async (requestId) => {
         const request: UserDoc = await users.findById(requestId);
         const requestDto: UserForRequestDto = {
-          id: request._id,
+          _id: request._id,
           firstName: request.firstName,
           lastName: request.lastName,
           profilePhotoUrl: request.profilePhotoUrl,

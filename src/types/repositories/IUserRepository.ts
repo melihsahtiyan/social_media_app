@@ -17,6 +17,10 @@ interface IUserRepository {
   getAllPopulated(): Promise<UserProfileDto[]>;
   getById(id: string): Promise<UserDoc>;
   getByEmail(email: string): Promise<User>;
+  getUsersByIdsForDetails(
+    ids: Array<mongoose.Schema.Types.ObjectId>,
+    detailedUser: string
+  ): Promise<Array<UserForSearchDto>>;
   searchByName(name: string): Promise<Array<UserForSearchDto>>;
   getAllFriendRequests(id: string): Promise<Array<UserForRequestDto>>;
   update(id: string, user: UserForUpdate): Promise<UserDoc>;
