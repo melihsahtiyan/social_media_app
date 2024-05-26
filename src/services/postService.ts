@@ -372,14 +372,8 @@ export class PostService implements IPostService {
               const fileBuffer = file.buffer.toString("base64");
               let dataURI = "data:" + file.mimetype + ";base64," + fileBuffer;
 
-              const fileResult: string = await handleUpload(dataURI, folder);
-
-              const publicId: string =
-                fileResult.split("/")[7] +
-                "/" +
-                fileResult.split("/")[8] +
-                "/" +
-                fileResult.split("/")[9].split(".")[0];
+              const publicId: string = await handleUpload(dataURI, folder);
+;
               return publicId;
             })
           );

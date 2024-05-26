@@ -22,8 +22,15 @@ export async function handleUpload(
       throw error.stack;
     });
 
-  console.log(res);
-  return res;
+  console.log("File Upload:", res);
+
+  const publicId: string =
+    res.split("/")[7] +
+    "/" +
+    res.split("/")[8] +
+    "/" +
+    res.split("/")[9].split(".")[0];
+  return publicId;
 }
 
 export async function handleDelete(publicId: string): Promise<boolean> {
@@ -36,9 +43,9 @@ export async function handleDelete(publicId: string): Promise<boolean> {
   const res: boolean = await cloudinary.uploader
     .destroy(publicId)
     .then((result) => {
-        console.log("Result: ",result);
-        console.log("Result public Id: ",publicId);
-        
+      console.log("Result: ", result);
+      console.log("Result public Id: ", publicId);
+
       return result;
     })
     .catch((error) => {

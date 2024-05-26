@@ -593,17 +593,10 @@ export class UserService implements IUserService {
         const fileBuffer = file.buffer.toString("base64");
         let dataURI = "data:" + file.mimetype + ";base64," + fileBuffer;
 
-        const fileResult: string = await handleUpload(
+        const profilePhotoUrl: string = await handleUpload(
           dataURI,
           "media/profilePhotos/"
         );
-
-        const profilePhotoUrl: string =
-          fileResult.split("/")[7] +
-          "/" +
-          fileResult.split("/")[8] +
-          "/" +
-          fileResult.split("/")[9].split(".")[0];
 
         const updatedUser: UserDoc =
           await this.userRepository.updateprofilePhoto(
@@ -634,17 +627,10 @@ export class UserService implements IUserService {
         const fileBuffer = file.buffer.toString("base64");
         let dataURI = "data:" + file.mimetype + ";base64," + fileBuffer;
 
-        const fileResult: string = await handleUpload(
+        const profilePhotoUrl: string = await handleUpload(
           dataURI,
           "media/profilePhotos/"
         );
-
-        const profilePhotoUrl: string =
-          fileResult.split("/")[7] +
-          "/" +
-          fileResult.split("/")[8] +
-          "/" +
-          fileResult.split("/")[9].split(".")[0];
 
         const updatedUser: UserDoc =
           await this.userRepository.updateprofilePhoto(
