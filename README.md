@@ -7,7 +7,7 @@ Tags: Codebase, Guides and Processes
 
 Hello and welcome to the social media app! This is a social media app that allows university students to post interesting events that are happening on campus.
 
-This API is built using _[Node.js (TypeScript)](#node.js-and-typescript), [Express](#express.js),_ and _[MongoDB Atlas](#mongodb-atlas)_.
+This API is built using _[*Node.js (TypeScript)*](#node.js-and-typescript), [*Express*](#express.js), [*Cloudinary*](https://cloudinary.com/documentation), and [_MongoDB Atlas_](#mongodb-atlas).
 
 ### Getting Started
 
@@ -23,6 +23,7 @@ This API is built using _[Node.js (TypeScript)](#node.js-and-typescript), [Expre
   - [bcrypt](https://www.npmjs.com/package/bcrypt) is a library to help you hash passwords.
   - [body-parser](https://www.npmjs.com/package/body-parser) is a Node.js body parsing middleware.
   - [chai](https://www.chaijs.com/) is a BDD / TDD assertion library for node and the browser that can be delightfully paired with any **_JavaScript_** testing framework.
+  - [cloudinary](https://cloudinary.comdocumentation) is a cloud service that offers a solution to a web application's entire image management pipeline.
   - [dotenv](https://www.npmjs.com/package/dotenv) is a zero-dependency module that loads environment variables from a _.env_ file into _process.env_.
   - [Express](https://expressjs.com/) is a minimal and flexible **_Node.js_** web application framework that provides a robust set of features for web and mobile applications.
   - [express-validator](https://express-validator.github.io/docs/) is a set of **_Express.js_** middlewares that wraps validator.js validator and sanitizer functions.
@@ -36,7 +37,7 @@ This API is built using _[Node.js (TypeScript)](#node.js-and-typescript), [Expre
   - [sinon](https://sinonjs.org/) is a library to help you stub, mock and spy on function calls.
   - [reflect-metadata](https://www.npmjs.com/package/reflect-metadata) is a library to help you add metadata to your classes.
 
-[API Endpoints](https://www.notion.so/API-Endpoints-1012e630aa394f4abf964377de9c62a4?pvs=21)
+[API Endpoints](./docs/readme/API_Endpoints.md)
 
 ---
 
@@ -74,6 +75,16 @@ _Express.js_ is a minimalist web framework for _Node.js_. It simplifies server c
 
 ---
 
+# Cloudinary
+
+Cloudinary is a Software-as-a-Service (SaaS) solution that provides a comprehensive cloud-based platform for image and video management.
+
+1. It offers on-the-fly transformation capabilities, allowing effortless resizing, cropping, and altering of media assets.
+2. Its robust CDN (Content Delivery Network) ensures optimal delivery speed and performance for your media.
+3. It provides advanced AI capabilities for automatic tagging, categorization, and moderation of images and videos.
+
+---
+
 # MongoDB Atlas
 
 We use _MongoDB Atlas_ for our database. For a guide on getting started with _MongoDB_, check out this [docs](https://www.mongodb.com/docs/atlas/getting-started/).
@@ -85,125 +96,79 @@ Advantages:
 1. It offers high availability and consistency due to the use of a distributed database architecture.
 2. It has built-in security features such as network isolation, encryption at rest and in transit, and robust access controls.
 
----
-
-# Services
-
-### Auth Service
-
-[Register](./docs/readme/Register.md)
-
-[Login](./docs/readme/Login.md)
-
-[VerifyEmail](./docs/readme/VerifyEmail.md)
-
-[Reset Password](./docs/readme/Reset%20Password.md)
-
-### Post Service
-
-[Create Post](./docs/readme/Create%20Post.md)
-
-[Get all Posts](./docs/readme/Get%20all%20Posts.md)
-
-### User Service
-
-[Follow User](./docs/readme/Follow%20User.md)
-
-[Handle Follow Request](./docs/readme/Handle%20Follow%20Request.md)
-
-[Update Profile](./docs/readme/Update%20Profile.md)
-
----
 
 # Models
 
 ## Post
 
-### PostSchema
+### Post
 
 ```tsx
-creator: UserDoc;
-content: { caption: string; mediaUrls: Array<string> };
-likes: UserId[];
-createdAt: Date;
-comments: Array<CommentDoc>;
-type: Enum => ["normal", "poll"];
-isUpdated: Boolean;
+  creator: mongoose.Schema.Types.ObjectId;
+  content: { caption: string; mediaUrls: Array<string> };
+  likes: mongoose.Schema.Types.ObjectId[];
+  likeCount: number;
+  comments: mongoose.Schema.Types.ObjectId[];
+  commentCount: number;
+  poll: Poll;
+  isUpdated: boolean;
 ```
 
-### Poll → Post
+### Poll
 
 ```tsx
-options: Array<String>;
-votes: [
-  {
-    voter: UserId;
-    option: String;
-  }
-];
-totalVotes: Number;
-expiresAt: Date;
-createdAt: Date;
+  question: string;
+  options: Array<{ optionName: string; votes: number }>;
+  votes: Array<{
+    voter: Schema.Types.ObjectId;
+    option: string;
+  }>;
+  totalVotes: number;
+  expiresAt: Date;
 ```
 
 ## Comment
 
 ```tsx
-creator: UserId;
-content: string;
-createdAt: Date;
-isUpdated: Boolean;
-likes: UserId[];
-replies: CommentId[];
+  creator: mongoose.Schema.Types.ObjectId;
+  content: string;
+  isUpdated: Boolean;
+  likes: mongoose.Schema.Types.ObjectId[];
+  replies: mongoose.Schema.Types.ObjectId[];
 ```
 
 ## User
 
 ```tsx
-firstName: string;
-lastName: string;
-birthDate: Date;
-email: string;
-password: string;
-university: string;
-department: string;
-studentEmail: string;
-status: {
-  studentVerification: boolean;
-  emailVerification: boolean;
- };
- profilePhotoUrl: string;
- followers: UserId[];
- followRequests: UserId[];
- following: UserId[];
- posts: PostId[];
- createdAt: Date;
+  firstName: string;
+  lastName: string;
+  birthDate: Date;
+  email: string;
+  password: string;
+  university: string;
+  department: string;
+  studentEmail: string;
+  status: {
+    studentVerification: boolean;
+    emailVerification: boolean;
+  };
+  profilePhotoUrl: string;
+  friends: mongoose.Schema.Types.ObjectId[];
+  friendRequests: mongoose.Schema.Types.ObjectId[];
+  posts: mongoose.Schema.Types.ObjectId[];
 ```
 
----
+## Club
 
-# Features
-
-## User
-
-- Users can edit their profile.
-
-### **Follow user**
-
-- Users can send follow request to other users.
-- Users can accept or decline follow request.
-- Users can unfollow other users.
-- Users can remove their followers.
-
-## Post
-
-- Users can share a post.
-- Users can like a post.
-- Users can start a poll.
-- Users can vote in the poll.
-- Users can comment on a post.
-- Users can like a comment.
-
----
-
----
+```tsx
+  name: String;
+  logoUrl: String;
+  bannerUrl: String;
+  biography: String;
+  status: boolean;
+  president: Schema.Types.ObjectId;
+  organizers: Schema.Types.ObjectId[];
+  members: Schema.Types.ObjectId[];
+  posts: Schema.Types.ObjectId[];
+  events: Schema.Types.ObjectId[];
+```
