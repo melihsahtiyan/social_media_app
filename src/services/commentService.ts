@@ -98,13 +98,11 @@ export class CommentService implements ICommentService {
         return result;
       }
 
-      console.log("Comment Id: ", commentId);
 
       const comment: CommentDoc = await this.commentRepository.getById(
         commentId
       );
 
-      console.log("Comment to reply: ", comment);
 
       if (!comment) {
         const result: DataResult<CommentForCreateDto> = {
@@ -182,12 +180,12 @@ export class CommentService implements ICommentService {
   async getCommentsByPostId(
     postId: string,
     userId: string
-  ): Promise<DataResult<CommentForListDto[]>> {
+  ): Promise<DataResult<Array<Comment>>> {
     try {
       const post: PostDoc = await this.postRepository.getById(postId);
 
       if (!post) {
-        const result: DataResult<CommentForListDto[]> = {
+        const result: DataResult<Array<Comment>> = {
           success: false,
           message: "Post not found",
           data: null,
@@ -199,40 +197,10 @@ export class CommentService implements ICommentService {
       const postComments: Array<Comment> =
         await this.commentRepository.getCommentsByPostId(postId);
 
-      const commentsList: CommentForListDto[] = await Promise.all(
-        postComments.map(async (comment) => {
-          const creator = await this.userRepository.getById(
-            comment.creator.toString()
-          );
-
-          const likes = await this.userRepository.getUsersByIdsForDetails(
-            comment.likes,
-            userId
-          );
-          const commentForList: CommentForListDto = {
-            _id: comment._id,
-            creator: {
-              _id: creator._id,
-              firstName: creator.firstName,
-              lastName: creator.lastName,
-              profilePicture: creator.profilePhotoUrl,
-            },
-            content: comment.content,
-            isUpdated: comment.isUpdated,
-            likes: likes,
-            likeCount: comment.likes.length,
-            createdAt: comment.createdAt,
-            replies: [],
-          };
-
-          return commentForList;
-        })
-      );
-
-      const result: DataResult<CommentForListDto[]> = {
+      const result: DataResult<Array<Comment>> = {
         success: true,
         message: "Comments retrieved successfully",
-        data: commentsList,
+        data: postComments,
         statusCode: 200,
       };
 

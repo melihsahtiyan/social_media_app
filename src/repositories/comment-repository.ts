@@ -20,10 +20,7 @@ export class CommentRepository implements ICommentRepository {
   ): Promise<CommentForCreateDto> {
     const comment = await comments.findById(commentId);
 
-    if (!comment) {
-      return null;
-    }
-
+    reply.post = null;
     const createdReply = await comments.create(reply);
 
     comment.replies.push(createdReply._id);
@@ -39,9 +36,8 @@ export class CommentRepository implements ICommentRepository {
     const postComments: Array<Comment> = await comments
       .find({ post: postId })
       .populate("creator", "_id firstName lastName profilePhotoUrl")
-      .populate("likes", "_id firstName lastName")
-      .populate("replies", "_id content creator likes createdAt")
-      .exec();
+      .populate("likes", "_id firstName lastName profilePhotoUrl")
+      .populate("replies", "_id content creator likes createdAt");
 
     return postComments;
 

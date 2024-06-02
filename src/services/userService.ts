@@ -620,10 +620,8 @@ export class UserService implements IUserService {
         };
         return result;
       } else {
-        console.log("Profile photo exists!", user.profilePhotoUrl);
         const isDeleted: boolean = await handleDelete(user.profilePhotoUrl);
 
-        console.log("isDeleted: ", isDeleted);
         if (!isDeleted) {
           const result: Result = {
             statusCode: 500,

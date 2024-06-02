@@ -9,6 +9,7 @@ import { Result } from "../types/result/Result";
 import { NextFunction, Response } from "express";
 import Request from "../types/Request";
 import { isValid } from "../util/validationHandler";
+import { Comment } from "../models/entites/Comment";
 
 @injectable()
 export class CommentController {
@@ -52,7 +53,7 @@ export class CommentController {
       const postId: string = req.params.postId;
       const userId: string = req.userId;
 
-      const result: DataResult<Array<CommentForListDto>> =
+      const result: DataResult<Array<Comment>> =
         await this.commentService.getCommentsByPostId(postId, userId);
 
       return res.status(result.statusCode).json({ result });
