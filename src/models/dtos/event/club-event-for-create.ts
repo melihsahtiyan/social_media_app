@@ -1,6 +1,6 @@
 import { Schema } from "mongoose";
 
-export interface EventForCreate {
+export interface ClubEventForCreate {
   title: string;
   description: string;
   image: string;
@@ -8,6 +8,7 @@ export interface EventForCreate {
   date: Date;
   time: string;
   club: Schema.Types.ObjectId;
+  organizer: Schema.Types.ObjectId;
   isPublic: boolean;
   isOnline: boolean;
 }

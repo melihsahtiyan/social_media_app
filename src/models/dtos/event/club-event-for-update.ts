@@ -1,4 +1,4 @@
-export interface EventForUpdate {
+export interface ClubEventForUpdate {
   description: string;
   image: string;
   location: string;

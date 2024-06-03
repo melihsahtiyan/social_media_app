@@ -1,7 +1,7 @@
 import { Schema } from "mongoose";
 import { Entity } from "./Entity";
 
-export interface Event extends Entity {
+export interface ClubEvent extends Entity {
   title: string;
   description: string;
   image: string;
@@ -9,6 +9,7 @@ export interface Event extends Entity {
   date: Date;
   time: string;
   club: Schema.Types.ObjectId;
+  organizer: Schema.Types.ObjectId;
   isPublic: boolean;
   isOnline: boolean;
   attendees: Schema.Types.ObjectId[];

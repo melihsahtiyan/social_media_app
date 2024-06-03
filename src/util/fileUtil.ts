@@ -55,6 +55,11 @@ export const mediaUpload = multer({
   fileFilter: fileFilter,
 }).array("medias");
 
+export const eventMediaUpload = multer({
+  storage: storage,
+  fileFilter: fileFilter,
+}).single("media");
+
 export const clearImage = (filePath: string) => {
   filePath = path.join(__dirname, "../..", filePath);
   fs.unlink(filePath, (err) => console.log(err));

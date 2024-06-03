@@ -1,4 +1,4 @@
-export interface EventInputDto {
+export interface ClubEventInputDto {
   title: string;
   description: string;
   location: string;

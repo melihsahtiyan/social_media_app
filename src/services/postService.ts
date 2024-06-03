@@ -373,7 +373,6 @@ export class PostService implements IPostService {
               let dataURI = "data:" + file.mimetype + ";base64," + fileBuffer;
 
               const publicId: string = await handleUpload(dataURI, folder);
-;
               return publicId;
             })
           );

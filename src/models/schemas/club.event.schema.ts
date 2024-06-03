@@ -1,8 +1,8 @@
 import mongoose from "mongoose";
-import { Event } from "../entites/Event";
-export type EventDoc = mongoose.Document & Event;
+import { ClubEvent } from "../entites/ClubEvent";
+export type ClubEventDoc = mongoose.Document & ClubEvent;
 
-export const eventSchema = new mongoose.Schema({
+export const clubEventSchema = new mongoose.Schema({
   title: {
     type: String,
     required: true,
@@ -27,6 +27,11 @@ export const eventSchema = new mongoose.Schema({
   club: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Club",
+    required: true,
+  },
+  organizer: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
     required: true,
   },
   isPublic: {
@@ -63,7 +68,8 @@ export const eventSchema = new mongoose.Schema({
   },
 });
 
-const events: mongoose.Model<EventDoc> =
-  mongoose.models.events || mongoose.model<EventDoc>("Event", eventSchema);
+const clubEvents: mongoose.Model<ClubEventDoc> =
+  mongoose.models.events ||
+  mongoose.model<ClubEventDoc>("ClubEvent", clubEventSchema);
 
-export { events };
+export { clubEvents };

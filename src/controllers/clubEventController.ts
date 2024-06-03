@@ -1,0 +1,89 @@
+import { inject, injectable } from "inversify";
+import { ClubEventService } from "../services/clubEventService";
+import { Response, NextFunction } from "express";
+import Request from "../types/Request";
+import { DataResult } from "../types/result/DataResult";
+import { ClubEventInputDto } from "../models/dtos/event/club-event-input-dto";
+import { ClubEventDetailDto } from "../models/dtos/event/club-event-detail-dto";
+import { ClubEvent } from "../models/entites/ClubEvent";
+
+@injectable()
+export class ClubEventController {
+  private readonly clubEventService: ClubEventService;
+
+  constructor(@inject(ClubEventService) clubEventService: ClubEventService) {
+    this.clubEventService = clubEventService;
+  }
+
+  async create(req: Request, res: Response, next: NextFunction) {
+    try {
+      const organizerId: string = req.userId;
+      const clubEventInput: ClubEventInputDto = req.body;
+      const file: Express.Multer.File = req.file;
+
+      console.log("file", file);
+
+      const result: DataResult<ClubEventInputDto> =
+        await this.clubEventService.create(organizerId, clubEventInput, file);
+
+      return res.status(result.statusCode).send(result);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async update(req: Request, res: Response, next: NextFunction) {
+    try {
+      const organizerId: string = req.userId;
+      const clubEventInput: ClubEventInputDto = req.body;
+      const id: string = req.params.id;
+
+      const result: DataResult<ClubEventInputDto> =
+        await this.clubEventService.update(id, organizerId, clubEventInput);
+
+      return res.status(result.statusCode).send(result);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async delete(req: Request, res: Response, next: NextFunction) {
+    try {
+      const organizerId: string = req.userId;
+      const id: string = req.params.id;
+
+      const result: DataResult<boolean> = await this.clubEventService.delete(
+        id,
+        organizerId
+      );
+
+      return res.status(result.statusCode).send(result);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async getEventById(req: Request, res: Response, next: NextFunction) {
+    try {
+      const id: string = req.params.id;
+
+      const result: DataResult<ClubEventDetailDto> =
+        await this.clubEventService.getEventById(id);
+
+      return res.status(result.statusCode).send(result);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async getAll(req: Request, res: Response, next: NextFunction) {
+    try {
+      const result: DataResult<Array<ClubEvent>> =
+        await this.clubEventService.getAll();
+
+      return res.status(result.statusCode).send(result);
+    } catch (error) {
+      next(error);
+    }
+  }
+}

@@ -17,6 +17,9 @@ import { ClubController } from "../../controllers/clubController";
 import { CommentRepository } from "../../repositories/comment-repository";
 import { CommentService } from "../../services/commentService";
 import { CommentController } from "../../controllers/commentController";
+import { ClubEventRepository } from "../../repositories/club-event-repository";
+import { ClubEventService } from "../../services/clubEventService";
+import { ClubEventController } from "../../controllers/clubEventController";
 
 const container: Container = new Container();
 
@@ -71,6 +74,19 @@ container
 container
   .bind<CommentController>(CommentController)
   .to(CommentController)
+  .inSingletonScope();
+
+container
+  .bind<ClubEventRepository>(ClubEventRepository)
+  .to(ClubEventRepository)
+  .inSingletonScope();
+container
+  .bind<ClubEventService>(ClubEventService)
+  .to(ClubEventService)
+  .inSingletonScope();
+container
+  .bind<ClubEventController>(ClubEventController)
+  .to(ClubEventController)
   .inSingletonScope();
 
 container.bind<AuthService>(AuthService).to(AuthService).inSingletonScope();
