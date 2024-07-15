@@ -73,4 +73,26 @@ export class ClubEventRepository implements IClubEventRepository {
       .populate("posts", "_id content")
       .sort({ createdAt: -1 });
   }
+  async getFutureEventsByUserId(userId: string): Promise<Array<ClubEvent>> {
+    const events: Array<ClubEvent> = await clubEvents
+      .find({
+        attendees: { $in: [userId] },
+        date: { $gte: new Date() },
+      })
+      .sort({ date: 1 })
+      .sort({ time: 1 });
+
+    return events;
+  }
+  async getFutureEventsByUserIdAndIsPublic(
+    userId: string
+  ): Promise<Array<ClubEvent>> {
+    const events: Array<ClubEvent> = await clubEvents.find({
+      // attendees: userId,
+      date: { $gte: Date.now() },
+      isPublic: true,
+    });
+
+    return events;
+  }
 }

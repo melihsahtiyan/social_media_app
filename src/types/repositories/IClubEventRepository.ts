@@ -11,4 +11,6 @@ export interface IClubEventRepository {
   getById(id: string): Promise<ClubEventDoc>;
   getEventById(id: string): Promise<ClubEventDetailDto>;
   getAll(): Promise<Array<ClubEvent>>;
+  getFutureEventsByUserId(userId: string): Promise<Array<ClubEvent>>;
+  getFutureEventsByUserIdAndIsPublic(userId: string): Promise<Array<ClubEvent>>;
 }

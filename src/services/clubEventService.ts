@@ -40,7 +40,7 @@ export class ClubEventService implements IClubEventService {
       if (!organizer) {
         const result: DataResult<ClubEventInputDto> = {
           success: false,
-          message: "Organizer not found",
+          message: "Organizer not found!",
           statusCode: 404,
           data: null,
         };
@@ -52,7 +52,7 @@ export class ClubEventService implements IClubEventService {
       if (!club) {
         const result: DataResult<ClubEventInputDto> = {
           success: false,
-          message: "Club not found",
+          message: "Club not found!",
           statusCode: 404,
           data: null,
         };
@@ -62,7 +62,7 @@ export class ClubEventService implements IClubEventService {
       if (!club.organizers.includes(organizer._id)) {
         const result: DataResult<ClubEventInputDto> = {
           success: false,
-          message: "You are not authorized to create an event for this club",
+          message: "You are not authorized to create an event for this club!",
           statusCode: 400,
           data: null,
         };
@@ -100,8 +100,6 @@ export class ClubEventService implements IClubEventService {
 
         const fileBuffer = file.buffer.toString("base64");
         let dataURI = "data:" + file.mimetype + ";base64," + fileBuffer;
-
-        console.log("folder: ", folder);
 
         const publicId: string = await handleUpload(dataURI, folder);
 
@@ -302,6 +300,85 @@ export class ClubEventService implements IClubEventService {
       const events = await this.clubEventRepository.getAll();
 
       const result: DataResult<Array<ClubEvent>> = {
+        success: true,
+        message: "Events listed successfully!",
+        statusCode: 200,
+        data: events,
+      };
+
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getFutureClubEventsByUserIdAndIsPublic(
+    userId: string
+  ): Promise<DataResult<ClubEvent[]>> {
+    try {
+      const user: UserDoc = await this.userRepository.getById(userId);
+
+      if (!user) {
+        const error: CustomError = new Error("User not found!");
+        error.statusCode = 404;
+        throw error;
+      }
+
+      const events: ClubEvent[] =
+        await this.clubEventRepository.getFutureEventsByUserIdAndIsPublic(
+          userId
+        );
+
+      if (!events) {
+        const result: DataResult<ClubEvent[]> = {
+          success: true,
+          message: "Events not found",
+          statusCode: 404,
+          data: null,
+        };
+
+        return result;
+      }
+
+      const result: DataResult<ClubEvent[]> = {
+        success: true,
+        message: "Events found",
+        statusCode: 200,
+        data: events,
+      };
+
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  }
+  async getFutureClubEventsByUserId(
+    userId: string
+  ): Promise<DataResult<ClubEvent[]>> {
+    try {
+      const user: UserDoc = await this.userRepository.getById(userId);
+
+      if (!user) {
+        const error: CustomError = new Error("User not found!");
+        error.statusCode = 404;
+        throw error;
+      }
+
+      const events: ClubEvent[] =
+        await this.clubEventRepository.getFutureEventsByUserId(userId);
+
+      if (!events) {
+        const result: DataResult<ClubEvent[]> = {
+          success: true,
+          message: "Events not found",
+          statusCode: 404,
+          data: null,
+        };
+
+        return result;
+      }
+
+      const result: DataResult<ClubEvent[]> = {
         success: true,
         message: "Events found",
         statusCode: 200,

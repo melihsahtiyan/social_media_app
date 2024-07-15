@@ -17,6 +17,8 @@ export interface IClubEventService {
   delete(id: string, organizerId: string): Promise<DataResult<boolean>>;
   getEventById(id: string): Promise<DataResult<ClubEventDetailDto>>;
   getAll(): Promise<DataResult<Array<ClubEvent>>>;
+  getFutureClubEventsByUserIdAndIsPublic(userId: string): Promise<DataResult<ClubEvent[]>>;
+  getFutureClubEventsByUserId(userId: string): Promise<DataResult<ClubEvent[]>>;
 }
 
 // TODO

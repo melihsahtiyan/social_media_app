@@ -21,8 +21,6 @@ export class ClubEventController {
       const clubEventInput: ClubEventInputDto = req.body;
       const file: Express.Multer.File = req.file;
 
-      console.log("file", file);
-
       const result: DataResult<ClubEventInputDto> =
         await this.clubEventService.create(organizerId, clubEventInput, file);
 
@@ -82,6 +80,41 @@ export class ClubEventController {
         await this.clubEventService.getAll();
 
       return res.status(result.statusCode).send(result);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async getFutureClubEventsByUserIdAndIsPublic(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      const userId: string = req.userId;
+
+      const result: DataResult<ClubEvent[]> =
+        await this.clubEventService.getFutureClubEventsByUserIdAndIsPublic(
+          userId
+        );
+
+      return res.status(200).send(result);
+    } catch (error) {
+      next(error);
+    }
+  }
+  async getFutureClubEventsByUserId(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      const userId: string = req.userId;
+
+      const result: DataResult<ClubEvent[]> =
+        await this.clubEventService.getFutureClubEventsByUserId(userId);
+
+      return res.status(200).send(result);
     } catch (error) {
       next(error);
     }

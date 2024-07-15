@@ -125,6 +125,24 @@ function routes(app: Express) {
       await controller.getAll(req, res, next);
     }
   );
+
+  app.get(
+    "/clubEvent/getFutureClubEventsByUserIdAndIsPublic",
+    logRequest,
+    isAuth,
+    async (req: Request, res: Response, next: NextFunction) => {
+      await controller.getFutureClubEventsByUserIdAndIsPublic(req, res, next);
+    }
+  );
+
+  app.get(
+    "/clubEvent/getFutureClubEventsByUserId",
+    logRequest,
+    isAuth,
+    async (req: Request, res: Response, next: NextFunction) => {
+      await controller.getFutureClubEventsByUserId(req, res, next);
+    }
+  );
 }
 
 export default routes;
