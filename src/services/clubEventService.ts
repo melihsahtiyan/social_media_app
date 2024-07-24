@@ -7,12 +7,12 @@ import { DataResult } from "../types/result/DataResult";
 import { ClubEventRepository } from "../repositories/club-event-repository";
 import { ClubRepository } from "../repositories/club-repository";
 import { UserRepository } from "../repositories/user-repository";
-import { UserDoc } from "../models/schemas/user.schema";
 import { Club } from "../models/entites/Club";
 import { CustomError } from "../types/error/CustomError";
 import { handleUpload } from "../util/cloudinaryService";
 import { ClubEventForCreate } from "../models/dtos/event/club-event-for-create";
 import { ClubEventForUpdate } from "../models/dtos/event/club-event-for-update";
+import { User } from "../models/entites/User";
 
 @injectable()
 export class ClubEventService implements IClubEventService {
@@ -35,7 +35,7 @@ export class ClubEventService implements IClubEventService {
     file: Express.Multer.File
   ): Promise<DataResult<ClubEventInputDto>> {
     try {
-      const organizer: UserDoc = await this.userRepository.getById(organizerId);
+      const organizer: User = await this.userRepository.getById(organizerId);
 
       if (!organizer) {
         const result: DataResult<ClubEventInputDto> = {
@@ -59,7 +59,7 @@ export class ClubEventService implements IClubEventService {
         return result;
       }
 
-      if (!club.organizers.includes(organizer._id)) {
+      if (!club.isOrganizer(organizer._id)) {
         const result: DataResult<ClubEventInputDto> = {
           success: false,
           message: "You are not authorized to create an event for this club!",
@@ -69,7 +69,7 @@ export class ClubEventService implements IClubEventService {
         return result;
       }
 
-      const eventForCreate: ClubEventForCreate = {
+      const eventForCreate: ClubEvent = new ClubEvent({
         title: clubEventInput.title,
         description: clubEventInput.description,
         image: null,
@@ -80,9 +80,10 @@ export class ClubEventService implements IClubEventService {
         organizer: organizer._id,
         isPublic: clubEventInput.isPublic,
         isOnline: clubEventInput.isOnline,
-      };
+      });
 
       if (file) {
+        // TODO: add cloudinary service
         const extension = file.mimetype.split("/")[1];
         const videoExtensions = ["mp4", "mov", "avi", "mkv", "webm", "m4v"];
         const imageExtensions = ["jpg", "jpeg", "png", "webp", "heic", "gif"];
@@ -122,13 +123,135 @@ export class ClubEventService implements IClubEventService {
       throw error;
     }
   }
+  async getAll(): Promise<DataResult<Array<ClubEvent>>> {
+    try {
+      const events = await this.clubEventRepository.getAll();
+
+      const result: DataResult<Array<ClubEvent>> = {
+        success: true,
+        message: "Events listed successfully!",
+        statusCode: 200,
+        data: events,
+      };
+
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  }
+  async getEventById(id: string): Promise<DataResult<ClubEventDetailDto>> {
+    try {
+      const event: ClubEventDetailDto =
+        await this.clubEventRepository.getEventById(id);
+
+      if (!event) {
+        const result: DataResult<ClubEventDetailDto> = {
+          success: false,
+          message: "Event not found",
+          statusCode: 404,
+          data: null,
+        };
+        return result;
+      }
+
+      const result: DataResult<ClubEventDetailDto> = {
+        success: true,
+        message: "Event found",
+        statusCode: 200,
+        data: event,
+      };
+
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  }
+  async getFutureClubEventsByUserId(
+    userId: string
+  ): Promise<DataResult<ClubEvent[]>> {
+    try {
+      const user: User = await this.userRepository.getById(userId);
+
+      if (!user) {
+        const error: CustomError = new Error("User not found!");
+        error.statusCode = 404;
+        throw error;
+      }
+
+      const events: ClubEvent[] =
+        await this.clubEventRepository.getFutureEventsByUserId(userId);
+
+      if (!events) {
+        const result: DataResult<ClubEvent[]> = {
+          success: true,
+          message: "Events not found",
+          statusCode: 404,
+          data: null,
+        };
+
+        return result;
+      }
+
+      const result: DataResult<ClubEvent[]> = {
+        success: true,
+        message: "Events found",
+        statusCode: 200,
+        data: events,
+      };
+
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getFutureClubEventsByUserIdAndIsPublic(
+    userId: string
+  ): Promise<DataResult<ClubEvent[]>> {
+    try {
+      const user: User = await this.userRepository.getById(userId);
+
+      if (!user) {
+        const error: CustomError = new Error("User not found!");
+        error.statusCode = 404;
+        throw error;
+      }
+
+      const events: ClubEvent[] =
+        await this.clubEventRepository.getFutureEventsByUserIdAndIsPublic(
+          userId
+        );
+
+      if (!events) {
+        const result: DataResult<ClubEvent[]> = {
+          success: true,
+          message: "Events not found",
+          statusCode: 404,
+          data: null,
+        };
+
+        return result;
+      }
+
+      const result: DataResult<ClubEvent[]> = {
+        success: true,
+        message: "Events fetched successfully",
+        statusCode: 200,
+        data: events,
+      };
+
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  }
   async update(
     id: string,
     organizerId: string,
     clubEventInput: ClubEventInputDto
   ): Promise<DataResult<ClubEventInputDto>> {
     try {
-      const organizer: UserDoc = await this.userRepository.getById(organizerId);
+      const organizer: User = await this.userRepository.getById(organizerId);
 
       if (!organizer) {
         const result: DataResult<ClubEventInputDto> = {
@@ -164,7 +287,7 @@ export class ClubEventService implements IClubEventService {
         return result;
       }
 
-      if (!club.organizers.includes(organizer._id)) {
+      if (!club.isOrganizer(organizer._id)) {
         const result: DataResult<ClubEventInputDto> = {
           success: false,
           message: "You are not authorized to update this event",
@@ -204,7 +327,7 @@ export class ClubEventService implements IClubEventService {
   }
   async delete(id: string, organizerId: string): Promise<DataResult<boolean>> {
     try {
-      const organizer: UserDoc = await this.userRepository.getById(organizerId);
+      const organizer: User = await this.userRepository.getById(organizerId);
 
       if (!organizer) {
         const result: DataResult<boolean> = {
@@ -228,9 +351,7 @@ export class ClubEventService implements IClubEventService {
         return result;
       }
 
-      const club: Club = await this.clubRepository.getById(
-        event.club.toString()
-      );
+      const club: Club = await this.clubRepository.getById(event.getClubId());
 
       if (!club) {
         const result: DataResult<boolean> = {
@@ -242,7 +363,7 @@ export class ClubEventService implements IClubEventService {
         return result;
       }
 
-      if (!club.organizers.includes(organizer._id)) {
+      if (!club.isOrganizer(organizer._id)) {
         const result: DataResult<boolean> = {
           success: false,
           message: "You are not authorized to delete this event",
@@ -261,128 +382,6 @@ export class ClubEventService implements IClubEventService {
           : "Event deletion failed",
         statusCode: 200,
         data: deleted,
-      };
-
-      return result;
-    } catch (error) {
-      throw error;
-    }
-  }
-  async getEventById(id: string): Promise<DataResult<ClubEventDetailDto>> {
-    try {
-      const event: ClubEventDetailDto =
-        await this.clubEventRepository.getEventById(id);
-
-      if (!event) {
-        const result: DataResult<ClubEventDetailDto> = {
-          success: false,
-          message: "Event not found",
-          statusCode: 404,
-          data: null,
-        };
-        return result;
-      }
-
-      const result: DataResult<ClubEventDetailDto> = {
-        success: true,
-        message: "Event found",
-        statusCode: 200,
-        data: event,
-      };
-
-      return result;
-    } catch (error) {
-      throw error;
-    }
-  }
-  async getAll(): Promise<DataResult<Array<ClubEvent>>> {
-    try {
-      const events = await this.clubEventRepository.getAll();
-
-      const result: DataResult<Array<ClubEvent>> = {
-        success: true,
-        message: "Events listed successfully!",
-        statusCode: 200,
-        data: events,
-      };
-
-      return result;
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  async getFutureClubEventsByUserIdAndIsPublic(
-    userId: string
-  ): Promise<DataResult<ClubEvent[]>> {
-    try {
-      const user: UserDoc = await this.userRepository.getById(userId);
-
-      if (!user) {
-        const error: CustomError = new Error("User not found!");
-        error.statusCode = 404;
-        throw error;
-      }
-
-      const events: ClubEvent[] =
-        await this.clubEventRepository.getFutureEventsByUserIdAndIsPublic(
-          userId
-        );
-
-      if (!events) {
-        const result: DataResult<ClubEvent[]> = {
-          success: true,
-          message: "Events not found",
-          statusCode: 404,
-          data: null,
-        };
-
-        return result;
-      }
-
-      const result: DataResult<ClubEvent[]> = {
-        success: true,
-        message: "Events found",
-        statusCode: 200,
-        data: events,
-      };
-
-      return result;
-    } catch (error) {
-      throw error;
-    }
-  }
-  async getFutureClubEventsByUserId(
-    userId: string
-  ): Promise<DataResult<ClubEvent[]>> {
-    try {
-      const user: UserDoc = await this.userRepository.getById(userId);
-
-      if (!user) {
-        const error: CustomError = new Error("User not found!");
-        error.statusCode = 404;
-        throw error;
-      }
-
-      const events: ClubEvent[] =
-        await this.clubEventRepository.getFutureEventsByUserId(userId);
-
-      if (!events) {
-        const result: DataResult<ClubEvent[]> = {
-          success: true,
-          message: "Events not found",
-          statusCode: 404,
-          data: null,
-        };
-
-        return result;
-      }
-
-      const result: DataResult<ClubEvent[]> = {
-        success: true,
-        message: "Events found",
-        statusCode: 200,
-        data: events,
       };
 
       return result;

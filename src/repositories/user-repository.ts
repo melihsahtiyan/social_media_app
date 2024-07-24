@@ -234,8 +234,27 @@ export class UserRepository implements IUserRepository {
     return await Promise.resolve<UserProfileDto[]>(detailedUsers);
   }
 
-  async getById(id: string): Promise<UserDoc> {
-    const user: UserDoc = await users.findById(id).populate("posts");
+  async getById(id: string): Promise<User> {
+    const result: UserDoc = await users.findById(id)
+    const user: User = new User({
+      _id: result._id,
+      firstName: result.firstName,
+      lastName: result.lastName,
+      email: result.email,
+      profilePhotoUrl: result.profilePhotoUrl,
+      university: result.university,
+      department: result.department,
+      friends: result.friends,
+      friendRequests: result.friendRequests,
+      posts: result.posts,
+      status: result.status,
+      createdAt: result.createdAt,
+      attendances: result.attendances,
+      birthDate: result.birthDate,
+      organizations: result.organizations,
+      password: result.password,
+      studentEmail: result.studentEmail,
+    });
     return user;
   }
 
@@ -424,21 +443,6 @@ export class UserRepository implements IUserRepository {
 
     await userToRemove.save();
     return await user.save();
-  }
-
-  async generateJsonWebToken(id: string): Promise<string> {
-    const user: UserDoc = await users.findById(id);
-    const token = jwt.sign(
-      {
-        _id: user._id,
-        email: user.email,
-        firstName: user.firstName,
-        lastName: user.lastName,
-      },
-      process.env.SECRET_KEY
-      // { expiresIn: "1h" }
-    );
-    return token;
   }
 
   async generateVerificationToken(

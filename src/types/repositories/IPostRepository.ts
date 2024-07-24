@@ -8,7 +8,7 @@ import { Post } from "../../models/entites/Post";
 interface IPostRepository {
   getAllPosts(pages?: number): Promise<PostDoc[]>;
   getPostById(id: string): Promise<PostDetails>;
-  getById(id: string): Promise<PostDoc>;
+  getById(id: string): Promise<Post>;
   getPostDetailsById(id: string): Promise<PostDetails>;
   getPostsByUserId(userId: Schema.Types.ObjectId): Promise<PostDoc[]>;
   getFriendsPosts(userId: Schema.Types.ObjectId): Promise<PostDoc[]>;

@@ -12,23 +12,17 @@ interface IPostService {
     userId: string,
     files?: Express.Multer.File[]
   ): Promise<DataResult<PostInputDto>>;
-
   getAllPosts(): Promise<DataResult<Array<PostDoc>>>;
-
-  getPostById(postId: string, userId: string): Promise<DataResult<PostDetails>>;
-
+  getAllFriendsPosts(userId: string): Promise<DataResult<Array<PostList>>>;
+  getAllUniversityPosts(userId: string): Promise<DataResult<Array<PostList>>>;
   getPostDetails(
     postId: string,
     userId: string
   ): Promise<DataResult<PostDetails>>;
-
-  getAllFriendsPosts(userId: string): Promise<DataResult<Array<PostList>>>;
-  getAllUniversityPosts(userId: string): Promise<DataResult<Array<PostList>>>;
+  getPostById(postId: string, userId: string): Promise<DataResult<PostDetails>>;
   likePost(postId: string, userId: string): Promise<DataResult<PostForLike>>;
   unlikePost(postId: string, userId: string): Promise<DataResult<PostForLike>>;
-
   //   updatePost(id: string, caption: string): Promise<PostDoc>;
-
   deletePost(id: string, userId: string): Promise<Result>;
 }
 

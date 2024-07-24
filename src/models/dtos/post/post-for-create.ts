@@ -1,11 +1,8 @@
-import mongoose from "mongoose";
+import { Schema } from "mongoose";
+import { Poll } from "../../../models/entites/Poll";
 
 export interface PostForCreate {
-  creator: mongoose.Schema.Types.ObjectId;
+  creator: Schema.Types.ObjectId;
   content: { caption: string; mediaUrls: Array<string> };
-  poll: {
-    question: string;
-    options: Array<{ optionName: string; votes: number }>;
-    expiresAt: Date;
-  };
+  poll: Poll;
 }

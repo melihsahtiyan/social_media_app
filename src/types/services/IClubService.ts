@@ -6,12 +6,12 @@ import { ClubForUpdateDto } from "../../models/dtos/club/club-for-update-dto";
 import { ClubForCreate } from "../../models/dtos/club/club-for-create";
 
 export interface IClubService {
-  getAllClubs(): Promise<DataResult<Array<Club>>>;
-  getClubById(id: string): Promise<DataResult<Club>>;
   createClub(
     club: ClubInputDto,
     logo: Express.Multer.File
-  ): Promise<DataResult<ClubForCreate>>;
+  ): Promise<DataResult<Club>>;
+  getAllClubs(): Promise<DataResult<Array<Club>>>;
+  getClubById(id: string): Promise<DataResult<Club>>;
   updateClub(
     id: string,
     club: ClubForUpdateDto,

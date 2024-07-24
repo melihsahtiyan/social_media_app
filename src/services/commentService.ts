@@ -8,10 +8,11 @@ import { Result } from "../types/result/Result";
 import { UserRepository } from "../repositories/user-repository";
 import { CommentRepository } from "../repositories/comment-repository";
 import { PostRepository } from "../repositories/post-repository";
-import { UserDoc } from "../models/schemas/user.schema";
 import { PostDoc } from "../models/schemas/post.schema";
 import { Comment } from "../models/entites/Comment";
-import { CommentDoc } from "src/models/schemas/comment.schema";
+import { CommentDoc } from "../models/schemas/comment.schema";
+import { User } from "../models/entites/User";
+import { Post } from "../models/entites/Post";
 
 @injectable()
 export class CommentService implements ICommentService {
@@ -28,14 +29,14 @@ export class CommentService implements ICommentService {
     this.postRepository = postRepository;
   }
   async create(
-    comment: CommentInputDto,
+    commentInput: CommentInputDto,
     userId: string
-  ): Promise<DataResult<CommentForCreateDto>> {
+  ): Promise<DataResult<Comment>> {
     try {
-      const creator: UserDoc = await this.userRepository.getById(userId);
+      const creator: User = await this.userRepository.getById(userId);
 
       if (!creator) {
-        const result: DataResult<CommentForCreateDto> = {
+        const result: DataResult<Comment> = {
           success: false,
           message: "User not found",
           data: null,
@@ -44,12 +45,16 @@ export class CommentService implements ICommentService {
         return result;
       }
 
-      const post: PostDoc = await this.postRepository.getById(
-        comment.postId.toString()
-      );
+      const comment: Comment = new Comment({
+        content: commentInput.content,
+        creator: creator._id,
+        post: commentInput.postId,
+      });
+
+      const post: Post = await this.postRepository.getById(comment.getPostId());
 
       if (!post) {
-        const result: DataResult<CommentForCreateDto> = {
+        const result: DataResult<Comment> = {
           success: false,
           message: "Post not found",
           data: null,
@@ -58,16 +63,11 @@ export class CommentService implements ICommentService {
         return result;
       }
 
-      const commentForCreate: CommentForCreateDto = {
-        content: comment.content,
-        creator: creator._id,
-        post: post._id,
-      };
+      const createdComment: Comment = await this.commentRepository.create(
+        comment
+      );
 
-      const createdComment: CommentForCreateDto =
-        await this.commentRepository.create(commentForCreate);
-
-      const result: DataResult<CommentForCreateDto> = {
+      const result: DataResult<Comment> = {
         success: true,
         message: "Comment created successfully",
         data: createdComment,
@@ -82,11 +82,11 @@ export class CommentService implements ICommentService {
 
   async reply(
     commentId: string,
-    reply: CommentInputDto,
+    replyInput: CommentInputDto,
     userId: string
   ): Promise<DataResult<CommentForCreateDto>> {
     try {
-      const creator: UserDoc = await this.userRepository.getById(userId);
+      const creator: User = await this.userRepository.getById(userId);
 
       if (!creator) {
         const result: DataResult<CommentForCreateDto> = {
@@ -98,13 +98,11 @@ export class CommentService implements ICommentService {
         return result;
       }
 
-
-      const comment: CommentDoc = await this.commentRepository.getById(
+      const repliedComment: Comment = await this.commentRepository.getById(
         commentId
       );
 
-
-      if (!comment) {
+      if (!repliedComment) {
         const result: DataResult<CommentForCreateDto> = {
           success: false,
           message: "Comment not found",
@@ -114,9 +112,13 @@ export class CommentService implements ICommentService {
         return result;
       }
 
-      const post: PostDoc = await this.postRepository.getById(
-        reply.postId.toString()
-      );
+      const reply: Comment = new Comment({
+        content: replyInput.content,
+        creator: creator._id,
+        post: repliedComment.post,
+      });
+
+      const post: Post = await this.postRepository.getById(reply.getPostId());
 
       if (!post) {
         const result: DataResult<CommentForCreateDto> = {
@@ -128,8 +130,8 @@ export class CommentService implements ICommentService {
         return result;
       }
 
-      const repliedCommentPost: PostDoc = await this.postRepository.getById(
-        comment.post.toString()
+      const repliedCommentPost: Post = await this.postRepository.getById(
+        repliedComment.getPostId()
       );
 
       if (!repliedCommentPost) {
@@ -142,7 +144,7 @@ export class CommentService implements ICommentService {
         return result;
       }
 
-      if (reply.postId.toString() !== comment.post.toString()) {
+      if (repliedComment.checkReplyPostIdMatches(reply.getPostId())) {
         const result: DataResult<CommentForCreateDto> = {
           success: false,
           message: "Post not found",
@@ -152,14 +154,8 @@ export class CommentService implements ICommentService {
         return result;
       }
 
-      const commentForCreate: CommentForCreateDto = {
-        content: reply.content,
-        creator: creator._id,
-        post: post._id,
-      };
-
       const createdComment: CommentForCreateDto =
-        await this.commentRepository.reply(commentId, commentForCreate);
+        await this.commentRepository.reply(commentId, reply);
 
       const result: DataResult<CommentForCreateDto> = {
         success: true,
@@ -174,7 +170,7 @@ export class CommentService implements ICommentService {
     }
   }
 
-  getById(id: string): Promise<DataResult<CommentDoc>> {
+  async getById(id: string): Promise<DataResult<CommentDoc>> {
     throw new Error("Method not implemented.");
   }
   async getCommentsByPostId(
@@ -182,7 +178,7 @@ export class CommentService implements ICommentService {
     userId: string
   ): Promise<DataResult<Array<Comment>>> {
     try {
-      const post: PostDoc = await this.postRepository.getById(postId);
+      const post: Post = await this.postRepository.getById(postId);
 
       if (!post) {
         const result: DataResult<Array<Comment>> = {
@@ -209,36 +205,9 @@ export class CommentService implements ICommentService {
       throw error;
     }
   }
-  async delete(id: string, userId: string): Promise<Result> {
-    try {
-      const comment: CommentForCreateDto = await this.commentRepository.getById(
-        id
-      );
-      const isDeleted: boolean = await this.commentRepository.delete(id);
-
-      if (!isDeleted) {
-        const result: Result = {
-          success: false,
-          message: "Comment not found",
-          statusCode: 404,
-        };
-        return result;
-      }
-
-      const result: Result = {
-        success: true,
-        message: "Comment deleted successfully",
-        statusCode: 200,
-      };
-
-      return result;
-    } catch (error) {
-      throw error;
-    }
-  }
   async update(id: string, userId: string, content: string): Promise<Result> {
     try {
-      const user: UserDoc = await this.userRepository.getById(userId);
+      const user: User = await this.userRepository.getById(userId);
 
       if (!user) {
         const result: Result = {
@@ -249,9 +218,7 @@ export class CommentService implements ICommentService {
         return result;
       }
 
-      const comment: CommentForCreateDto = await this.commentRepository.getById(
-        id
-      );
+      const comment: Comment = await this.commentRepository.getById(id);
 
       if (!comment) {
         const result: Result = {
@@ -262,7 +229,7 @@ export class CommentService implements ICommentService {
         return result;
       }
 
-      if (comment.creator.toString() !== userId) {
+      if (!comment.isCreator(userId)) {
         const result: Result = {
           success: false,
           message: "Unauthorized",
@@ -288,6 +255,50 @@ export class CommentService implements ICommentService {
       const result: Result = {
         success: true,
         message: "Comment updated successfully",
+        statusCode: 200,
+      };
+
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  }
+  async delete(id: string, userId: string): Promise<Result> {
+    try {
+      const comment: Comment = await this.commentRepository.getById(id);
+
+      if (!comment) {
+        const result: Result = {
+          success: false,
+          message: "Comment not found",
+          statusCode: 404,
+        };
+        return result;
+      }
+
+      if (!comment.isCreator(userId)) {
+        const result: Result = {
+          success: false,
+          message: "Unauthorized",
+          statusCode: 401,
+        };
+        return result;
+      }
+      
+      const isDeleted: boolean = await this.commentRepository.delete(id);
+
+      if (!isDeleted) {
+        const result: Result = {
+          success: false,
+          message: "Comment not found",
+          statusCode: 404,
+        };
+        return result;
+      }
+
+      const result: Result = {
+        success: true,
+        message: "Comment deleted successfully",
         statusCode: 200,
       };
 

@@ -64,6 +64,24 @@ export class UserController {
       next(err);
     }
   }
+  
+  async getUserByToken(req: Request, res: Response, next: NextFunction) {
+    try {
+      const userId: string = req.userId;
+      const result: DataResult<UserProfileDto | UserDetailDto> =
+        await this.userService.viewUserProfile(userId, userId);
+
+      if (result.success)
+        return res.status(200).json({
+          message: result.message,
+          data: result.data,
+        });
+
+      return res.status(result.statusCode).json({ result });
+    } catch (err) {
+      next(err);
+    }
+  }
 
   async sendFriendRequest(req: Request, res: Response, next: NextFunction) {
     try {
@@ -95,7 +113,7 @@ export class UserController {
       const senderUserId: string = req.body.userId;
       const response: boolean = req.body.response;
 
-      const result: Result = await this.userService.handleFollowRequest(
+      const result: Result = await this.userService.handleFriendRequest(
         receiverUserId,
         senderUserId,
         response
@@ -170,24 +188,6 @@ export class UserController {
 
       const result: DataResult<Array<UserForSearchDto>> =
         await this.userService.searchByName(name, userId);
-
-      if (result.success)
-        return res.status(200).json({
-          message: result.message,
-          data: result.data,
-        });
-
-      return res.status(result.statusCode).json({ result });
-    } catch (err) {
-      next(err);
-    }
-  }
-
-  async getUserByToken(req: Request, res: Response, next: NextFunction) {
-    try {
-      const userId: string = req.userId;
-      const result: DataResult<UserProfileDto | UserDetailDto> =
-        await this.userService.viewUserProfile(userId, userId);
 
       if (result.success)
         return res.status(200).json({

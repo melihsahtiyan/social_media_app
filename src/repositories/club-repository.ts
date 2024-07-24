@@ -8,21 +8,10 @@ import { ClubDetailDto } from "../models/dtos/club/club-detail-dto";
 
 @injectable() /* TODO extends BaseRepository<Club>  */
 export class ClubRepository implements IClubRepository {
-  public async createClub(club: ClubForCreate): Promise<ClubForCreate> {
+  public async createClub(club: Club): Promise<Club> {
     const createdClub = await clubs.create({ ...club });
 
-    const clubForCreate: ClubForCreate = {
-      name: createdClub.name,
-      logoUrl: club.logoUrl,
-      bannerUrl: club.bannerUrl,
-      biography: createdClub.biography,
-      status: createdClub.status,
-      president: createdClub.president,
-      organizers: createdClub.organizers,
-      members: createdClub.members,
-    };
-
-    return clubForCreate;
+    return createdClub;
   }
   public async getById(id: string): Promise<Club> {
     return await clubs.findById(id);

@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-export interface Entity {
+export class Entity {
   _id: mongoose.Schema.Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;

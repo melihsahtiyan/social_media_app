@@ -10,7 +10,7 @@ import { injectable } from "inversify";
 
 @injectable()
 export class ClubEventRepository implements IClubEventRepository {
-  async create(event: ClubEventForCreate): Promise<ClubEvent> {
+  async create(event: ClubEvent): Promise<ClubEvent> {
     return await clubEvents.create(event);
   }
   async update(

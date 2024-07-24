@@ -3,13 +3,19 @@ import { Comment } from "../models/entites/Comment";
 import { ICommentRepository } from "../types/repositories/ICommentRepository";
 import { injectable } from "inversify";
 import { CommentForCreateDto } from "../models/dtos/comment/comment-for-create";
+import { posts } from "../models/schemas/post.schema";
 
 @injectable()
 export class CommentRepository implements ICommentRepository {
   constructor() {}
 
-  async create(comment: CommentForCreateDto): Promise<CommentForCreateDto> {
+  async create(comment: Comment): Promise<Comment> {
     const commentForCreate = await comments.create(comment);
+    await posts.findByIdAndUpdate(
+      comment.post,
+      { $push: { comments: commentForCreate._id } },
+      { new: true }
+    );
 
     return comment;
   }
@@ -28,8 +34,11 @@ export class CommentRepository implements ICommentRepository {
     return await comment.save();
   }
 
-  async getById(id: string): Promise<CommentDoc> {
-    return (await comments.findById(id)) as CommentDoc;
+  async getById(id: string): Promise<Comment> {
+    const comment = await comments.findById(id);
+    const result = new Comment(comment);
+
+    return result;
   }
 
   async getCommentsByPostId(postId: string): Promise<Array<Comment>> {
@@ -40,36 +49,6 @@ export class CommentRepository implements ICommentRepository {
       .populate("replies", "_id content creator likes createdAt");
 
     return postComments;
-
-    // const commentsList: CommentForListDto[] = await Promise.all(
-    //   postComments.map(async (comment) => {
-    //     const creator = await users.findById(comment.creator);
-    //     const likes = await users.find({ _id: { $in: comment.likes } });
-    //     const commentForList: CommentForListDto = {
-    //       _id: comment._id,
-    //       creator: {
-    //         _id: creator._id,
-    //         firstName: creator.firstName,
-    //         lastName: creator.lastName,
-    //         profilePicture: creator.profilePhotoUrl,
-    //       },
-    //       content: comment.content,
-    //       isUpdated: comment.isUpdated,
-    //       likes: likes.map((like) => {
-    //         return {
-    //           _id: like._id,
-    //           firstName: like.firstName,
-    //           lastName: like.lastName,
-    //         };
-    //       }),
-    //       likeCount: comment.likes.length,
-    //       createdAt: comment.createdAt,
-    //       replies: [],
-    //     };
-
-    //     return commentForList;
-    //   })
-    // );
   }
 
   async delete(id: string): Promise<boolean> {

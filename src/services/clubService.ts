@@ -23,6 +23,64 @@ export class ClubService implements IClubService {
     this.clubRepository = clubRepository;
     this.userRepository = userRepository;
   }
+  public async createClub(
+    club: ClubInputDto,
+    logo?: Express.Multer.File
+  ): Promise<DataResult<Club>> {
+    try {
+      const president: User = await this.userRepository.getById(club.president);
+
+      if (!president) {
+        const result: DataResult<Club> = {
+          data: null,
+          message: "President not found",
+          success: false,
+          statusCode: 404,
+        };
+        return result;
+      }
+
+      const clubExist = await this.clubRepository.getClubByName(club.name);
+
+      if (clubExist) {
+        const result: DataResult<Club> = {
+          data: null,
+          message: "Club with this name already exists!",
+          success: false,
+          statusCode: 400,
+        };
+        return result;
+      }
+
+      const clubForCreate: Club = new Club({
+        name: club.name,
+        biography: club.biography,
+        status: club.status,
+        president: president._id,
+      });
+
+      // TODO: refactor this block after implementing file upload
+      if (logo) {
+        const extension = logo.mimetype.split("/")[1];
+        const fileName = logo.filename.split(".")[0];
+        const path = `media/profilePhotos/${fileName}-logo.${extension}`;
+        clubForCreate.logo = path;
+      }
+
+      const createdClub = await this.clubRepository.createClub(clubForCreate);
+
+      const result: DataResult<Club> = {
+        data: createdClub,
+        message: "Club created",
+        success: true,
+        statusCode: 201,
+      };
+
+      return result;
+    } catch (err) {
+      throw err;
+    }
+  }
   async getAllClubs(): Promise<DataResult<Club[]>> {
     try {
       const clubs: Array<Club> = await this.clubRepository.getClubs();
@@ -63,67 +121,6 @@ export class ClubService implements IClubService {
     }
   }
 
-  public async createClub(
-    club: ClubInputDto,
-    logo?: Express.Multer.File
-  ): Promise<DataResult<ClubForCreate>> {
-    try {
-      const president: User = await this.userRepository.getById(club.president);
-
-      if (!president) {
-        const result: DataResult<ClubForCreate> = {
-          data: null,
-          message: "President not found",
-          success: false,
-          statusCode: 404,
-        };
-        return result;
-      }
-
-      const clubExist = await this.clubRepository.getClubByName(club.name);
-
-      if (clubExist) {
-        const result: DataResult<ClubForCreate> = {
-          data: null,
-          message: "Club with this name already exists!",
-          success: false,
-          statusCode: 400,
-        };
-        return result;
-      }
-
-      const clubForCreate: ClubForCreate = {
-        name: club.name,
-        president: president._id,
-        organizers: [president._id],
-        members: [president._id],
-        biography: club.biography,
-        status: club.status,
-        logoUrl: null,
-        bannerUrl: null,
-      };
-
-      if (logo) {
-        const extension = logo.mimetype.split("/")[1];
-        const fileName = logo.filename.split(".")[0];
-        const path = `media/profilePhotos/${fileName}-logo.${extension}`;
-        clubForCreate.logoUrl = path;
-      }
-
-      const createdClub = await this.clubRepository.createClub(clubForCreate);
-
-      const result: DataResult<ClubForCreate> = {
-        data: createdClub,
-        message: "Club created",
-        success: true,
-        statusCode: 201,
-      };
-
-      return result;
-    } catch (err) {
-      throw err;
-    }
-  }
   async updateClub(
     id: string,
     club: ClubForUpdateDto,
@@ -150,7 +147,7 @@ export class ClubService implements IClubService {
         return result;
       }
 
-      if (!clubToUpdate.organizers.includes(organizer._id)) {
+      if (!clubToUpdate.isOrganizer(organizer._id)) {
         const result: Result = {
           message: "You are not authorized to update this club!",
           success: false,
@@ -204,7 +201,7 @@ export class ClubService implements IClubService {
       }
       const clubToCheck = await this.clubRepository.getById(id);
 
-      if (!clubToCheck.organizers.includes(organizer._id)) {
+      if (!clubToCheck.isOrganizer(organizer._id)) {
         const result: DataResult<Club> = {
           message: "You are not authorized to update this club!",
           success: false,
@@ -262,7 +259,7 @@ export class ClubService implements IClubService {
       }
       const clubToCheck = await this.clubRepository.getById(id);
 
-      if (!clubToCheck.organizers.includes(organizer._id)) {
+      if (!clubToCheck.isOrganizer(organizer._id)) {
         const result: Result = {
           message: "You are not authorized to update this club!",
           success: false,
@@ -330,7 +327,7 @@ export class ClubService implements IClubService {
         return result;
       }
 
-      if (president._id.toString() !== club.president.toString()) {
+      if (club.isPresident(president._id)) {
         const result: DataResult<Club> = {
           message: "You are not authorized to update this club!",
           success: false,
@@ -391,7 +388,7 @@ export class ClubService implements IClubService {
         return result;
       }
 
-      if (president._id.toString() !== clubExist.president.toString()) {
+      if (clubExist.isPresident(president._id)) {
         const result: Result = {
           message: "You are not authorized to delete this club!",
           success: false,

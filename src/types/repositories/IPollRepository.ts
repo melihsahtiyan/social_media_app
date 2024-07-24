@@ -13,7 +13,8 @@ export interface IPollRepository {
 
   deleteVote(
     pollId: Schema.Types.ObjectId,
-    userId: Schema.Types.ObjectId
+    userId: Schema.Types.ObjectId,
+    option: string
   ): Promise<PostDoc>;
 
   deletePoll(pollId: Schema.Types.ObjectId): Promise<PostDoc>;

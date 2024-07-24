@@ -2,7 +2,7 @@ import { CommentForCreateDto } from "../../models/dtos/comment/comment-for-creat
 import { Comment } from "../../models/entites/Comment";
 
 export interface ICommentRepository {
-  create(comment: CommentForCreateDto): Promise<CommentForCreateDto>;
+  create(comment: Comment): Promise<Comment>;
   reply(
     commentId: string,
     reply: CommentForCreateDto

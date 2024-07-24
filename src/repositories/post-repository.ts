@@ -74,8 +74,22 @@ export class PostRepository implements IPostRepository {
 
     return postDetails;
   }
-  async getById(postId: string): Promise<PostDoc> {
-    return await posts.findById(postId);
+  async getById(postId: string): Promise<Post> {
+    const result: Post = await posts.findById(postId);
+    const post: Post = new Post({
+      _id: result._id,
+      creator: result.creator,
+      content: result.content,
+      likes: result.likes,
+      likeCount: result.likeCount,
+      comments: result.comments,
+      commentCount: result.commentCount,
+      poll: result.poll,
+      event: result.event,
+      isUpdated: result.isUpdated,
+      createdAt: result.createdAt,
+    });
+    return post;
   }
   async getPostDetailsById(id: string): Promise<PostDetails> {
     const postDetails: PostDetails = await posts

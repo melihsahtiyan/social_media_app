@@ -5,12 +5,13 @@ import { ClubForUpdateDto } from "../../models/dtos/club/club-for-update-dto";
 import { Club } from "../../models/entites/Club";
 
 export interface IClubRepository {
+  createClub(club: Club): Promise<Club>; 
+  getById(id: string): Promise<Club>;
+  getClubById(id: string): Promise<Club>;
   getClubByName(name: string): Promise<Club>;
   getClubs(): Promise<Club[]>;
-  getClubById(id: string): Promise<Club>;
-  getById(id: string): Promise<Club>;
   getClubByOrganizerId(organizerId: string): Promise<ClubDoc>;
-  createClub(club: ClubForCreate): Promise<ClubForCreate>;
+  // searchClubByName(name: string): Promise<Club[]>;
   updateClub(id: string, club: ClubForUpdateDto): Promise<ClubForUpdateDto>;
   updateClubImage(
     id: string,

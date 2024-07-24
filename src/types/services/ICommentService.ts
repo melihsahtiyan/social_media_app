@@ -7,17 +7,20 @@ import { CommentDoc } from "../../models/schemas/comment.schema";
 import { Comment } from "../../models/entites/Comment";
 
 export interface ICommentService {
-  create(comment: CommentInputDto, userId: string): Promise<DataResult<CommentForCreateDto>>;
+  create(
+    comment: CommentInputDto,
+    userId: string
+  ): Promise<DataResult<CommentForCreateDto>>;
   reply(
     commentId: string,
     reply: CommentInputDto,
     userId: string
   ): Promise<DataResult<CommentForCreateDto>>;
+  getById(id: string): Promise<DataResult<CommentDoc>>;
   getCommentsByPostId(
     postId: string,
     userId: string
   ): Promise<DataResult<Array<Comment>>>;
-  getById(id: string): Promise<DataResult<CommentDoc>>;
-  delete(id: string, userId: string): Promise<Result>;
   update(id: string, userId: string, content: string): Promise<Result>;
+  delete(id: string, userId: string): Promise<Result>;
 }

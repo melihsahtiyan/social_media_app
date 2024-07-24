@@ -9,16 +9,18 @@ export interface IClubEventService {
     clubEventInput: ClubEventInputDto,
     file: Express.Multer.File
   ): Promise<DataResult<ClubEventInputDto>>;
+  getAll(): Promise<DataResult<Array<ClubEvent>>>;
+  getEventById(id: string): Promise<DataResult<ClubEventDetailDto>>;
+  getFutureClubEventsByUserId(userId: string): Promise<DataResult<ClubEvent[]>>;
+  getFutureClubEventsByUserIdAndIsPublic(
+    userId: string
+  ): Promise<DataResult<ClubEvent[]>>;
   update(
     id: string,
     organizerId: string,
     clubEventInput: ClubEventInputDto
   ): Promise<DataResult<ClubEventInputDto>>;
   delete(id: string, organizerId: string): Promise<DataResult<boolean>>;
-  getEventById(id: string): Promise<DataResult<ClubEventDetailDto>>;
-  getAll(): Promise<DataResult<Array<ClubEvent>>>;
-  getFutureClubEventsByUserIdAndIsPublic(userId: string): Promise<DataResult<ClubEvent[]>>;
-  getFutureClubEventsByUserId(userId: string): Promise<DataResult<ClubEvent[]>>;
 }
 
 // TODO

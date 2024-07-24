@@ -24,9 +24,7 @@ export class PollRepository implements IPollRepository {
       (opt) => opt.optionName === option
     );
 
-    poll.options[optionIndex].votes += 1;
-    poll.votes.push({ voter: userId, option: option });
-
+    poll.options[optionIndex].votes.push(userId);
     poll.totalVotes += 1;
 
     post.poll = poll;
@@ -35,22 +33,20 @@ export class PollRepository implements IPollRepository {
   }
   async deleteVote(
     pollId: Schema.Types.ObjectId,
-    userId: Schema.Types.ObjectId
+    userId: Schema.Types.ObjectId,
+    option: string
   ): Promise<PostDoc> {
     const post: PostDoc = await posts.findById(pollId);
 
     const poll = post.poll;
 
-    const voteIndex: number = poll.votes.findIndex(
-      (vote) => vote.voter.toString() === userId.toString()
-    );
-
     const optionIndex: number = poll.options.findIndex(
-      (opt) => opt.optionName === poll.votes[voteIndex].option
+      (opt) => opt.optionName === option
     );
 
-    poll.options[optionIndex].votes -= 1;
-    poll.votes.splice(voteIndex, 1);
+    const deletedVotePoll = poll.options[optionIndex].votes.filter(
+      (vote) => vote !== userId
+    );
 
     poll.totalVotes -= 1;
 

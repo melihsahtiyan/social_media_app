@@ -14,8 +14,8 @@ import { PostDetails } from "../models/dtos/post/post-details";
 import { PostForLike } from "../models/dtos/post/post-for-like";
 import { Post } from "../models/entites/Post";
 import { Result } from "../types/result/Result";
-import { clearImage } from "../util/fileUtil";
 import { handleDelete, handleUpload } from "../util/cloudinaryService";
+import { User } from "../models/entites/User";
 
 @injectable()
 export class PostService implements IPostService {
@@ -27,283 +27,6 @@ export class PostService implements IPostService {
   ) {
     this._postRepository = postRepository;
     this._userRepository = userRepository;
-  }
-  async getAllUniversityPosts(
-    userId: string
-  ): Promise<DataResult<Array<PostList>>> {
-    try {
-      const user: UserDoc = await this._userRepository.getById(userId);
-      const posts: Array<Post> =
-        await this._postRepository.getAllUniversityPosts(user.university);
-
-      const postList: Array<PostList> = posts.map((post) => {
-        const postForList: PostList = {
-          _id: post._id,
-          creator: post.creator,
-          content: {
-            caption: post.content.caption,
-            mediaUrls: post.content.mediaUrls,
-          },
-          likes: post.likes,
-          comments: post.comments,
-          poll: post.poll,
-          isUpdated: post.isUpdated,
-          createdAt: post.createdAt,
-          isLiked: post.likes.includes(user._id),
-        };
-        return postForList;
-      });
-
-      const result: DataResult<Array<PostList>> = {
-        statusCode: 200,
-        message: "University posts fetched!",
-        success: true,
-        data: postList,
-      };
-
-      return result;
-    } catch (err) {
-      err.message = err.message || "Fetching posts failed";
-      throw err;
-    }
-  }
-  async getPostById(
-    postId: string,
-    userId: string
-  ): Promise<DataResult<PostDetails>> {
-    try {
-      const post: PostDetails = await this._postRepository.getPostById(postId);
-
-      if (!post) {
-        const error: CustomError = new Error("Post not found!");
-        error.statusCode = 404;
-        throw error;
-      }
-
-      const user: UserDoc = await this._userRepository.getById(userId);
-
-      if (
-        !user.friends.includes(post.creator._id) &&
-        post.creator.university !== user.university
-      ) {
-        const error: CustomError = new Error(
-          "You are not authorized to view this post!"
-        );
-        error.statusCode = 403;
-        throw error;
-      }
-
-      if (post.likes.includes(user._id)) {
-        post.isLiked = true;
-      }
-
-      const result: DataResult<PostDetails> = {
-        statusCode: 200,
-        message: "Post fetched!",
-        success: true,
-        data: post,
-      };
-
-      return result;
-    } catch (err) {
-      err.message = err.message || "Fetching post failed";
-      throw err;
-    }
-  }
-  async getPostDetails(
-    postId: string,
-    userId: string
-  ): Promise<DataResult<PostDetails>> {
-    try {
-      const post: PostDetails = await this._postRepository.getPostDetailsById(
-        postId
-      );
-
-      if (!post) {
-        const result: DataResult<PostDetails> = {
-          statusCode: 404,
-          message: "Post not found!",
-          success: false,
-          data: null,
-        };
-        return result;
-      }
-
-      const user: UserDoc = await this._userRepository.getById(userId);
-
-      if (
-        !user.friends.includes(post.creator._id) &&
-        post.creator.university !== user.university
-      ) {
-        const result: DataResult<PostDetails> = {
-          statusCode: 403,
-          message: "You are not authorized to view this post!",
-          success: false,
-          data: null,
-        };
-        return result;
-      }
-
-      const postDetails: PostDetails = {
-        _id: post._id,
-        creator: post.creator,
-        content: {
-          caption: post.content.caption,
-          mediaUrls: post.content.mediaUrls,
-        },
-        poll: post.poll,
-        likes: post.likes,
-        comments: post.comments,
-        createdAt: post.createdAt,
-        commentCount: post.comments.length,
-        likeCount: post.likes.length,
-        isUpdated: post.isUpdated,
-        isLiked: post.likes.includes(user._id),
-      };
-
-      const result: DataResult<PostDetails> = {
-        statusCode: 200,
-        message: "Post details fetched!",
-        success: true,
-        data: postDetails,
-      };
-
-      return result;
-    } catch (err) {
-      const error: CustomError = new Error(err);
-      throw error;
-    }
-  }
-  async getAllPosts(): Promise<DataResult<Array<PostDoc>>> {
-    try {
-      const posts: PostDoc[] = await this._postRepository.getAllPosts();
-
-      const result: DataResult<Array<PostDoc>> = {
-        statusCode: 200,
-        message: "Posts fetched!",
-        success: true,
-        data: posts,
-      };
-
-      return new DataResult<Array<PostDoc>>(200, true, "Posts fetched!", posts);
-    } catch (err) {
-      err.message = err.message || "Fetching posts failed";
-      throw err;
-    }
-  }
-
-  async getAllFriendsPosts(
-    userId: string
-  ): Promise<DataResult<Array<PostList>>> {
-    try {
-      const user: UserDoc = await this._userRepository.getById(userId);
-
-      const posts: PostDoc[] = await this._postRepository.getFriendsPosts(
-        user._id
-      );
-
-      const postList: PostList[] = posts.map((post) => {
-        const postForList: PostList = {
-          _id: post._id,
-          creator: post.creator,
-          content: {
-            caption: post.content.caption,
-            mediaUrls: post.content.mediaUrls,
-          },
-          likes: post.likes,
-          comments: post.comments,
-          poll: post.poll,
-          isUpdated: post.isUpdated,
-          createdAt: post.createdAt,
-          isLiked: post.likes.includes(user._id),
-        };
-        return postForList;
-      });
-
-      const result: DataResult<Array<PostList>> = {
-        statusCode: 200,
-        message: "Following posts fetched!",
-        success: true,
-        data: postList,
-      };
-      return result;
-    } catch (err) {
-      err.message = err.message || "Fetching posts failed";
-      throw err;
-    }
-  }
-
-  async likePost(
-    postId: string,
-    userId: string
-  ): Promise<DataResult<PostForLike>> {
-    try {
-      const post: PostDetails = await this._postRepository.getPostById(postId);
-      const user: UserDoc = await this._userRepository.getById(userId);
-
-      if (post.likes.includes(user._id)) {
-        const result: DataResult<PostForLike> = {
-          statusCode: 400,
-          message: "You already liked this post!",
-          success: false,
-          data: null,
-        };
-        return result;
-      }
-
-      const updatedPost: PostForLike = (await this._postRepository.likePost(
-        post._id,
-        user._id
-      )) as PostForLike;
-
-      const result: DataResult<PostForLike> = {
-        statusCode: 200,
-        message: "Post liked!",
-        success: true,
-        data: updatedPost,
-      };
-
-      return result;
-    } catch (err) {
-      err.message = err.message || "Liking post failed";
-      throw err;
-    }
-  }
-  async unlikePost(
-    postId: string,
-    userId: string
-  ): Promise<DataResult<PostForLike>> {
-    try {
-      const post: PostDetails = await this._postRepository.getPostById(postId);
-      const user: UserDoc = await this._userRepository.getById(userId);
-
-      if (!post.likes.includes(user._id)) {
-        const result: DataResult<PostForLike> = {
-          statusCode: 400,
-          message: "You have not liked this post!",
-          success: false,
-          data: null,
-        };
-        return result;
-      }
-
-      const updatedPost: PostForLike = (await this._postRepository.unlikePost(
-        post._id,
-        user._id
-      )) as PostForLike;
-
-      const result: DataResult<PostForLike> = {
-        statusCode: 200,
-        message: "Post unliked!",
-        success: true,
-        data: updatedPost,
-      };
-
-      return result;
-    } catch (err) {
-      const error: CustomError = new Error(err);
-      throw err;
-    }
   }
 
   async createPost(
@@ -322,11 +45,12 @@ export class PostService implements IPostService {
         return result;
       }
 
-      const user: UserDoc = await this._userRepository.getById(userId);
+      const user: User = await this._userRepository.getById(userId);
 
       let sourceUrls: string[] = [];
 
       if (files) {
+        // TODO: create cloudinary service
         if (files.length > 10) {
           const result: DataResult<PostInputDto> = {
             statusCode: 422,
@@ -408,9 +132,307 @@ export class PostService implements IPostService {
     }
   }
 
+  async getAllPosts(): Promise<DataResult<Array<PostDoc>>> {
+    try {
+      const posts: PostDoc[] = await this._postRepository.getAllPosts();
+
+      const result: DataResult<Array<PostDoc>> = {
+        statusCode: 200,
+        message: "Posts fetched!",
+        success: true,
+        data: posts,
+      };
+
+      return new DataResult<Array<PostDoc>>(200, true, "Posts fetched!", posts);
+    } catch (err) {
+      err.message = err.message || "Fetching posts failed";
+      throw err;
+    }
+  }
+
+  async getAllFriendsPosts(
+    userId: string
+  ): Promise<DataResult<Array<PostList>>> {
+    try {
+      const user: User = await this._userRepository.getById(userId);
+
+      const posts: PostDoc[] = await this._postRepository.getFriendsPosts(
+        user._id
+      );
+
+      const postList: PostList[] = posts.map((post) => {
+        const postForList: PostList = {
+          _id: post._id,
+          creator: post.creator,
+          content: {
+            caption: post.content.caption,
+            mediaUrls: post.content.mediaUrls,
+          },
+          likes: post.likes,
+          comments: post.comments,
+          poll: post.poll,
+          isUpdated: post.isUpdated,
+          createdAt: post.createdAt,
+          isLiked: post.isLiked(user._id),
+        };
+        return postForList;
+      });
+
+      const result: DataResult<Array<PostList>> = {
+        statusCode: 200,
+        message: "Following posts fetched!",
+        success: true,
+        data: postList,
+      };
+      return result;
+    } catch (err) {
+      err.message = err.message || "Fetching posts failed";
+      throw err;
+    }
+  }
+  async getAllUniversityPosts(
+    userId: string
+  ): Promise<DataResult<Array<PostList>>> {
+    try {
+      const user: User = await this._userRepository.getById(userId);
+      const posts: Array<Post> =
+        await this._postRepository.getAllUniversityPosts(user.university);
+
+      const postList: Array<PostList> = posts.map((post) => {
+        const postForList: PostList = {
+          _id: post._id,
+          creator: post.creator,
+          content: {
+            caption: post.content.caption,
+            mediaUrls: post.content.mediaUrls,
+          },
+          likes: post.likes,
+          comments: post.comments,
+          poll: post.poll,
+          isUpdated: post.isUpdated,
+          createdAt: post.createdAt,
+          isLiked: post.isLiked(user._id),
+        };
+        return postForList;
+      });
+
+      const result: DataResult<Array<PostList>> = {
+        statusCode: 200,
+        message: "University posts fetched!",
+        success: true,
+        data: postList,
+      };
+
+      return result;
+    } catch (err) {
+      err.message = err.message || "Fetching posts failed";
+      throw err;
+    }
+  }
+  async getPostDetails(
+    postId: string,
+    userId: string
+  ): Promise<DataResult<PostDetails>> {
+    try {
+      const post: Post = await this._postRepository.getById(postId);
+
+      if (!post) {
+        const result: DataResult<PostDetails> = {
+          statusCode: 404,
+          message: "Post not found!",
+          success: false,
+          data: null,
+        };
+        return result;
+      }
+
+      const creator: User = await this._userRepository.getById(
+        post.getCreatorId()
+      );
+
+      const user: User = (await this._userRepository.getById(userId)) as User;
+
+      if (user.isFriendOrSameUniversity(creator)) {
+        const result: DataResult<PostDetails> = {
+          statusCode: 403,
+          message: "You are not authorized to view this post!",
+          success: false,
+          data: null,
+        };
+        return result;
+      }
+
+      const postDetails: PostDetails = {
+        _id: post._id,
+        creator: {
+          _id: creator._id,
+          firstName: creator.firstName,
+          lastName: creator.lastName,
+          department: creator.department,
+          university: creator.university,
+          profilePhotoUrl: creator.profilePhotoUrl,
+          friends: creator.friends,
+        },
+        content: {
+          caption: post.content.caption,
+          mediaUrls: post.content.mediaUrls,
+        },
+        poll: post.poll,
+        likes: post.likes,
+        comments: post.comments,
+        createdAt: post.createdAt,
+        commentCount: post.comments.length,
+        likeCount: post.likes.length,
+        isUpdated: post.isUpdated,
+        isLiked: post.isLiked(user._id),
+      };
+
+      const result: DataResult<PostDetails> = {
+        statusCode: 200,
+        message: "Post details fetched!",
+        success: true,
+        data: postDetails,
+      };
+
+      return result;
+    } catch (err) {
+      const error: CustomError = new Error(err);
+      throw error;
+    }
+  }
+  async getPostById(
+    postId: string,
+    userId: string
+  ): Promise<DataResult<PostDetails>> {
+    try {
+      const post: Post = await this._postRepository.getById(postId);
+
+      if (!post) {
+        const error: CustomError = new Error("Post not found!");
+        error.statusCode = 404;
+        throw error;
+      }
+
+      const user: User = await this._userRepository.getById(userId);
+
+      //TODO
+      const creator: User = await this._userRepository.getById(
+        post.getCreatorId()
+      );
+
+      if (user.isFriendOrSameUniversity(creator)) {
+        const error: CustomError = new Error(
+          "You are not authorized to view this post!"
+        );
+        error.statusCode = 403;
+        throw error;
+      }
+
+      const postDetails: PostDetails = {
+        _id: post._id,
+        creator: {
+          _id: creator._id,
+          firstName: creator.firstName,
+          lastName: creator.lastName,
+          department: creator.department,
+          university: creator.university,
+          profilePhotoUrl: creator.profilePhotoUrl,
+          friends: creator.friends,
+        },
+        content: {
+          caption: post.content.caption,
+          mediaUrls: post.content.mediaUrls,
+        },
+        poll: post.poll,
+        likes: post.likes,
+        comments: post.comments,
+        createdAt: post.createdAt,
+        commentCount: post.comments.length,
+        likeCount: post.likes.length,
+        isUpdated: post.isUpdated,
+        isLiked: post.isLiked(user._id),
+      };
+
+      const result: DataResult<PostDetails> = {
+        statusCode: 200,
+        message: "Post fetched!",
+        success: true,
+        data: postDetails,
+      };
+
+      return result;
+    } catch (err) {
+      err.message = err.message || "Fetching post failed";
+      throw err;
+    }
+  }
+
+  async likePost(
+    postId: string,
+    userId: string
+  ): Promise<DataResult<PostForLike>> {
+    try {
+      const post: Post = await this._postRepository.getById(postId);
+      const user: User = await this._userRepository.getById(userId);
+
+      if (post.isLiked(user._id)) {
+        const result: DataResult<PostForLike> = {
+          statusCode: 400,
+          message: "You already liked this post!",
+          success: false,
+          data: null,
+        };
+        return result;
+      }
+
+      const updatedPost: PostForLike = (await this._postRepository.likePost(
+        post._id,
+        user._id
+      )) as PostForLike;
+
+      const result: DataResult<PostForLike> = {
+        statusCode: 200,
+        message: "Post liked!",
+        success: true,
+        data: updatedPost,
+      };
+
+      return result;
+    } catch (err) {
+      err.message = err.message || "Liking post failed";
+      throw err;
+    }
+  }
+  async unlikePost(
+    postId: string,
+    userId: string
+  ): Promise<DataResult<PostForLike>> {
+    try {
+      const post: PostDetails = await this._postRepository.getPostById(postId);
+      const user: User = await this._userRepository.getById(userId);
+
+      const updatedPost: PostForLike = (await this._postRepository.unlikePost(
+        post._id,
+        user._id
+      )) as PostForLike;
+
+      const result: DataResult<PostForLike> = {
+        statusCode: 200,
+        message: "Post unliked!",
+        success: true,
+        data: updatedPost,
+      };
+
+      return result;
+    } catch (err) {
+      const error: CustomError = new Error(err);
+      throw error;
+    }
+  }
+
   async deletePost(id: string, userId: string): Promise<Result> {
     try {
-      const user: UserDoc = await this._userRepository.getById(userId);
+      const user: User = await this._userRepository.getById(userId);
 
       if (!user) {
         const result: Result = {
@@ -421,7 +443,7 @@ export class PostService implements IPostService {
         return result;
       }
 
-      const post: PostDoc = await this._postRepository.getById(id);
+      const post: Post = await this._postRepository.getById(id);
 
       if (!post) {
         const result: Result = {
@@ -432,7 +454,7 @@ export class PostService implements IPostService {
         return result;
       }
 
-      if (post.creator.toString() !== user._id.toString()) {
+      if (post.isAuthor(userId)) {
         const result: Result = {
           statusCode: 403,
           message: "You are not authorized to delete this post!",
@@ -441,19 +463,17 @@ export class PostService implements IPostService {
         return result;
       }
 
-      if (post.content.mediaUrls.length > 0) {
-        post.content.mediaUrls.forEach(async (url) => {
-          const isDeleted: boolean = await handleDelete(url);
-          if (!isDeleted) {
-            const result: Result = {
-              statusCode: 500,
-              message: "Profile photo deletion error!",
-              success: false,
-            };
-            return result;
-          }
-        });
-      }
+      post.content.mediaUrls.forEach(async (url) => {
+        const isDeleted: boolean = await handleDelete(url);
+        if (!isDeleted) {
+          const result: Result = {
+            statusCode: 500,
+            message: "Profile photo deletion error!",
+            success: false,
+          };
+          return result;
+        }
+      });
 
       const isDeleted: boolean = await this._postRepository.deletePost(id);
 

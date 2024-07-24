@@ -15,7 +15,7 @@ interface IUserRepository {
   getUserProfile(id: string): Promise<UserProfileDto>;
   getAll(): Promise<Array<UserListDto>>;
   getAllPopulated(): Promise<UserProfileDto[]>;
-  getById(id: string): Promise<UserDoc>;
+  getById(id: string): Promise<User>;
   getByEmail(email: string): Promise<User>;
   getUsersByIdsForDetails(
     ids: Array<mongoose.Schema.Types.ObjectId>,
@@ -46,7 +46,6 @@ interface IUserRepository {
     followerUser: UserDoc
   ): Promise<UserDoc>;
   removeFriend(userToUnfollowId: string, followerId: string): Promise<UserDoc>;
-  generateJsonWebToken(id: string): Promise<string>;
   generateVerificationToken(
     id: string,
     email: string,
