@@ -314,22 +314,9 @@ export class UserService implements IUserService {
 				return result;
 			}
 
-			if (!user.profilePhotoUrl) {
-				//TODO: Refactor the code below. Idea: Create a method in cloudinaryService.ts
-				const fileBuffer = file.buffer.toString('base64');
-				const dataURI = 'data:' + file.mimetype + ';base64,' + fileBuffer;
+			let message: string = 'Profile photo added!';
 
-				const profilePhotoUrl: string = await this.cloudinaryService.handleUpload(dataURI, 'media/profilePhotos/');
-
-				await this.userRepository.updateprofilePhoto(user.getId(), profilePhotoUrl);
-
-				const result: Result = {
-					statusCode: 200,
-					message: 'Profile photo added!',
-					success: true
-				};
-				return result;
-			} else {
+			if (user.profilePhotoUrl) {
 				const isDeleted: boolean = await this.cloudinaryService.handleDelete(user.profilePhotoUrl);
 
 				if (!isDeleted) {
@@ -340,22 +327,20 @@ export class UserService implements IUserService {
 					};
 					return result;
 				}
-
-				const fileBuffer = file.buffer.toString('base64');
-				const dataURI = 'data:' + file.mimetype + ';base64,' + fileBuffer;
-
-				const profilePhotoUrl: string = await this.cloudinaryService.handleUpload(dataURI, 'media/profilePhotos/');
-
-				await this.userRepository.updateprofilePhoto(user.getId(), profilePhotoUrl);
-
-				const result: Result = {
-					statusCode: 200,
-					message: 'Profile photo updated!',
-					success: true
-				};
-
-				return result;
+				message = 'Profile photo updated!';
 			}
+
+			const profilePhotoUrl: string = await this.cloudinaryService.handleUpload(file, 'profilePhoto');
+
+			await this.userRepository.updateprofilePhoto(user.getId(), profilePhotoUrl);
+
+			const result: Result = {
+				statusCode: 200,
+				message: message,
+				success: true
+			};
+
+			return result;
 		} catch (err) {
 			const error: CustomError = new Error(err);
 			error.statusCode = err?.statusCode || 500;
