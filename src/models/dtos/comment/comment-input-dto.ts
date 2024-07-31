@@ -1,7 +1,7 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
 export type CommentInputDto = {
-  creator: mongoose.Schema.Types.ObjectId;
-  postId: mongoose.Schema.Types.ObjectId;
-  content: string;
+	creator: mongoose.Schema.Types.ObjectId;
+	postId: mongoose.Schema.Types.ObjectId;
+	content: string;
 };

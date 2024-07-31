@@ -1,5 +1,5 @@
 export interface CustomError extends Error {
-  statusCode?: number;
-  message: string;
-  data?: any[];
+	statusCode?: number;
+	message: string;
+	data?: unknown[];
 }

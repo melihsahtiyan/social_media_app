@@ -1,11 +1,11 @@
-import { Request } from "express";
+import { Request } from 'express';
 
-declare module "express" {
-  interface Request {
-    userId: string;
-    files: any[];
-    file: any;
-  }
+declare module 'express' {
+	interface Request {
+		userId: string;
+		files: Express.Multer.File[];
+		file: Express.Multer.File;
+	}
 }
 
 export default Request;

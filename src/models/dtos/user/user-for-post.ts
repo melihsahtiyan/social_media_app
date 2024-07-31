@@ -1,11 +1,11 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
 export type UserForPost = {
-  _id: mongoose.Schema.Types.ObjectId;
-  firstName: string;
-  lastName: string;
-  university: string;
-  department: string;
-  profilePhotoUrl: string;
-  friends: mongoose.Schema.Types.ObjectId[];
+	_id: mongoose.Schema.Types.ObjectId;
+	firstName: string;
+	lastName: string;
+	university: string;
+	department: string;
+	profilePhotoUrl: string;
+	friends: mongoose.Schema.Types.ObjectId[];
 };

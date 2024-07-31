@@ -1,16 +1,10 @@
-import { Result } from "./Result";
+import { Result } from './Result';
 
 export class DataResult<T> extends Result {
-  data?: T;
+	data?: T;
 
-  constructor(
-    statusCode: number,
-    success: boolean,
-    message: string,
-    data?: T,
-    stack?: any
-  ) {
-    super(statusCode, success, message, stack);
-    this.data = data;
-  }
+	constructor(statusCode: number, success: boolean, message: string, data?: T, stack?) {
+		super(statusCode, success, message, stack);
+		this.data = data;
+	}
 }

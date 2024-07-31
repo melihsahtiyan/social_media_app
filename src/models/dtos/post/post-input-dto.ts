@@ -1,4 +1,4 @@
 interface PostInputDto {
-  caption: string;
+	caption: string;
 }
 export { PostInputDto };

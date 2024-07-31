@@ -1,26 +1,20 @@
-import { ClubEvent } from "../../models/entites/ClubEvent";
-import { ClubEventInputDto } from "../../models/dtos/event/club-event-input-dto";
-import { ClubEventDetailDto } from "../../models/dtos/event/club-event-detail-dto";
-import { DataResult } from "../result/DataResult";
+import { ClubEvent } from '../../models/entites/ClubEvent';
+import { ClubEventInputDto } from '../../models/dtos/event/club-event-input-dto';
+import { ClubEventDetailDto } from '../../models/dtos/event/club-event-detail-dto';
+import { DataResult } from '../result/DataResult';
 
 export interface IClubEventService {
-  create(
-    organizerId: string,
-    clubEventInput: ClubEventInputDto,
-    file: Express.Multer.File
-  ): Promise<DataResult<ClubEventInputDto>>;
-  getAll(): Promise<DataResult<Array<ClubEvent>>>;
-  getEventById(id: string): Promise<DataResult<ClubEventDetailDto>>;
-  getFutureClubEventsByUserId(userId: string): Promise<DataResult<ClubEvent[]>>;
-  getFutureClubEventsByUserIdAndIsPublic(
-    userId: string
-  ): Promise<DataResult<ClubEvent[]>>;
-  update(
-    id: string,
-    organizerId: string,
-    clubEventInput: ClubEventInputDto
-  ): Promise<DataResult<ClubEventInputDto>>;
-  delete(id: string, organizerId: string): Promise<DataResult<boolean>>;
+	create(
+		organizerId: string,
+		clubEventInput: ClubEventInputDto,
+		file: Express.Multer.File
+	): Promise<DataResult<ClubEventInputDto>>;
+	getAll(): Promise<DataResult<Array<ClubEvent>>>;
+	getEventById(id: string): Promise<DataResult<ClubEventDetailDto>>;
+	getFutureClubEventsByUserId(userId: string): Promise<DataResult<ClubEvent[]>>;
+	getFutureClubEventsByUserIdAndIsPublic(userId: string): Promise<DataResult<ClubEvent[]>>;
+	update(id: string, organizerId: string, clubEventInput: ClubEventInputDto): Promise<DataResult<ClubEventInputDto>>;
+	delete(id: string, organizerId: string): Promise<DataResult<boolean>>;
 }
 
 // TODO

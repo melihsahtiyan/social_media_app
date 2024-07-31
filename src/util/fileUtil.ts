@@ -7,7 +7,7 @@ const storage = multer.memoryStorage();
 
 const profilePhotoStorage = multer.memoryStorage();
 
-const profilePhotoFileFilter = (req: Request, file, cb: Function) => {
+const profilePhotoFileFilter = (req: Request, file, cb) => {
   const imageMimetypes: Array<string> = [
     "image/png",
     "image/jpg",

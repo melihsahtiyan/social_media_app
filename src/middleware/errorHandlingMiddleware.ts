@@ -1,30 +1,22 @@
-import { NextFunction, Request, Response } from "express";
-import { CustomError } from "../types/error/CustomError";
-import logger from "../util/loggingHandler";
+import { NextFunction, Request, Response } from 'express';
+import { CustomError } from '../types/error/CustomError';
+import logger from '../util/loggingHandler';
 
-export const handleError = (
-  err: CustomError | Error,
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  const customError: CustomError = err;
-  const name: string = customError.name || "Error";
-  const message: string = customError.message || "An error occurred!";
-  const status: number = customError.statusCode || 500;
-  const date = `${new Date(Date.now())}`;
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export const handleError = (err: CustomError | Error, req: Request, res: Response, next: NextFunction) => {
+	const customError: CustomError = err;
+	const name: string = customError.name || 'Error';
+	const message: string = customError.message || 'An error occurred!';
+	const status: number = customError.statusCode || 500;
+	const date = `${new Date(Date.now())}`;
 
-  console.log("Error Handling Middleware: ", {
-    name: name,
-    error: customError,
-    message: message,
-  });
+	console.log('Error Handling Middleware: ', {
+		name: name,
+		error: customError,
+		message: message
+	});
 
-  logger.error(
-    `${req.method} ${req.url} ${status} ${customError.message} ${customError.data} ${date}`
-  );
+	logger.error(`${req.method} ${req.url} ${status} ${customError.message} ${customError.data} ${date}`);
 
-  return res
-    .status(status)
-    .json({ name: name, error: customError, message: message });
+	return res.status(status).json({ name: name, error: customError, message: message });
 };

@@ -1,220 +1,204 @@
-import "reflect-metadata";
-import { inject, injectable } from "inversify";
-import UserForRegister from "../models/dtos/user/user-for-register";
-import * as nodemailer from "nodemailer";
-import bcrypt from "bcryptjs";
-import { CustomError } from "../types/error/CustomError";
-import UserForLogin from "../models/dtos/user/user-for-login";
-import { UserDoc } from "../models/schemas/user.schema";
-import { UserRepository } from "../repositories/user-repository";
-import UserForCreate from "../models/dtos/user/user-for-create";
-import { Result } from "../types/result/Result";
-import { DataResult } from "../types/result/DataResult";
-import IAuthService from "../types/services/IAuthService";
-import { User } from "../models/entites/User";
+import 'reflect-metadata';
+import { inject, injectable } from 'inversify';
+import UserForRegister from '../models/dtos/user/user-for-register';
+import { CustomError } from '../types/error/CustomError';
+import UserForLogin from '../models/dtos/user/user-for-login';
+import { UserRepository } from '../repositories/user-repository';
+import UserForCreate from '../models/dtos/user/user-for-create';
+import { Result } from '../types/result/Result';
+import { DataResult } from '../types/result/DataResult';
+import IAuthService from '../types/services/IAuthService';
+import { User } from '../models/entites/User';
 
-const transporter: nodemailer.Transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: process.env.VERFICATION_SERVICE_EMAIL,
-    pass: process.env.VERFICATION_SERVICE_PASSWORD,
-  },
-});
+// const transporter: nodemailer.Transporter = nodemailer.createTransport({
+// 	service: 'gmail',
+// 	auth: {
+// 		user: process.env.VERFICATION_SERVICE_EMAIL,
+// 		pass: process.env.VERFICATION_SERVICE_PASSWORD
+// 	}
+// });
 
 @injectable()
 export class AuthService implements IAuthService {
-  _userRepository: UserRepository;
-  constructor(@inject(UserRepository) userRepository: UserRepository) {
-    this._userRepository = userRepository;
-  }
-  async register(userToRegister: UserForRegister): Promise<Result> {
-    // TODO: profile picture addition will be on the update profile part
-    // const profilePhotoUrl: string = req.file
-    //   ? "/media/profilePhotos/" + req.file.filename
-    //   : null;
+	_userRepository: UserRepository;
+	constructor(@inject(UserRepository) userRepository: UserRepository) {
+		this._userRepository = userRepository;
+	}
+	async register(userToRegister: UserForRegister): Promise<Result> {
+		// TODO: profile picture addition will be on the update profile part
+		// const profilePhotoUrl: string = req.file
+		//   ? "/media/profilePhotos/" + req.file.filename
+		//   : null;
 
-    try {
-      // Check the age of the user whether it is older than 18 or not (using birthDate)
-      const age =
-        new Date(Date.now()).getFullYear() -
-        new Date(userToRegister.birthDate).getFullYear();
+		try {
+			// Check the age of the user whether it is older than 18 or not (using birthDate)
+			const age = new Date(Date.now()).getFullYear() - new Date(userToRegister.birthDate).getFullYear();
 
-      if (age < 18) {
-        const result: Result = {
-          statusCode: 400,
-          message: "You must be 18 years old",
-          success: false,
-        };
+			if (age < 18) {
+				const result: Result = {
+					statusCode: 400,
+					message: 'You must be 18 years old',
+					success: false
+				};
 
-        return result;
-      }
-      // Checking e-mail whether it exists.
-      const userToCheck: User = await this._userRepository.getByEmail(
-        userToRegister.email
-      );
+				return result;
+			}
+			// Checking e-mail whether it exists.
+			const userToCheck: User = await this._userRepository.getByEmail(userToRegister.email);
 
-      if (userToCheck) {
-        const result: Result = {
-          statusCode: 409,
-          message: "User already exists",
-          success: false,
-        };
+			if (userToCheck) {
+				const result: Result = {
+					statusCode: 409,
+					message: 'User already exists',
+					success: false
+				};
 
-        return result;
-      }
+				return result;
+			}
 
-      const hashedPassword = await User.hashPassword(userToRegister.password);
+			const hashedPassword = await User.hashPassword(userToRegister.password);
 
-      const userToCreate: UserForCreate = {
-        ...userToRegister,
-        password: hashedPassword,
-      };
+			const userToCreate: UserForCreate = {
+				...userToRegister,
+				password: hashedPassword
+			};
 
-      const createdUser: UserDoc = await this._userRepository.create(
-        userToCreate
-      );
+			await this._userRepository.create(userToCreate);
 
-      const result: Result = {
-        statusCode: 201,
-        message: "User registered successfully",
-        success: true,
-      };
+			const result: Result = {
+				statusCode: 201,
+				message: 'User registered successfully',
+				success: true
+			};
 
-      return result;
-    } catch (err) {
-      const error: CustomError = new Error(err.message);
-      error.statusCode = 500; // Internal Server Error
-      throw error;
-    }
-  }
+			return result;
+		} catch (err) {
+			const error: CustomError = new Error(err.message);
+			error.statusCode = 500; // Internal Server Error
+			throw error;
+		}
+	}
 
-  async login(
-    userToLogin: UserForLogin
-  ): Promise<
-    DataResult<{ token: string; id: string; profilePhotoUrl: string }>
-  > {
-    try {
-      const user: User = await this._userRepository.getByEmail(
-        userToLogin.email
-      );
-      if (!user) {
-        const result: DataResult<{
-          token: string;
-          id: string;
-          profilePhotoUrl: string;
-        }> = {
-          statusCode: 401,
-          message: "Email or password is incorrect!",
-          success: false,
-        };
-        return result;
-      }
+	async login(userToLogin: UserForLogin): Promise<DataResult<{ token: string; id: string; profilePhotoUrl: string }>> {
+		try {
+			const user: User = await this._userRepository.getByEmail(userToLogin.email);
+			if (!user) {
+				const result: DataResult<{
+					token: string;
+					id: string;
+					profilePhotoUrl: string;
+				}> = {
+					statusCode: 401,
+					message: 'Email or password is incorrect!',
+					success: false
+				};
+				return result;
+			}
 
-      const isEqual = await user.comparePassword(userToLogin.password);
+			const isEqual: boolean = await user.comparePassword(userToLogin.password);
 
-      if (!isEqual) {
-        const result: DataResult<{
-          token: string;
-          id: string;
-          profilePhotoUrl: string;
-        }> = {
-          statusCode: 401,
-          message: "Email or password is incorrect",
-          success: false,
-        };
-        return result;
-      }
+			if (!isEqual) {
+				const result: DataResult<{
+					token: string;
+					id: string;
+					profilePhotoUrl: string;
+				}> = {
+					statusCode: 401,
+					message: 'Email or password is incorrect',
+					success: false
+				};
+				return result;
+			}
 
-      if (!user.isVerified()) {
-        const result: DataResult<{
-          token: string;
-          id: string;
-          profilePhotoUrl: string;
-        }> = {
-          statusCode: 400,
-          message: "Email is not verified! You must verify your email!!",
-          success: false,
-        };
-        return result;
-      }
+			if (!user.isVerified()) {
+				const result: DataResult<{
+					token: string;
+					id: string;
+					profilePhotoUrl: string;
+				}> = {
+					statusCode: 400,
+					message: 'Email is not verified! You must verify your email!!',
+					success: false
+				};
+				return result;
+			}
 
+			const token = user.generateJsonWebToken();
 
-      const token = user.generateJsonWebToken();
+			const result: DataResult<{
+				token: string;
+				id: string;
+				profilePhotoUrl: string;
+			}> = {
+				statusCode: 200,
+				message: 'Login successful! Token generated',
+				data: {
+					token: token || null,
+					id: user._id.toString(),
+					profilePhotoUrl: user.profilePhotoUrl
+				},
+				success: true
+			};
+			return result;
+		} catch (err) {
+			const error: CustomError = new Error(err.message);
+			error.statusCode = err.statusCode || 500;
+			throw error;
+		}
+	}
 
-      const result: DataResult<{
-        token: string;
-        id: string;
-        profilePhotoUrl: string;
-      }> = {
-        statusCode: 200,
-        message: "Login successful! Token generated",
-        data: {
-          token: token || null,
-          id: user._id.toString(),
-          profilePhotoUrl: user.profilePhotoUrl,
-        },
-        success: true,
-      };
-      return result;
-    } catch (err) {
-      const error: CustomError = new Error(err.message);
-      error.statusCode = err.statusCode || 500;
-      throw error;
-    }
-  }
+	// verifyEmail = async (req: Request, res: Response, next: NextFunction) => {
+	//   const email: string = req.body.email;
+	//   const verificationToken: string = req.body.verificationToken;
 
-  // verifyEmail = async (req: Request, res: Response, next: NextFunction) => {
-  //   const email: string = req.body.email;
-  //   const verificationToken: string = req.body.verificationToken;
+	//   const user: UserDoc = await this._userRepository.getByEmail(email);
 
-  //   const user: UserDoc = await this._userRepository.getByEmail(email);
+	//   if (!user) {
+	//     const error: CustomError = new Error("User not found");
+	//     error.statusCode = 404; // Not Found
+	//     throw error;
+	//   }
 
-  //   if (!user) {
-  //     const error: CustomError = new Error("User not found");
-  //     error.statusCode = 404; // Not Found
-  //     throw error;
-  //   }
+	//   // const decodedToken: any = jwt.verify(
+	//   //   verificationToken,
+	//   //   process.env.JWT_SECRET
+	//   // );
 
-  //   // const decodedToken: any = jwt.verify(
-  //   //   verificationToken,
-  //   //   process.env.JWT_SECRET
-  //   // );
+	//   // if (decodedToken.email !== email) {
+	//   //   const error: CustomError = new Error("Invalid token");
+	//   //   error.statusCode = 400; // Bad Request
+	//   //   throw error;
+	//   // }
 
-  //   // if (decodedToken.email !== email) {
-  //   //   const error: CustomError = new Error("Invalid token");
-  //   //   error.statusCode = 400; // Bad Request
-  //   //   throw error;
-  //   // }
+	//   let message: string;
+	//   // if (decodedToken.verificationType === "personal") {
+	//   //   // TODO: send verification link to the user's student email if this is from personal email
+	//   user.status.emailVerification = true;
+	//   this._userRepository.update(user._id, user);
+	//   message = "Personal mail verified! Please verify your student mail";
+	//   // }
 
-  //   let message: string;
-  //   // if (decodedToken.verificationType === "personal") {
-  //   //   // TODO: send verification link to the user's student email if this is from personal email
-  //   user.status.emailVerification = true;
-  //   this._userRepository.update(user._id, user);
-  //   message = "Personal mail verified! Please verify your student mail";
-  //   // }
+	//   // if (decodedToken.verificationType === "student") {
+	//   //   user.status.studentVerification = true;
+	//   //   this._userRepository.update(user._id, user);
+	//   //   message = "Student mail verified!";
+	//   // }
+	//   return res.status(200).json({ message: message });
+	// };
 
-  //   // if (decodedToken.verificationType === "student") {
-  //   //   user.status.studentVerification = true;
-  //   //   this._userRepository.update(user._id, user);
-  //   //   message = "Student mail verified!";
-  //   // }
-  //   return res.status(200).json({ message: message });
-  // };
+	// sendVerificationEmail = async (email: string, verificationType: string) => {
+	//   // TODO: Implement this function
+	//   // send verification link to the user's email
 
-  // sendVerificationEmail = async (email: string, verificationType: string) => {
-  //   // TODO: Implement this function
-  //   // send verification link to the user's email
+	//   const user: UserDoc = await this._userRepository.getByEmail(email);
 
-  //   const user: UserDoc = await this._userRepository.getByEmail(email);
-
-  //   const verificationToken =
-  //     await this._userRepository.generateVerificationToken(
-  //       user._id,
-  //       user.email,
-  //       verificationType
-  //     );
-  //   // TODO: send verification link to the user's email
-  //   // const verificationLink = `http://yourwebsite.com/verify-email?token=${verificationToken}`;
-  // };
+	//   const verificationToken =
+	//     await this._userRepository.generateVerificationToken(
+	//       user._id,
+	//       user.email,
+	//       verificationType
+	//     );
+	//   // TODO: send verification link to the user's email
+	//   // const verificationLink = `http://yourwebsite.com/verify-email?token=${verificationToken}`;
+	// };
 }
