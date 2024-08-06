@@ -7,7 +7,7 @@ import { UserRepository } from '../repositories/user-repository';
 import { CustomError } from '../types/error/CustomError';
 import { PostDoc } from '../models/schemas/post.schema';
 import { PostInputDto } from '../models/dtos/post/post-input-dto';
-import PostList from '../models/dtos/post/post-list';
+import PostListDto from '../models/dtos/post/post-list';
 import { DataResult } from '../types/result/DataResult';
 import { PostForCreate } from '../models/dtos/post/post-for-create';
 import { PostDetails } from '../models/dtos/post/post-details';
@@ -37,10 +37,10 @@ export class PostService implements IPostService {
 		files?: Express.Multer.File[]
 	): Promise<DataResult<PostInputDto>> {
 		try {
-			if (!files && !postInput.caption) {
+			if ((!files || files.length === 0) && (!postInput.caption || postInput.caption === '')) {
 				const result: DataResult<PostInputDto> = {
 					statusCode: 422,
-					message: 'Post must have content or media!',
+					message: 'Please provide media or caption!',
 					success: false,
 					data: null
 				};
@@ -52,11 +52,10 @@ export class PostService implements IPostService {
 			let sourceUrls: string[] = [];
 
 			if (files) {
-				// TODO: create cloudinary service
 				if (files.length > 10) {
 					const result: DataResult<PostInputDto> = {
 						statusCode: 422,
-						message: 'Too many files!',
+						message: 'You can upload up to 10 media files!',
 						success: false,
 						data: null
 					};
@@ -79,7 +78,7 @@ export class PostService implements IPostService {
 					caption: postInput.caption,
 					mediaUrls: sourceUrls
 				},
-				poll: null
+				poll: postInput.poll || null
 			};
 
 			await this.postRepository.createPost(postForCreate);
@@ -118,14 +117,13 @@ export class PostService implements IPostService {
 		}
 	}
 
-	async getAllFriendsPosts(userId: string): Promise<DataResult<Array<PostList>>> {
+	async getAllFriendsPosts(userId: string): Promise<DataResult<Array<PostListDto>>> {
 		try {
 			const user: User = await this.userRepository.getById(userId);
+			const posts: Post[] = await this.postRepository.getFriendsPosts(user.getId());
 
-			const posts: PostDoc[] = await this.postRepository.getFriendsPosts(user._id);
-
-			const postList: PostList[] = posts.map((post) => {
-				const postForList: PostList = {
+			const postList: PostListDto[] = posts.map((post: Post) => {
+				return {
 					_id: post._id,
 					creator: post.creator,
 					content: {
@@ -138,11 +136,10 @@ export class PostService implements IPostService {
 					isUpdated: post.isUpdated,
 					createdAt: post.createdAt,
 					isLiked: post.isLiked(user._id)
-				};
-				return postForList;
+				} as PostListDto;
 			});
 
-			const result: DataResult<Array<PostList>> = {
+			const result: DataResult<Array<PostListDto>> = {
 				statusCode: 200,
 				message: 'Following posts fetched!',
 				success: true,
@@ -154,13 +151,13 @@ export class PostService implements IPostService {
 			throw error;
 		}
 	}
-	async getAllUniversityPosts(userId: string): Promise<DataResult<Array<PostList>>> {
+	async getAllUniversityPosts(userId: string): Promise<DataResult<Array<PostListDto>>> {
 		try {
 			const user: User = await this.userRepository.getById(userId);
 			const posts: Array<Post> = await this.postRepository.getAllUniversityPosts(user.university);
 
-			const postList: Array<PostList> = posts.map((post) => {
-				const postForList: PostList = {
+			const postList: Array<PostListDto> = posts.map((post) => {
+				return {
 					_id: post._id,
 					creator: post.creator,
 					content: {
@@ -173,11 +170,10 @@ export class PostService implements IPostService {
 					isUpdated: post.isUpdated,
 					createdAt: post.createdAt,
 					isLiked: post.isLiked(user._id)
-				};
-				return postForList;
+				} as PostListDto;
 			});
 
-			const result: DataResult<Array<PostList>> = {
+			const result: DataResult<Array<PostListDto>> = {
 				statusCode: 200,
 				message: 'University posts fetched!',
 				success: true,
@@ -208,7 +204,7 @@ export class PostService implements IPostService {
 
 			const user: User = (await this.userRepository.getById(userId)) as User;
 
-			if (user.isFriendOrSameUniversity(creator)) {
+			if (!user.isFriendOrSameUniversity(creator)) {
 				const result: DataResult<PostDetails> = {
 					statusCode: 403,
 					message: 'You are not authorized to view this post!',
@@ -261,9 +257,14 @@ export class PostService implements IPostService {
 			const post: Post = await this.postRepository.getById(postId);
 
 			if (!post) {
-				const error: CustomError = new Error('Post not found!');
-				error.statusCode = 404;
-				throw error;
+				const result: DataResult<PostDetails> = {
+					statusCode: 404,
+					message: 'Post not found!',
+					success: false,
+					data: null
+				};
+
+				return result;
 			}
 
 			const user: User = await this.userRepository.getById(userId);
@@ -271,10 +272,14 @@ export class PostService implements IPostService {
 			//TODO
 			const creator: User = await this.userRepository.getById(post.getCreatorId());
 
-			if (user.isFriendOrSameUniversity(creator)) {
-				const error: CustomError = new Error('You are not authorized to view this post!');
-				error.statusCode = 403;
-				throw error;
+			if (!user.isFriendOrSameUniversity(creator)) {
+				const result: DataResult<PostDetails> = {
+					statusCode: 403,
+					message: 'You are not authorized to view this post!',
+					success: false,
+					data: null
+				};
+				return result;
 			}
 
 			const postDetails: PostDetails = {
@@ -319,6 +324,17 @@ export class PostService implements IPostService {
 	async likePost(postId: string, userId: string): Promise<DataResult<PostForLike>> {
 		try {
 			const post: Post = await this.postRepository.getById(postId);
+
+			if (!post) {
+				const result: DataResult<PostForLike> = {
+					statusCode: 404,
+					message: 'Post not found!',
+					success: false,
+					data: null
+				};
+				return result;
+			}
+
 			const user: User = await this.userRepository.getById(userId);
 
 			if (post.isLiked(user._id)) {
@@ -331,13 +347,22 @@ export class PostService implements IPostService {
 				return result;
 			}
 
-			const updatedPost: PostForLike = (await this.postRepository.likePost(post._id, user._id)) as PostForLike;
+			const updatedPost: Post = await this.postRepository.likePost(post._id, user._id);
+
+			const postForLike: PostForLike = {
+				_id: updatedPost._id,
+				creator: updatedPost.creator,
+				content: updatedPost.content,
+				likes: updatedPost.likes,
+				likeCount: updatedPost.likes.length,
+				isUpdated: updatedPost.isUpdated
+			};
 
 			const result: DataResult<PostForLike> = {
 				statusCode: 200,
 				message: 'Post liked!',
 				success: true,
-				data: updatedPost
+				data: postForLike
 			};
 
 			return result;
@@ -348,8 +373,29 @@ export class PostService implements IPostService {
 	}
 	async unlikePost(postId: string, userId: string): Promise<DataResult<PostForLike>> {
 		try {
-			const post: PostDetails = await this.postRepository.getPostById(postId);
+			const post: Post = await this.postRepository.getById(postId);
+
+			if (!post) {
+				const result: DataResult<PostForLike> = {
+					statusCode: 404,
+					message: 'Post not found!',
+					success: false,
+					data: null
+				};
+				return result;
+			}
+
 			const user: User = await this.userRepository.getById(userId);
+
+			if (!post.isLiked(user._id)) {
+				const result: DataResult<PostForLike> = {
+					statusCode: 400,
+					message: "You haven't liked this post yet!",
+					success: false,
+					data: null
+				};
+				return result;
+			}
 
 			const updatedPost: PostForLike = (await this.postRepository.unlikePost(post._id, user._id)) as PostForLike;
 
@@ -372,15 +418,6 @@ export class PostService implements IPostService {
 		try {
 			const user: User = await this.userRepository.getById(userId);
 
-			if (!user) {
-				const result: Result = {
-					statusCode: 404,
-					message: 'User not found!',
-					success: false
-				};
-				return result;
-			}
-
 			const post: Post = await this.postRepository.getById(id);
 
 			if (!post) {
@@ -392,7 +429,7 @@ export class PostService implements IPostService {
 				return result;
 			}
 
-			if (post.isAuthor(userId)) {
+			if (!post.isAuthor(user._id)) {
 				const result: Result = {
 					statusCode: 403,
 					message: 'You are not authorized to delete this post!',
@@ -401,19 +438,20 @@ export class PostService implements IPostService {
 				return result;
 			}
 
-			post.content.mediaUrls.forEach(async (url) => {
+			for (let i = 0; i < post.content.mediaUrls.length; i++) {
+				const url: string = post.content.mediaUrls[i];
 				const isDeleted: boolean = await this.cloudinaryService.handleDelete(url);
 				if (!isDeleted) {
 					const result: Result = {
 						statusCode: 500,
-						message: 'Profile photo deletion error!',
+						message: 'Post deletion failed!',
 						success: false
 					};
 					return result;
 				}
-			});
+			}
 
-			const isDeleted: boolean = await this.postRepository.deletePost(id);
+			const isDeleted: boolean = await this.postRepository.deletePost(post._id);
 
 			if (!isDeleted) {
 				const result: Result = {

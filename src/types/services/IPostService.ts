@@ -1,7 +1,7 @@
 import { PostInputDto } from "../../models/dtos/post/post-input-dto";
 import { DataResult } from "../result/DataResult";
 import { PostDoc } from "../../models/schemas/post.schema";
-import PostList from "../../models/dtos/post/post-list";
+import PostListDto from "../../models/dtos/post/post-list";
 import { PostDetails } from "../../models/dtos/post/post-details";
 import { PostForLike } from "../../models/dtos/post/post-for-like";
 import { Result } from "../result/Result";
@@ -13,8 +13,8 @@ interface IPostService {
     files?: Express.Multer.File[]
   ): Promise<DataResult<PostInputDto>>;
   getAllPosts(): Promise<DataResult<Array<PostDoc>>>;
-  getAllFriendsPosts(userId: string): Promise<DataResult<Array<PostList>>>;
-  getAllUniversityPosts(userId: string): Promise<DataResult<Array<PostList>>>;
+  getAllFriendsPosts(userId: string): Promise<DataResult<Array<PostListDto>>>;
+  getAllUniversityPosts(userId: string): Promise<DataResult<Array<PostListDto>>>;
   getPostDetails(
     postId: string,
     userId: string

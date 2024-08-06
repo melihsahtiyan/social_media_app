@@ -226,50 +226,13 @@ export class UserRepository implements IUserRepository {
 
 	async getById(id: string): Promise<User> {
 		const result: UserDoc = await users.findById(id);
-		const user: User = new User({
-			_id: result._id,
-			firstName: result.firstName,
-			lastName: result.lastName,
-			email: result.email,
-			profilePhotoUrl: result.profilePhotoUrl,
-			university: result.university,
-			department: result.department,
-			friends: result.friends,
-			friendRequests: result.friendRequests,
-			posts: result.posts,
-			status: result.status,
-			createdAt: result.createdAt,
-			attendances: result.attendances,
-			birthDate: result.birthDate,
-			organizations: result.organizations,
-			password: result.password,
-			studentEmail: result.studentEmail
-		});
+		const user: User = new User(result.toObject());
 		return user;
 	}
 
 	async getByEmail(email: string): Promise<User> {
 		const result = await users.findOne({ email: email });
-
-		const user: User = new User({
-			_id: result._id,
-			firstName: result.firstName,
-			lastName: result.lastName,
-			email: result.email,
-			profilePhotoUrl: result.profilePhotoUrl,
-			university: result.university,
-			department: result.department,
-			friends: result.friends,
-			friendRequests: result.friendRequests,
-			posts: result.posts,
-			status: result.status,
-			createdAt: result.createdAt,
-			attendances: result.attendances,
-			birthDate: result.birthDate,
-			organizations: result.organizations,
-			password: result.password,
-			studentEmail: result.studentEmail
-		});
+		const user: User = new User(result.toObject());
 
 		return user;
 	}

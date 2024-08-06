@@ -78,8 +78,7 @@ export class User extends Entity {
 		return token;
 	}
 	isFriendOrSameUniversity(creator: User): boolean {
-		if (!this.friends) return false;
-		return this.friends.includes(creator._id) && creator.university !== this.university ? true : false;
+		return this.friends.includes(creator._id) || creator.university === this.university;
 	}
 
 	isFriend(userId: Schema.Types.ObjectId): boolean {

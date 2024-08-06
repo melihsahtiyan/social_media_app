@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 import { Poll } from '../../../models/entites/Poll';
 
-interface PostList {
+interface PostListDto {
 	_id: mongoose.Schema.Types.ObjectId;
 	creator: mongoose.Schema.Types.ObjectId;
 	content: { caption: string; mediaUrls: string[] };
@@ -13,4 +13,4 @@ interface PostList {
 	isLiked: boolean;
 }
 
-export default PostList;
+export default PostListDto;

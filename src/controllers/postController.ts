@@ -7,7 +7,7 @@ import { isValid } from '../util/validationHandler';
 import { PostInputDto } from '../models/dtos/post/post-input-dto';
 import { DataResult } from '../types/result/DataResult';
 import { PostDoc } from '../models/schemas/post.schema';
-import PostList from '../models/dtos/post/post-list';
+import PostListDto from '../models/dtos/post/post-list';
 import { PostDetails } from '../models/dtos/post/post-details';
 import { PostForLike } from '../models/dtos/post/post-for-like';
 import { Result } from '../types/result/Result';
@@ -90,7 +90,7 @@ export class PostController {
 
 	async getFriendsPosts(req: Request, res: Response, next: NextFunction) {
 		try {
-			const result: DataResult<Array<PostList>> = await this._postService.getAllFriendsPosts(req.userId);
+			const result: DataResult<Array<PostListDto>> = await this._postService.getAllFriendsPosts(req.userId);
 
 			if (result.success)
 				return res.status(result.statusCode).json({
@@ -109,7 +109,7 @@ export class PostController {
 			isValid(req);
 			const userId: string = req.userId;
 
-			const result: DataResult<Array<PostList>> = await this._postService.getAllUniversityPosts(userId);
+			const result: DataResult<Array<PostListDto>> = await this._postService.getAllUniversityPosts(userId);
 
 			if (result.success)
 				return res.status(result.statusCode).json({

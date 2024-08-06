@@ -32,8 +32,8 @@ export class Post extends Entity {
 		return this.creator.toString();
 	}
 
-	isAuthor(userId: string): boolean {
-		return this.creator.toString() === userId ? true : false;
+	isAuthor(userId: Schema.Types.ObjectId): boolean {
+		return this.creator === userId ? true : false;
 	}
 	isLiked(userId: Schema.Types.ObjectId): boolean {
 		if (this.likes.length === 0) return false;

@@ -4,14 +4,15 @@ import { ICloudinaryService } from '../types/services/ICloudinaryService';
 import { injectable } from 'inversify';
 import { CustomError } from '../types/error/CustomError';
 
-cloudinary.config({
-	cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-	api_key: process.env.CLOUDINARY_API_KEY,
-	api_secret: process.env.CLOUDINARY_API_SECRET
-});
-
 @injectable()
 export class CloudinaryService implements ICloudinaryService {
+	constructor() {
+		cloudinary.config({
+			cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+			api_key: process.env.CLOUDINARY_API_KEY,
+			api_secret: process.env.CLOUDINARY_API_SECRET
+		});
+	}
 	async handleUpload(file: Express.Multer.File, type: string): Promise<string> {
 		let folder: string;
 
