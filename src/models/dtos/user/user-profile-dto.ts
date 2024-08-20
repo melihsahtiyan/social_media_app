@@ -1,5 +1,4 @@
 import mongoose from 'mongoose';
-import { PostDetails } from '../post/post-details';
 
 export interface UserProfileDto {
 	_id: mongoose.Schema.Types.ObjectId;
@@ -10,19 +9,19 @@ export interface UserProfileDto {
 	university: string;
 	department: string;
 	friends: Array<{
-		_id: mongoose.Schema.Types.ObjectId;
+		_id: string;
 		firstName: string;
 		lastName: string;
 		profilePhotoUrl: string;
 	}>;
 	friendCount: number;
 	friendRequests: Array<{
-		_id: mongoose.Schema.Types.ObjectId;
+		_id: string;
 		firstName: string;
 		lastName: string;
 		profilePhotoUrl: string;
 	}>;
-	posts: Array<PostDetails>;
+	posts: Array<mongoose.Schema.Types.ObjectId>;
 	createdAt: Date;
 	updatedAt: Date;
 	isFriend: boolean;

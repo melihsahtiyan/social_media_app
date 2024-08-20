@@ -9,25 +9,28 @@ import { PollInputDto } from '../models/dtos/post/poll/poll-input-dto';
 import { PostForCreate } from '../models/dtos/post/post-for-create';
 import { Poll } from '../models/entites/Poll';
 import { CustomError } from '../types/error/CustomError';
-import { PostDetails } from '../models/dtos/post/post-details';
 import { VoteInputDto } from '../models/dtos/post/poll/vote-input-dto';
 import { User } from '../models/entites/User';
 import { Post } from '../models/entites/Post';
 import { Schema } from 'mongoose';
+import { CloudinaryService } from './cloudinaryService';
 
 @injectable()
 export class PollService implements IPollService {
 	private pollRepository: PollRepository;
 	private postRepository: PostRepository;
 	private userRepository: UserRepository;
+	private readonly cloudinaryService: CloudinaryService;
 	constructor(
 		@inject(PollRepository) pollRepository: PollRepository,
 		@inject(PostRepository) postRepository: PostRepository,
-		@inject(UserRepository) userRepository: UserRepository
+		@inject(UserRepository) userRepository: UserRepository,
+		@inject(CloudinaryService) cloudinaryService: CloudinaryService
 	) {
 		this.pollRepository = pollRepository;
 		this.postRepository = postRepository;
 		this.userRepository = userRepository;
+		this.cloudinaryService = cloudinaryService;
 	}
 
 	async createPoll(
@@ -44,7 +47,7 @@ export class PollService implements IPollService {
 					statusCode: 404,
 					message: 'User not found!',
 					success: false,
-					data: null
+					data: null,
 				};
 				return result;
 			}
@@ -63,16 +66,16 @@ export class PollService implements IPollService {
 			const options: Array<{
 				optionName: string;
 				votes: Schema.Types.ObjectId[];
-			}> = poll.options.map((option) => {
+			}> = poll.options.map(option => {
 				return {
 					optionName: option,
-					votes: []
+					votes: [],
 				};
 			});
 
 			const pollToCreate: Poll = new Poll(poll.question, options, 0, poll.expiresAt);
 
-			let sourceUrls: string[] = [];
+			const sourceUrls: string[] = [];
 
 			//TODO: refactor this block after implementing media service
 			if (files) {
@@ -81,27 +84,27 @@ export class PollService implements IPollService {
 						statusCode: 422,
 						message: 'Too many files!',
 						success: false,
-						data: null
+						data: null,
 					};
 					return result;
 				}
 
 				if (files.length > 0) {
-					sourceUrls = files.map((file) => {
-						const extension = file.mimetype.split('/')[1];
-						const videoExtensions = ['mp4', 'mov', 'avi', 'mkv', 'webm', 'm4v'];
-						const imageExtensions = ['jpg', 'jpeg', 'png'];
+					files.map(async file => {
+						const publicId: string = await this.cloudinaryService.handleUpload(file, 'media');
 
-						if (videoExtensions.includes(extension)) {
-							return 'media/videos/' + file.filename;
-						} else if (imageExtensions.includes(extension)) {
-							return 'media/images/' + file.filename;
-						} else {
-							const error: CustomError = new Error('Invalid file type!');
-							error.statusCode = 422; // Unprocessable Entity
-							throw error;
-						}
+						sourceUrls.push(publicId);
 					});
+
+					if (sourceUrls.length === 0) {
+						const result: DataResult<PollInputDto> = {
+							statusCode: 422,
+							message: 'Media upload failed!',
+							success: false,
+							data: null,
+						};
+						return result;
+					}
 				}
 			}
 
@@ -109,9 +112,9 @@ export class PollService implements IPollService {
 				creator: user._id,
 				content: {
 					caption: poll.content?.caption,
-					mediaUrls: sourceUrls
+					mediaUrls: sourceUrls,
 				},
-				poll: pollToCreate
+				poll: pollToCreate,
 			};
 
 			await this.postRepository.createPost(postToCreate);
@@ -120,7 +123,7 @@ export class PollService implements IPollService {
 				statusCode: 201,
 				message: 'Poll created successfully!',
 				success: true,
-				data: poll
+				data: poll,
 			};
 			return result;
 		} catch (err) {
@@ -142,7 +145,7 @@ export class PollService implements IPollService {
 					statusCode: 400,
 					message: 'Poll has expired!',
 					success: false,
-					data: null
+					data: null,
 				};
 				return result;
 			}
@@ -152,7 +155,7 @@ export class PollService implements IPollService {
 					statusCode: 403,
 					message: 'You are not authorized to vote this poll!',
 					success: false,
-					data: null
+					data: null,
 				};
 				return result;
 			}
@@ -162,7 +165,7 @@ export class PollService implements IPollService {
 					statusCode: 404,
 					message: 'Option not found!',
 					success: false,
-					data: null
+					data: null,
 				};
 				return result;
 			}
@@ -177,7 +180,7 @@ export class PollService implements IPollService {
 						statusCode: 400,
 						message: 'You have already voted this option! Vote deleted!',
 						success: false,
-						data: null
+						data: null,
 					};
 					return result;
 				} else {
@@ -186,7 +189,7 @@ export class PollService implements IPollService {
 						statusCode: 200,
 						message: 'Vote changed successfully!',
 						success: true,
-						data: voteInput
+						data: voteInput,
 					};
 					return result;
 				}
@@ -198,7 +201,7 @@ export class PollService implements IPollService {
 				statusCode: 200,
 				message: 'Voted successfully!',
 				success: true,
-				data: voteInput
+				data: voteInput,
 			};
 			return result;
 		} catch (err) {
@@ -209,7 +212,7 @@ export class PollService implements IPollService {
 	}
 	async deleteVote(pollId: string, userId: string): Promise<DataResult<Poll>> {
 		try {
-			const post: PostDetails = await this.postRepository.getPostById(pollId);
+			const post: Post = await this.postRepository.getById(pollId);
 			const user: User = await this.userRepository.getById(userId);
 
 			const vote = post.poll.findVote(user._id);
@@ -218,7 +221,7 @@ export class PollService implements IPollService {
 					statusCode: 400,
 					message: 'You have not voted this poll!',
 					success: false,
-					data: null
+					data: null,
 				};
 				return result;
 			}
@@ -229,7 +232,7 @@ export class PollService implements IPollService {
 				statusCode: 200,
 				message: 'Vote deleted successfully!',
 				success: true,
-				data: deletedPost.poll
+				data: deletedPost.poll,
 			};
 			return result;
 		} catch (err) {

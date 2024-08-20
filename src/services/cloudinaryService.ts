@@ -10,7 +10,7 @@ export class CloudinaryService implements ICloudinaryService {
 		cloudinary.config({
 			cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
 			api_key: process.env.CLOUDINARY_API_KEY,
-			api_secret: process.env.CLOUDINARY_API_SECRET
+			api_secret: process.env.CLOUDINARY_API_SECRET,
 		});
 	}
 	async handleUpload(file: Express.Multer.File, type: string): Promise<string> {
@@ -27,7 +27,7 @@ export class CloudinaryService implements ICloudinaryService {
 				throw error;
 			}
 			folder = 'profilePhotos/';
-		} else {
+		} else if (type === 'media') {
 			if (videoExtensions.includes(extension)) {
 				folder = 'media/videos/';
 			} else if (imageExtensions.includes(extension)) {
@@ -37,6 +37,10 @@ export class CloudinaryService implements ICloudinaryService {
 				error.statusCode = 422;
 				throw error;
 			}
+		} else {
+			const error: CustomError = new Error('Invalid file type!');
+			error.statusCode = 422;
+			throw error;
 		}
 
 		const fileBuffer = file.buffer.toString('base64');
@@ -45,7 +49,7 @@ export class CloudinaryService implements ICloudinaryService {
 		try {
 			const result: UploadApiResponse = await cloudinary.uploader.upload(dataURI, {
 				resource_type: 'auto',
-				folder: folder
+				folder: folder,
 			});
 
 			// const res: string = result.secure_url;
@@ -61,13 +65,13 @@ export class CloudinaryService implements ICloudinaryService {
 	async handleDelete(publicId: string): Promise<boolean> {
 		const res: boolean = await cloudinary.uploader
 			.destroy(publicId)
-			.then((result) => {
+			.then(result => {
 				console.log('Result: ', result);
 				console.log('Result public Id: ', publicId);
 
 				return result;
 			})
-			.catch((error) => {
+			.catch(error => {
 				throw error.stack;
 			});
 

@@ -5,21 +5,19 @@ export class Post extends Entity {
 	creator: Schema.Types.ObjectId;
 	content: { caption: string; mediaUrls: Array<string> };
 	likes: Schema.Types.ObjectId[];
-	likeCount: number;
 	comments: Schema.Types.ObjectId[];
 	commentCount: number;
 	poll: Poll;
 	event?: Schema.Types.ObjectId;
 	isUpdated: boolean;
 
-	constructor({ _id, creator, content, likes, likeCount, comments, commentCount, poll, event, isUpdated, createdAt }) {
+	constructor({ _id, creator, content, likes, comments, commentCount, poll, event, isUpdated, createdAt }) {
 		super();
 		this._id = _id;
 		this.creator = creator;
 		this.content = content;
 		this.event = event;
 		this.likes = likes;
-		this.likeCount = likeCount;
 		this.comments = comments;
 		this.commentCount = commentCount;
 		this.poll = poll;
@@ -38,5 +36,8 @@ export class Post extends Entity {
 	isLiked(userId: Schema.Types.ObjectId): boolean {
 		if (this.likes.length === 0) return false;
 		return this.likes.includes(userId) ? true : false;
+	}
+	getLikeCount(): number {
+		return this.likes.length;
 	}
 }

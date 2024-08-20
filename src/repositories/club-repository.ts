@@ -7,9 +7,9 @@ import { ClubForUpdateDto } from '../models/dtos/club/club-for-update-dto';
 @injectable() /* TODO extends BaseRepository<Club>  */
 export class ClubRepository implements IClubRepository {
 	public async createClub(club: Club): Promise<Club> {
-		const createdClub = await clubs.create({ ...club });
+		const createdClub: ClubDoc = await clubs.create({ ...club });
 
-		return createdClub;
+		return new Club(createdClub.toObject());
 	}
 	public async getById(id: string): Promise<Club> {
 		return await clubs.findById(id);
@@ -21,7 +21,9 @@ export class ClubRepository implements IClubRepository {
 			.populate('organizers', 'firstName lastName email profilePicture university department');
 	}
 	async getClubByName(name: string): Promise<Club> {
-		return await clubs.findOne({ name });
+		const club: ClubDoc = await clubs.findOne({ name });
+
+		return new Club(club.toObject());
 	}
 	public async getClubs(): Promise<Club[]> {
 		return await clubs
@@ -33,30 +35,42 @@ export class ClubRepository implements IClubRepository {
 		return await clubs.findOne({ organizers: organizerId });
 	}
 	public async updateClub(id: string, club: ClubForUpdateDto): Promise<Club> {
-		return await clubs.findByIdAndUpdate(id, { ...club, updatedAt: new Date(Date.now()) }, { new: true });
+		const updatedClub: ClubDoc = await clubs.findByIdAndUpdate(
+			id,
+			{ ...club, updatedAt: new Date(Date.now()) },
+			{ new: true }
+		);
+
+		return new Club(updatedClub.toObject());
 	}
 	public async updateClubImage(id: string, logo?: string, banner?: string): Promise<Club> {
 		const club: Club = await clubs.findById(id);
 
-		return await clubs.findByIdAndUpdate(
+		const updatedClub: ClubDoc = await clubs.findByIdAndUpdate(
 			id,
 			{
 				logo: logo ? logo : club.logo,
 				banner: banner ? banner : club.banner,
-				updatedAt: new Date(Date.now())
+				updatedAt: new Date(Date.now()),
 			},
 			{ new: true }
 		);
+
+		return new Club(updatedClub.toObject());
 	}
 
 	public async updateClubPresident(id: string, updatedPresidentId: string): Promise<Club> {
-		return await clubs.findByIdAndUpdate(
+		const updatedClub: ClubDoc = await clubs.findByIdAndUpdate(
 			id,
 			{ president: updatedPresidentId, updatedAt: new Date(Date.now()) },
 			{ new: true }
 		);
+
+		return new Club(updatedClub.toObject());
 	}
-	public async deleteClub(id: string): Promise<Club> {
-		return await clubs.findByIdAndDelete(id);
+	public async deleteClub(id: string): Promise<boolean> {
+		const isDeleted: boolean = await clubs.findByIdAndDelete(id);
+
+		return isDeleted;
 	}
 }

@@ -31,7 +31,7 @@ describe('Cloudinary Service', () => {
 				mimetype: 'image/png'
 			} as Express.Multer.File;
 
-			const result = await cloudinaryService.handleUpload(file, 'image');
+			const result = await cloudinaryService.handleUpload(file, 'media');
 			expect(result).toBeDefined();
 			expect(result).toBe('mock_folder/mock_subfolder/mock_file');
 		});

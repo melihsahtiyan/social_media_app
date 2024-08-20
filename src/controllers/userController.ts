@@ -13,6 +13,7 @@ import { UserListDto } from '../models/dtos/user/user-list-dto';
 import { UserForSearchDto } from '../models/dtos/user/user-for-search-dto';
 import { UserProfileDto } from '../models/dtos/user/user-profile-dto';
 import { UserForRequestDto } from '../models/dtos/user/user-for-request-dto';
+import { UserDoc } from '../models/schemas/user.schema';
 
 @injectable()
 export class UserController {
@@ -160,7 +161,7 @@ export class UserController {
 
 	async getAllDetails(req: Request, res: Response, next: NextFunction) {
 		try {
-			const result: DataResult<Array<UserProfileDto>> = await this.userService.getAllDetails();
+			const result: DataResult<Array<UserDoc>> = await this.userService.getAllDetails();
 
 			if (result.success)
 				return res.status(200).json({

@@ -40,7 +40,7 @@ export class User extends Entity {
 		posts,
 		organizations,
 		attendances,
-		createdAt
+		createdAt,
 	}) {
 		super();
 		this._id = _id;
@@ -64,13 +64,16 @@ export class User extends Entity {
 	getId(): string {
 		return this._id.toString();
 	}
+	getFullName(): string {
+		return `${this.firstName} ${this.lastName}`;
+	}
 	generateJsonWebToken(): string {
 		const token = jwt.sign(
 			{
 				_id: this._id,
 				email: this.email,
 				firstName: this.firstName,
-				lastName: this.lastName
+				lastName: this.lastName,
 			},
 			process.env.SECRET_KEY
 			// { expiresIn: "1h" }
@@ -96,7 +99,11 @@ export class User extends Entity {
 		return await bcrypt.compare(password, this.password);
 	}
 
-	isVerified(): boolean {
+	hasVerifiedEmail(): boolean {
 		return this.status.emailVerification;
+	}
+
+	isVerifiedStudent(): boolean {
+		return this.status.studentVerification;
 	}
 }

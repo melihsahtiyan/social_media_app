@@ -44,7 +44,7 @@ export class ClubEventService implements IClubEventService {
 					success: false,
 					message: 'Organizer not found!',
 					statusCode: 404,
-					data: null
+					data: null,
 				};
 				return result;
 			}
@@ -56,7 +56,7 @@ export class ClubEventService implements IClubEventService {
 					success: false,
 					message: 'Club not found!',
 					statusCode: 404,
-					data: null
+					data: null,
 				};
 				return result;
 			}
@@ -66,7 +66,7 @@ export class ClubEventService implements IClubEventService {
 					success: false,
 					message: 'You are not authorized to create an event for this club!',
 					statusCode: 400,
-					data: null
+					data: null,
 				};
 				return result;
 			}
@@ -81,7 +81,7 @@ export class ClubEventService implements IClubEventService {
 				club: club._id,
 				organizer: organizer._id,
 				isPublic: clubEventInput.isPublic,
-				isOnline: clubEventInput.isOnline
+				isOnline: clubEventInput.isOnline,
 			});
 
 			if (file) {
@@ -96,7 +96,7 @@ export class ClubEventService implements IClubEventService {
 				success: true,
 				message: 'Event created successfully',
 				statusCode: 201,
-				data: clubEventInput
+				data: clubEventInput,
 			};
 
 			return result;
@@ -108,13 +108,13 @@ export class ClubEventService implements IClubEventService {
 	}
 	async getAll(): Promise<DataResult<Array<ClubEvent>>> {
 		try {
-			const events = await this.clubEventRepository.getAll();
+			const events = await this.clubEventRepository.getAllPopulated();
 
 			const result: DataResult<Array<ClubEvent>> = {
 				success: true,
 				message: 'Events listed successfully!',
 				statusCode: 200,
-				data: events
+				data: events,
 			};
 
 			return result;
@@ -126,23 +126,51 @@ export class ClubEventService implements IClubEventService {
 	}
 	async getEventById(id: string): Promise<DataResult<ClubEventDetailDto>> {
 		try {
-			const event: ClubEventDetailDto = await this.clubEventRepository.getEventById(id);
+			const event: ClubEvent = await this.clubEventRepository.getById(id);
 
 			if (!event) {
 				const result: DataResult<ClubEventDetailDto> = {
 					success: false,
 					message: 'Event not found',
 					statusCode: 404,
-					data: null
+					data: null,
 				};
 				return result;
 			}
+
+			const club: Club = await this.clubRepository.getById(event.getClubId());
+
+			const organizer: User = await this.userRepository.getById(event.getOrganizerId());
+
+			const attendees: User[] = await this.userRepository.getUsersByIds(event.attendees);
+
+			const eventDetail: ClubEventDetailDto = {
+				title: event.title,
+				description: event.description,
+				image: event.image,
+				location: event.location,
+				date: event.date,
+				time: event.time,
+				club: { _id: club._id, name: club.name },
+				organizer: { _id: organizer._id, firstName: organizer.firstName, lastName: organizer.lastName },
+				isPublic: event.isPublic,
+				isOnline: event.isOnline,
+				attendees: attendees.map(attendee => {
+					return {
+						_id: attendee._id,
+						firstName: attendee.firstName,
+						lastName: attendee.lastName,
+					};
+				}),
+				posts: event.posts,
+				isUpdated: event.isUpdated,
+			};
 
 			const result: DataResult<ClubEventDetailDto> = {
 				success: true,
 				message: 'Event found',
 				statusCode: 200,
-				data: event
+				data: eventDetail,
 			};
 
 			return result;
@@ -169,7 +197,7 @@ export class ClubEventService implements IClubEventService {
 					success: true,
 					message: 'Events not found',
 					statusCode: 404,
-					data: null
+					data: null,
 				};
 
 				return result;
@@ -179,7 +207,7 @@ export class ClubEventService implements IClubEventService {
 				success: true,
 				message: 'Events found',
 				statusCode: 200,
-				data: events
+				data: events,
 			};
 
 			return result;
@@ -207,7 +235,7 @@ export class ClubEventService implements IClubEventService {
 					success: true,
 					message: 'Events not found',
 					statusCode: 404,
-					data: null
+					data: null,
 				};
 
 				return result;
@@ -217,7 +245,7 @@ export class ClubEventService implements IClubEventService {
 				success: true,
 				message: 'Events fetched successfully',
 				statusCode: 200,
-				data: events
+				data: events,
 			};
 
 			return result;
@@ -240,7 +268,7 @@ export class ClubEventService implements IClubEventService {
 					success: false,
 					message: 'Organizer not found',
 					statusCode: 404,
-					data: null
+					data: null,
 				};
 				return result;
 			}
@@ -252,7 +280,7 @@ export class ClubEventService implements IClubEventService {
 					success: false,
 					message: 'Event not found',
 					statusCode: 404,
-					data: null
+					data: null,
 				};
 				return result;
 			}
@@ -264,7 +292,7 @@ export class ClubEventService implements IClubEventService {
 					success: false,
 					message: 'Club not found',
 					statusCode: 404,
-					data: null
+					data: null,
 				};
 				return result;
 			}
@@ -274,7 +302,7 @@ export class ClubEventService implements IClubEventService {
 					success: false,
 					message: 'You are not authorized to update this event',
 					statusCode: 400,
-					data: null
+					data: null,
 				};
 				return result;
 			}
@@ -289,15 +317,16 @@ export class ClubEventService implements IClubEventService {
 				club: club._id,
 				organizer: event.organizer,
 				isPublic: clubEventInput.isPublic,
-				isOnline: clubEventInput.isOnline
+				isOnline: clubEventInput.isOnline,
 			};
+
 			await this.clubEventRepository.update(id, eventForUpdate);
 
 			const result: DataResult<ClubEventInputDto> = {
 				success: true,
 				message: 'Event updated successfully',
 				statusCode: 200,
-				data: clubEventInput
+				data: clubEventInput,
 			};
 
 			return result;
@@ -316,7 +345,7 @@ export class ClubEventService implements IClubEventService {
 					success: false,
 					message: 'Organizer not found',
 					statusCode: 404,
-					data: false
+					data: false,
 				};
 				return result;
 			}
@@ -328,7 +357,7 @@ export class ClubEventService implements IClubEventService {
 					success: false,
 					message: 'Event not found',
 					statusCode: 404,
-					data: false
+					data: false,
 				};
 				return result;
 			}
@@ -340,7 +369,7 @@ export class ClubEventService implements IClubEventService {
 					success: false,
 					message: 'Club not found',
 					statusCode: 404,
-					data: false
+					data: false,
 				};
 				return result;
 			}
@@ -350,7 +379,7 @@ export class ClubEventService implements IClubEventService {
 					success: false,
 					message: 'You are not authorized to delete this event',
 					statusCode: 400,
-					data: false
+					data: false,
 				};
 				return result;
 			}
@@ -361,7 +390,7 @@ export class ClubEventService implements IClubEventService {
 				success: deleted,
 				message: deleted ? 'Event deleted successfully' : 'Event deletion failed',
 				statusCode: 200,
-				data: deleted
+				data: deleted,
 			};
 
 			return result;

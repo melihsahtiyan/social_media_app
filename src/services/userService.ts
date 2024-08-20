@@ -33,7 +33,7 @@ export class UserService implements IUserService {
 				statusCode: 200,
 				message: 'Users fetched successfully',
 				success: true,
-				data: users
+				data: users,
 			};
 			return result;
 		} catch (err) {
@@ -43,14 +43,14 @@ export class UserService implements IUserService {
 			throw err;
 		}
 	}
-	async getAllDetails(): Promise<DataResult<UserProfileDto[]>> {
+	async getAllDetails(): Promise<DataResult<UserDoc[]>> {
 		try {
-			const userDetailDtos: Array<UserProfileDto> = await this.userRepository.getAllPopulated();
-			const result: DataResult<Array<UserProfileDto>> = {
+			const users: Array<UserDoc> = await this.userRepository.getAllPopulated();
+			const result: DataResult<Array<UserDoc>> = {
 				statusCode: 200,
 				message: 'Users fetched successfully',
 				success: true,
-				data: userDetailDtos
+				data: users,
 			};
 			return result;
 		} catch (err) {
@@ -70,7 +70,7 @@ export class UserService implements IUserService {
 					statusCode: 404,
 					message: 'User not found!',
 					success: false,
-					data: null
+					data: null,
 				};
 				return result;
 			}
@@ -79,7 +79,7 @@ export class UserService implements IUserService {
 				statusCode: 200,
 				message: 'User fetched successfully',
 				success: true,
-				data: user
+				data: user,
 			};
 
 			return result;
@@ -94,7 +94,7 @@ export class UserService implements IUserService {
 	//TODO: Refactor the viewUserDetails and viewUserProfile method
 	async viewUserDetails(userId: string, viewerId: string): Promise<DataResult<UserDetailDto>> {
 		try {
-			const user: UserDetailDto = await this.userRepository.getUserDetails(userId);
+			const user: User = await this.userRepository.getUserDetails(userId);
 
 			const viewer: User = await this.userRepository.getById(viewerId);
 
@@ -103,7 +103,7 @@ export class UserService implements IUserService {
 					statusCode: 404,
 					message: 'User not found!',
 					success: false,
-					data: null
+					data: null,
 				};
 				return result;
 			}
@@ -113,16 +113,47 @@ export class UserService implements IUserService {
 					statusCode: 403,
 					message: 'You must be logged in!',
 					success: false,
-					data: null
+					data: null,
 				};
 				return result;
 			}
+
+			const isFriend: boolean = viewer.isFriend(user._id);
+
+			const friends: User[] = await this.userRepository.getUsersByIds(user.friends);
+
+			const friendDetails: Array<{
+				_id: string;
+				firstName: string;
+				lastName: string;
+			}> = friends.map(friend => {
+				return {
+					_id: friend._id.toString(),
+					firstName: friend.firstName,
+					lastName: friend.lastName,
+				};
+			});
+
+			const userDetails: UserDetailDto = {
+				_id: user._id,
+				firstName: user.firstName,
+				lastName: user.lastName,
+				email: user.email,
+				university: user.university,
+				department: user.department,
+				profilePhotoUrl: user.profilePhotoUrl,
+				friends: friendDetails,
+				isFriend: isFriend,
+				createdAt: user.createdAt,
+				updatedAt: user.updatedAt,
+				friendCount: user.friends.length,
+			};
 
 			const result: DataResult<UserDetailDto> = {
 				statusCode: 200,
 				message: 'User fetched successfully',
 				success: true,
-				data: user
+				data: userDetails,
 			};
 
 			return result;
@@ -135,7 +166,7 @@ export class UserService implements IUserService {
 	}
 	async viewUserProfile(userId: string, viewerId: string): Promise<DataResult<UserProfileDto | UserDetailDto>> {
 		try {
-			const user: UserProfileDto = await this.userRepository.getUserProfile(userId);
+			const user: User = await this.userRepository.getUserProfile(userId);
 
 			const viewer: User = await this.userRepository.getById(viewerId);
 
@@ -144,7 +175,7 @@ export class UserService implements IUserService {
 					statusCode: 404,
 					message: 'You must be logged in!',
 					success: false,
-					data: null
+					data: null,
 				};
 				return result;
 			}
@@ -154,16 +185,59 @@ export class UserService implements IUserService {
 					statusCode: 404,
 					message: 'User not found!',
 					success: false,
-					data: null
+					data: null,
 				};
 				return result;
 			}
 
-			if (viewer.isFriend(user._id)) {
-				user.isFriend = true;
-			} else {
-				user.isFriend = false;
-			}
+			const friends: User[] = await this.userRepository.getUsersByIds(user.friends);
+
+			const friendDetails: Array<{
+				_id: string;
+				firstName: string;
+				lastName: string;
+				profilePhotoUrl: string;
+			}> = friends.map(friend => {
+				return {
+					_id: friend._id.toString(),
+					firstName: friend.firstName,
+					lastName: friend.lastName,
+					profilePhotoUrl: friend.profilePhotoUrl,
+				};
+			});
+
+			const friendRequests: User[] = await this.userRepository.getUsersByIds(user.friendRequests);
+
+			const friendRequestDetails: Array<{
+				_id: string;
+				firstName: string;
+				lastName: string;
+				profilePhotoUrl: string;
+			}> = friendRequests.map(request => {
+				return {
+					_id: request._id.toString(),
+					firstName: request.firstName,
+					lastName: request.lastName,
+					profilePhotoUrl: request.profilePhotoUrl,
+				};
+			});
+
+			const userProfileDto: UserProfileDto = {
+				_id: user._id,
+				firstName: user.firstName,
+				lastName: user.lastName,
+				email: user.email,
+				university: user.university,
+				department: user.department,
+				profilePhotoUrl: user.profilePhotoUrl,
+				friends: friendDetails,
+				friendRequests: friendRequestDetails,
+				createdAt: user.createdAt,
+				updatedAt: user.updatedAt,
+				friendCount: user.friends.length,
+				isFriend: viewer.isFriend(user._id),
+				posts: user.posts,
+			};
 
 			// if (!viewer.isFriendOrSameUniversity(user)) {
 			//   const result: DataResult<UserProfileDto> = {
@@ -179,7 +253,7 @@ export class UserService implements IUserService {
 				statusCode: 200,
 				message: 'User fetched successfully!',
 				success: true,
-				data: user
+				data: userProfileDto,
 			};
 			return result;
 		} catch (err) {
@@ -191,7 +265,7 @@ export class UserService implements IUserService {
 	}
 	async searchByName(name: string, userId: string): Promise<DataResult<UserForSearchDto[]>> {
 		try {
-			const usersByName: UserForSearchDto[] = await this.userRepository.searchByName(name);
+			const userList: User[] = await this.userRepository.searchByName(name);
 
 			const viewer: User = await this.userRepository.getById(userId);
 
@@ -200,24 +274,29 @@ export class UserService implements IUserService {
 					statusCode: 403,
 					message: 'You must be logged in!',
 					success: false,
-					data: null
+					data: null,
 				};
 				return result;
 			}
 
-			usersByName.forEach((user: UserForSearchDto) => {
-				if (viewer.isFriend(user._id)) {
-					user.isFriend = true;
-				} else {
-					user.isFriend = false;
-				}
+			const usersByName: UserForSearchDto[] = [];
+
+			userList.forEach(user => {
+				const userForSearchDto: UserForSearchDto = {
+					_id: user._id,
+					fullName: user.getFullName(),
+					profilePhotoUrl: user.profilePhotoUrl,
+					isFriend: viewer.isFriend(user._id),
+				};
+
+				usersByName.push(userForSearchDto);
 			});
 
 			const result: DataResult<UserForSearchDto[]> = {
 				statusCode: 200,
 				message: 'Users fetched successfully',
 				success: true,
-				data: usersByName
+				data: usersByName,
 			};
 
 			return result;
@@ -238,7 +317,7 @@ export class UserService implements IUserService {
 					statusCode: 404,
 					message: 'You must be logged in!',
 					success: false,
-					data: null
+					data: null,
 				};
 				return result;
 			}
@@ -249,7 +328,7 @@ export class UserService implements IUserService {
 				statusCode: 200,
 				message: 'Friend requests fetched successfully',
 				success: true,
-				data: friendRequests
+				data: friendRequests,
 			};
 
 			return result;
@@ -269,7 +348,7 @@ export class UserService implements IUserService {
 				const result: Result = {
 					statusCode: 404,
 					message: 'User not found!',
-					success: false
+					success: false,
 				};
 				return result;
 			}
@@ -279,7 +358,7 @@ export class UserService implements IUserService {
 			const result: Result = {
 				statusCode: 200,
 				message: 'Profile updated!',
-				success: true
+				success: true,
 			};
 			return result;
 			// TODO: Check the catch block
@@ -300,7 +379,7 @@ export class UserService implements IUserService {
 				const result: Result = {
 					statusCode: 404,
 					message: 'User not found!',
-					success: false
+					success: false,
 				};
 				return result;
 			}
@@ -309,7 +388,7 @@ export class UserService implements IUserService {
 				const result: Result = {
 					statusCode: 400,
 					message: 'You have not uploaded profile photo!',
-					success: false
+					success: false,
 				};
 				return result;
 			}
@@ -323,7 +402,7 @@ export class UserService implements IUserService {
 					const result: Result = {
 						statusCode: 500,
 						message: 'Profile photo deletion error!',
-						success: false
+						success: false,
 					};
 					return result;
 				}
@@ -337,7 +416,7 @@ export class UserService implements IUserService {
 			const result: Result = {
 				statusCode: 200,
 				message: message,
-				success: true
+				success: true,
 			};
 
 			return result;
@@ -354,7 +433,7 @@ export class UserService implements IUserService {
 				const errorResult: Result = {
 					statusCode: 400,
 					message: 'You cannot be Friend of yourself!',
-					success: false
+					success: false,
 				};
 				return errorResult;
 			}
@@ -365,7 +444,7 @@ export class UserService implements IUserService {
 				const result: Result = {
 					statusCode: 404,
 					message: 'You must be logged in!',
-					success: false
+					success: false,
 				};
 
 				return result;
@@ -377,7 +456,7 @@ export class UserService implements IUserService {
 				const result: Result = {
 					statusCode: 404,
 					message: 'User to Friend not found!',
-					success: false
+					success: false,
 				};
 				return result;
 			}
@@ -389,7 +468,7 @@ export class UserService implements IUserService {
 				const result: Result = {
 					statusCode: 400,
 					message: 'You are already friends!',
-					success: false
+					success: false,
 				};
 				return result;
 			}
@@ -401,7 +480,7 @@ export class UserService implements IUserService {
 				const result: Result = {
 					statusCode: 200,
 					message: 'Friend request cancelled!',
-					success: true
+					success: true,
 				};
 				return result;
 			} else {
@@ -412,7 +491,7 @@ export class UserService implements IUserService {
 				const result: Result = {
 					statusCode: 200,
 					message: 'Friend request sent!',
-					success: true
+					success: true,
 				};
 				return result;
 			}
@@ -432,7 +511,7 @@ export class UserService implements IUserService {
 				const result: Result = {
 					statusCode: 404,
 					message: 'You must be logged in!',
-					success: false
+					success: false,
 				};
 				return result;
 			}
@@ -444,7 +523,7 @@ export class UserService implements IUserService {
 				const result: Result = {
 					statusCode: 404,
 					message: 'User not found!',
-					success: false
+					success: false,
 				};
 				return result;
 			}
@@ -454,7 +533,7 @@ export class UserService implements IUserService {
 				const result: Result = {
 					statusCode: 400,
 					message: 'You are already friends!',
-					success: false
+					success: false,
 				};
 				return result;
 			}
@@ -464,7 +543,7 @@ export class UserService implements IUserService {
 				const result: Result = {
 					statusCode: 404,
 					message: 'No follow request found!',
-					success: false
+					success: false,
 				};
 				return result;
 			}
@@ -478,7 +557,7 @@ export class UserService implements IUserService {
 				const result: Result = {
 					statusCode: 200,
 					message: 'Friend request accepted!',
-					success: true
+					success: true,
 				};
 				return result;
 			} else {
@@ -488,7 +567,7 @@ export class UserService implements IUserService {
 				const result: Result = {
 					statusCode: 200,
 					message: 'Friend request rejected!',
-					success: true
+					success: true,
 				};
 				return result;
 			}
@@ -509,7 +588,7 @@ export class UserService implements IUserService {
 				const result: Result = {
 					statusCode: 404,
 					message: 'User not found!',
-					success: false
+					success: false,
 				};
 				return result;
 			}
@@ -519,7 +598,7 @@ export class UserService implements IUserService {
 				const result: Result = {
 					statusCode: 400,
 					message: 'You are not friends!',
-					success: false
+					success: false,
 				};
 				return result;
 			}
@@ -530,7 +609,7 @@ export class UserService implements IUserService {
 			const result: Result = {
 				statusCode: 200,
 				message: 'User unfriended!',
-				success: true
+				success: true,
 			};
 
 			return result;
@@ -551,7 +630,7 @@ export class UserService implements IUserService {
 				const result: Result = {
 					statusCode: 404,
 					message: 'User not found!',
-					success: false
+					success: false,
 				};
 				return result;
 			}
@@ -560,7 +639,7 @@ export class UserService implements IUserService {
 				const result: Result = {
 					statusCode: 400,
 					message: 'You have not uploaded profile photo yet!',
-					success: false
+					success: false,
 				};
 				return result;
 			}
@@ -571,7 +650,7 @@ export class UserService implements IUserService {
 				const result: Result = {
 					statusCode: 500,
 					message: 'Profile photo deletion error!',
-					success: false
+					success: false,
 				};
 				return result;
 			}
@@ -581,7 +660,7 @@ export class UserService implements IUserService {
 			const result: Result = {
 				statusCode: 200,
 				message: 'Profile photo deleted!',
-				success: true
+				success: true,
 			};
 
 			return result;

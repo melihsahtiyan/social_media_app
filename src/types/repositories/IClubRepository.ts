@@ -10,8 +10,8 @@ export interface IClubRepository {
 	getClubs(): Promise<Club[]>;
 	getClubByOrganizerId(organizerId: string): Promise<ClubDoc>;
 	// searchClubByName(name: string): Promise<Club[]>;
-	updateClub(id: string, club: ClubForUpdateDto): Promise<ClubForUpdateDto>;
-	updateClubImage(id: string, logo?: string, banner?: string): Promise<ClubForUpdateDto>;
-	updateClubPresident(id: string, updatedPresidentId: string): Promise<ClubForUpdateDto>;
-	deleteClub(id: string): Promise<Club>;
+	updateClub(id: string, club: ClubForUpdateDto): Promise<Club>;
+	updateClubImage(id: string, logo?: string, banner?: string): Promise<Club>;
+	updateClubPresident(id: string, updatedPresidentId: string): Promise<Club>;
+	deleteClub(id: string): Promise<boolean>;
 }

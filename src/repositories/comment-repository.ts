@@ -2,7 +2,6 @@ import { comments } from '../models/schemas/comment.schema';
 import { Comment } from '../models/entites/Comment';
 import { ICommentRepository } from '../types/repositories/ICommentRepository';
 import { injectable } from 'inversify';
-import { CommentForCreateDto } from '../models/dtos/comment/comment-for-create';
 import { posts } from '../models/schemas/post.schema';
 
 @injectable()
@@ -16,10 +15,9 @@ export class CommentRepository implements ICommentRepository {
 		return comment;
 	}
 
-	async reply(commentId: string, reply: CommentForCreateDto): Promise<CommentForCreateDto> {
+	// TODO: Decide if the reply should be added to the database or not
+	async reply(commentId: string, reply: Comment): Promise<Comment> {
 		const comment = await comments.findById(commentId);
-
-		reply.post = null;
 		const createdReply = await comments.create(reply);
 
 		comment.replies.push(createdReply._id);

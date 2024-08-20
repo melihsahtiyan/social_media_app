@@ -9,14 +9,9 @@ import { Result } from '../types/result/Result';
 import { DataResult } from '../types/result/DataResult';
 import IAuthService from '../types/services/IAuthService';
 import { User } from '../models/entites/User';
-
-// const transporter: nodemailer.Transporter = nodemailer.createTransport({
-// 	service: 'gmail',
-// 	auth: {
-// 		user: process.env.VERFICATION_SERVICE_EMAIL,
-// 		pass: process.env.VERFICATION_SERVICE_PASSWORD
-// 	}
-// });
+import jwt from 'jsonwebtoken';
+import nodemailer, { Transporter } from 'nodemailer';
+import { UserLoginResponse } from '../models/dtos/user/user-login-response';
 
 @injectable()
 export class AuthService implements IAuthService {
@@ -38,19 +33,20 @@ export class AuthService implements IAuthService {
 				const result: Result = {
 					statusCode: 400,
 					message: 'You must be 18 years old',
-					success: false
+					success: false,
 				};
 
 				return result;
 			}
 			// Checking e-mail whether it exists.
+			console.log('email: ', userToRegister.email);
 			const userToCheck: User = await this._userRepository.getByEmail(userToRegister.email);
 
 			if (userToCheck) {
 				const result: Result = {
 					statusCode: 409,
 					message: 'User already exists',
-					success: false
+					success: false,
 				};
 
 				return result;
@@ -60,15 +56,27 @@ export class AuthService implements IAuthService {
 
 			const userToCreate: UserForCreate = {
 				...userToRegister,
-				password: hashedPassword
+				password: hashedPassword,
 			};
+
+			const isSent: boolean = await this.sendVerificationEmail(userToRegister.email, 'personal');
+
+			if (isSent) {
+				const result: Result = {
+					statusCode: 500,
+					message: 'Email could not be sent. Registration failed!',
+					success: false,
+				};
+
+				return result;
+			}
 
 			await this._userRepository.create(userToCreate);
 
 			const result: Result = {
 				statusCode: 201,
 				message: 'User registered successfully',
-				success: true
+				success: true,
 			};
 
 			return result;
@@ -79,18 +87,14 @@ export class AuthService implements IAuthService {
 		}
 	}
 
-	async login(userToLogin: UserForLogin): Promise<DataResult<{ token: string; id: string; profilePhotoUrl: string }>> {
+	async login(userToLogin: UserForLogin): Promise<DataResult<UserLoginResponse>> {
 		try {
 			const user: User = await this._userRepository.getByEmail(userToLogin.email);
 			if (!user) {
-				const result: DataResult<{
-					token: string;
-					id: string;
-					profilePhotoUrl: string;
-				}> = {
+				const result: DataResult<UserLoginResponse> = {
 					statusCode: 401,
 					message: 'Email or password is incorrect!',
-					success: false
+					success: false,
 				};
 				return result;
 			}
@@ -98,47 +102,53 @@ export class AuthService implements IAuthService {
 			const isEqual: boolean = await user.comparePassword(userToLogin.password);
 
 			if (!isEqual) {
-				const result: DataResult<{
-					token: string;
-					id: string;
-					profilePhotoUrl: string;
-				}> = {
+				const result: DataResult<UserLoginResponse> = {
 					statusCode: 401,
 					message: 'Email or password is incorrect',
-					success: false
+					success: false,
 				};
 				return result;
 			}
 
-			if (!user.isVerified()) {
-				const result: DataResult<{
-					token: string;
-					id: string;
-					profilePhotoUrl: string;
-				}> = {
+			if (!user.hasVerifiedEmail()) {
+				const result: DataResult<UserLoginResponse> = {
 					statusCode: 400,
 					message: 'Email is not verified! You must verify your email!!',
-					success: false
+					success: false,
 				};
 				return result;
 			}
 
 			const token = user.generateJsonWebToken();
 
-			const result: DataResult<{
-				token: string;
-				id: string;
-				profilePhotoUrl: string;
-			}> = {
+			if (!user.isVerifiedStudent()) {
+				await this.sendVerificationEmail(user.studentEmail, 'student');
+
+				const result: DataResult<UserLoginResponse> = {
+					statusCode: 400,
+					message: 'Student email is not verified! Please verify your student email',
+					success: false,
+					data: {
+						token: token,
+						id: user._id.toString(),
+						profilePhotoUrl: user.profilePhotoUrl,
+					},
+				};
+
+				return result;
+			}
+
+			const result: DataResult<UserLoginResponse> = {
 				statusCode: 200,
 				message: 'Login successful! Token generated',
 				data: {
-					token: token || null,
+					token: token,
 					id: user._id.toString(),
-					profilePhotoUrl: user.profilePhotoUrl
+					profilePhotoUrl: user.profilePhotoUrl,
 				},
-				success: true
+				success: true,
 			};
+
 			return result;
 		} catch (err) {
 			const error: CustomError = new Error(err.message);
@@ -147,58 +157,90 @@ export class AuthService implements IAuthService {
 		}
 	}
 
-	// verifyEmail = async (req: Request, res: Response, next: NextFunction) => {
-	//   const email: string = req.body.email;
-	//   const verificationToken: string = req.body.verificationToken;
+	async verifyEmail(email: string, verificationToken: string): Promise<Result> {
+		const decodedToken = jwt.verify(verificationToken, process.env.JWT_SECRET) as {
+			email: string;
+			verificationType: string;
+		};
 
-	//   const user: UserDoc = await this._userRepository.getByEmail(email);
+		if (decodedToken.email !== email) {
+			const error: CustomError = new Error('Invalid token');
+			error.statusCode = 400; // Bad Request
+			throw error;
+		}
 
-	//   if (!user) {
-	//     const error: CustomError = new Error("User not found");
-	//     error.statusCode = 404; // Not Found
-	//     throw error;
-	//   }
+		const user: User = await this._userRepository.getByEmail(email);
 
-	//   // const decodedToken: any = jwt.verify(
-	//   //   verificationToken,
-	//   //   process.env.JWT_SECRET
-	//   // );
+		if (!user) {
+			const error: CustomError = new Error('User not found');
+			error.statusCode = 404; // Not Found
+			throw error;
+		}
 
-	//   // if (decodedToken.email !== email) {
-	//   //   const error: CustomError = new Error("Invalid token");
-	//   //   error.statusCode = 400; // Bad Request
-	//   //   throw error;
-	//   // }
+		let message: string;
+		if (decodedToken.verificationType === 'personal') {
+			// TODO: send verification link to the user's student email if this is from personal email
+			user.status.emailVerification = true;
+			this._userRepository.update(user._id.toString(), user);
+			message = 'Personal mail verified! Please verify your student mail';
+		}
 
-	//   let message: string;
-	//   // if (decodedToken.verificationType === "personal") {
-	//   //   // TODO: send verification link to the user's student email if this is from personal email
-	//   user.status.emailVerification = true;
-	//   this._userRepository.update(user._id, user);
-	//   message = "Personal mail verified! Please verify your student mail";
-	//   // }
+		if (decodedToken.verificationType === 'student') {
+			user.status.studentVerification = true;
+			this._userRepository.update(user._id.toString(), user);
+			message = 'Student mail verified!';
+		}
 
-	//   // if (decodedToken.verificationType === "student") {
-	//   //   user.status.studentVerification = true;
-	//   //   this._userRepository.update(user._id, user);
-	//   //   message = "Student mail verified!";
-	//   // }
-	//   return res.status(200).json({ message: message });
-	// };
+		const result: Result = {
+			statusCode: 200,
+			message: message,
+			success: true,
+		};
 
-	// sendVerificationEmail = async (email: string, verificationType: string) => {
-	//   // TODO: Implement this function
-	//   // send verification link to the user's email
+		return result;
+	}
 
-	//   const user: UserDoc = await this._userRepository.getByEmail(email);
+	async sendVerificationEmail(email: string, verificationType: string): Promise<boolean> {
+		try {
+			// TODO: Implement this function
+			// send verification link to the user's email
 
-	//   const verificationToken =
-	//     await this._userRepository.generateVerificationToken(
-	//       user._id,
-	//       user.email,
-	//       verificationType
-	//     );
-	//   // TODO: send verification link to the user's email
-	//   // const verificationLink = `http://yourwebsite.com/verify-email?token=${verificationToken}`;
-	// };
+			const verificationToken = await this._userRepository.generateVerificationToken(email, verificationType);
+
+			const mailOptions: nodemailer.SendMailOptions = {
+				from: process.env.VERIFICATION_SERVICE_EMAIL,
+				to: email,
+				subject: 'Verification Email',
+				text: `Click the link to verify your email: ${process.env.VERIFICATION_SERVICE_URL}/auth/verify-email?token=${verificationToken}?email=${email}`,
+			};
+
+			const transporter: Transporter = nodemailer.createTransport({
+				host: 'stmp.gmail.com',
+				auth: {
+					type: 'OAuth2',
+					user: process.env.VERFICATION_SERVICE_EMAIL,
+					clientId: process.env.OAUTH_CLIENT_ID,
+					clientSecret: process.env.OAUTH_CLIENT_SECRET,
+					refreshToken: process.env.OAUTH_REFRESH_TOKEN,
+				},
+			});
+
+			let isSent: boolean = false;
+			transporter.sendMail(mailOptions, function (error, info) {
+				if (error) {
+					console.log(error);
+					isSent = false;
+				} else {
+					console.log('Email sent: ' + info.response);
+					isSent = true;
+				}
+			});
+
+			return isSent;
+		} catch (err) {
+			const error: CustomError = new Error(err.message);
+			error.statusCode = 500;
+			throw error;
+		}
+	}
 }

@@ -1,5 +1,4 @@
 {
-    "arrowParens": "always",
     "bracketSpacing": true,
     "insertPragma": false,
     "printWidth": 120,
@@ -7,11 +6,12 @@
     "quoteProps": "as-needed",
     "requirePragma": false,
     "semi": true,
-    "singleQuote": true,
-    "tabWidth": 2,
-    "trailingComma": "none",
     "useTabs": true,
     "endOfLine": "auto",
+    "singleQuote": true,
+    "trailingComma": "es5",
+    "tabWidth": 2,
+    "arrowParens": "avoid",
     "overrides": [
       {
         "files": ".prettierrc",

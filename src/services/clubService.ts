@@ -23,16 +23,16 @@ export class ClubService implements IClubService {
 		this.clubRepository = clubRepository;
 		this.userRepository = userRepository;
 	}
-	public async createClub(club: ClubInputDto, logo?: Express.Multer.File): Promise<DataResult<Club>> {
+	public async createClub(club: ClubInputDto, logo?: Express.Multer.File): Promise<DataResult<ClubInputDto>> {
 		try {
 			const president: User = await this.userRepository.getById(club.president);
 
 			if (!president) {
-				const result: DataResult<Club> = {
+				const result: DataResult<ClubInputDto> = {
 					data: null,
 					message: 'President not found',
 					success: false,
-					statusCode: 404
+					statusCode: 404,
 				};
 				return result;
 			}
@@ -40,11 +40,11 @@ export class ClubService implements IClubService {
 			const clubExist = await this.clubRepository.getClubByName(club.name);
 
 			if (clubExist) {
-				const result: DataResult<Club> = {
+				const result: DataResult<ClubInputDto> = {
 					data: null,
 					message: 'Club with this name already exists!',
 					success: false,
-					statusCode: 400
+					statusCode: 400,
 				};
 				return result;
 			}
@@ -53,7 +53,7 @@ export class ClubService implements IClubService {
 				name: club.name,
 				biography: club.biography,
 				status: club.status,
-				president: president._id
+				president: president._id,
 			});
 
 			// TODO: refactor this block after implementing file upload
@@ -64,13 +64,20 @@ export class ClubService implements IClubService {
 				clubForCreate.logo = path;
 			}
 
-			const createdClub = await this.clubRepository.createClub(clubForCreate);
+			const createdClub: Club = await this.clubRepository.createClub(clubForCreate);
 
-			const result: DataResult<Club> = {
-				data: createdClub,
+			const responseClub: ClubInputDto = {
+				name: createdClub.name,
+				biography: createdClub.biography,
+				status: createdClub.status,
+				president: createdClub.getPresidentId(),
+			};
+
+			const result: DataResult<ClubInputDto> = {
+				data: responseClub,
 				message: 'Club created',
 				success: true,
-				statusCode: 201
+				statusCode: 201,
 			};
 
 			return result;
@@ -87,7 +94,7 @@ export class ClubService implements IClubService {
 				data: clubs,
 				message: 'Clubs found',
 				success: true,
-				statusCode: 200
+				statusCode: 200,
 			};
 			return result;
 		} catch (err) {
@@ -104,7 +111,7 @@ export class ClubService implements IClubService {
 					data: null,
 					message: 'Club not found',
 					success: false,
-					statusCode: 404
+					statusCode: 404,
 				};
 				return result;
 			}
@@ -113,7 +120,7 @@ export class ClubService implements IClubService {
 				data: club,
 				message: 'Club found',
 				success: true,
-				statusCode: 200
+				statusCode: 200,
 			};
 
 			return result;
@@ -131,7 +138,7 @@ export class ClubService implements IClubService {
 				const result: DataResult<Club> = {
 					message: 'Organizer not found',
 					success: false,
-					statusCode: 404
+					statusCode: 404,
 				};
 				return result;
 			}
@@ -141,7 +148,7 @@ export class ClubService implements IClubService {
 				const result: Result = {
 					message: 'Club not found!',
 					success: false,
-					statusCode: 404
+					statusCode: 404,
 				};
 				return result;
 			}
@@ -150,7 +157,7 @@ export class ClubService implements IClubService {
 				const result: Result = {
 					message: 'You are not authorized to update this club!',
 					success: false,
-					statusCode: 401
+					statusCode: 401,
 				};
 				return result;
 			}
@@ -161,7 +168,7 @@ export class ClubService implements IClubService {
 				const result: DataResult<Club> = {
 					message: 'Club with this name already exists!',
 					success: false,
-					statusCode: 400
+					statusCode: 400,
 				};
 				return result;
 			}
@@ -172,7 +179,7 @@ export class ClubService implements IClubService {
 				message: 'Club updated!',
 				data: updatedClub,
 				success: true,
-				statusCode: 200
+				statusCode: 200,
 			};
 
 			return result;
@@ -190,7 +197,7 @@ export class ClubService implements IClubService {
 				const result: DataResult<Club> = {
 					message: 'Organizer not found!',
 					success: false,
-					statusCode: 404
+					statusCode: 404,
 				};
 				return result;
 			}
@@ -200,7 +207,7 @@ export class ClubService implements IClubService {
 				const result: DataResult<Club> = {
 					message: 'You are not authorized to update this club!',
 					success: false,
-					statusCode: 401
+					statusCode: 401,
 				};
 				return result;
 			}
@@ -209,7 +216,7 @@ export class ClubService implements IClubService {
 				const result: DataResult<Club> = {
 					message: 'Club not found!',
 					success: false,
-					statusCode: 404
+					statusCode: 404,
 				};
 				return result;
 			}
@@ -224,7 +231,7 @@ export class ClubService implements IClubService {
 				message: 'Club logo updated!',
 				data: updatedClub,
 				success: true,
-				statusCode: 200
+				statusCode: 200,
 			};
 
 			return result;
@@ -242,7 +249,7 @@ export class ClubService implements IClubService {
 				const result: Result = {
 					message: 'Organizer not found!',
 					success: false,
-					statusCode: 404
+					statusCode: 404,
 				};
 				return result;
 			}
@@ -252,7 +259,7 @@ export class ClubService implements IClubService {
 				const result: Result = {
 					message: 'You are not authorized to update this club!',
 					success: false,
-					statusCode: 401
+					statusCode: 401,
 				};
 				return result;
 			}
@@ -261,7 +268,7 @@ export class ClubService implements IClubService {
 				const result: Result = {
 					message: 'Club not found!',
 					success: false,
-					statusCode: 404
+					statusCode: 404,
 				};
 				return result;
 			}
@@ -279,7 +286,7 @@ export class ClubService implements IClubService {
 				message: 'Club banner updated!',
 				data: updatedClub,
 				success: true,
-				statusCode: 200
+				statusCode: 200,
 			};
 			return result;
 		} catch (err) {
@@ -295,37 +302,29 @@ export class ClubService implements IClubService {
 				const result: DataResult<Club> = {
 					message: 'Club not found!',
 					success: false,
-					statusCode: 404
+					statusCode: 404,
 				};
 				return result;
 			}
 
-			const president = await this.userRepository.getById(presidentId);
-			if (!president) {
-				const result: DataResult<Club> = {
-					message: 'President not found!',
-					success: false,
-					statusCode: 404
-				};
-				return result;
-			}
+			const president: User = await this.userRepository.getById(presidentId);
 
 			if (club.isPresident(president._id)) {
 				const result: DataResult<Club> = {
 					message: 'You are not authorized to update this club!',
 					success: false,
-					statusCode: 401
+					statusCode: 401,
 				};
 				return result;
 			}
 
-			const presitendForUpdate = await this.userRepository.getById(updatedPresidentId);
+			const presitendForUpdate: User = await this.userRepository.getById(updatedPresidentId);
 
 			if (!presitendForUpdate) {
 				const result: DataResult<Club> = {
 					message: 'New president not found!',
 					success: false,
-					statusCode: 404
+					statusCode: 404,
 				};
 				return result;
 			}
@@ -336,7 +335,7 @@ export class ClubService implements IClubService {
 				message: 'Club president updated!',
 				data: updatedClub,
 				success: true,
-				statusCode: 200
+				statusCode: 200,
 			};
 			return result;
 		} catch (err) {
@@ -352,7 +351,7 @@ export class ClubService implements IClubService {
 				const result: Result = {
 					message: 'Club not found!',
 					success: false,
-					statusCode: 404
+					statusCode: 404,
 				};
 				return result;
 			}
@@ -363,7 +362,7 @@ export class ClubService implements IClubService {
 				const result: Result = {
 					message: 'President not found!',
 					success: false,
-					statusCode: 404
+					statusCode: 404,
 				};
 				return result;
 			}
@@ -372,17 +371,17 @@ export class ClubService implements IClubService {
 				const result: Result = {
 					message: 'You are not authorized to delete this club!',
 					success: false,
-					statusCode: 401
+					statusCode: 401,
 				};
 				return result;
 			}
 
-			await this.clubRepository.deleteClub(id);
+			const isDeleted: boolean = await this.clubRepository.deleteClub(id);
 
 			const result: Result = {
-				message: 'Club deleted!',
-				success: true,
-				statusCode: 200
+				message: isDeleted ? 'Club deleted!' : 'Club deletion failed!',
+				success: isDeleted,
+				statusCode: isDeleted ? 200 : 500,
 			};
 			return result;
 		} catch (err) {

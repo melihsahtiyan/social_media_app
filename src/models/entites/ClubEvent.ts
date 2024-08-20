@@ -26,7 +26,7 @@ export class ClubEvent extends Entity {
 		club,
 		organizer,
 		isPublic,
-		isOnline
+		isOnline,
 	}: {
 		title: string;
 		description: string;
@@ -57,5 +57,9 @@ export class ClubEvent extends Entity {
 
 	getClubId(): string {
 		return this.club.toString();
+	}
+
+	getOrganizerId(): string {
+		return this.organizer.toString();
 	}
 }

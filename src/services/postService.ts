@@ -11,7 +11,6 @@ import PostListDto from '../models/dtos/post/post-list';
 import { DataResult } from '../types/result/DataResult';
 import { PostForCreate } from '../models/dtos/post/post-for-create';
 import { PostDetails } from '../models/dtos/post/post-details';
-import { PostForLike } from '../models/dtos/post/post-for-like';
 import { Post } from '../models/entites/Post';
 import { Result } from '../types/result/Result';
 import { User } from '../models/entites/User';
@@ -42,7 +41,7 @@ export class PostService implements IPostService {
 					statusCode: 422,
 					message: 'Please provide media or caption!',
 					success: false,
-					data: null
+					data: null,
 				};
 				return result;
 			}
@@ -57,14 +56,14 @@ export class PostService implements IPostService {
 						statusCode: 422,
 						message: 'You can upload up to 10 media files!',
 						success: false,
-						data: null
+						data: null,
 					};
 					return result;
 				}
 
 				if (files.length > 0) {
 					sourceUrls = await Promise.all(
-						files.map(async (file) => {
+						files.map(async file => {
 							const publicId: string = await this.cloudinaryService.handleUpload(file, 'media');
 							return publicId;
 						})
@@ -76,9 +75,9 @@ export class PostService implements IPostService {
 				creator: user._id,
 				content: {
 					caption: postInput.caption,
-					mediaUrls: sourceUrls
+					mediaUrls: sourceUrls,
 				},
-				poll: postInput.poll || null
+				poll: postInput.poll || null,
 			};
 
 			await this.postRepository.createPost(postForCreate);
@@ -87,7 +86,7 @@ export class PostService implements IPostService {
 				statusCode: 201,
 				message: 'Post created!',
 				success: true,
-				data: postInput
+				data: postInput,
 			};
 
 			return result;
@@ -101,13 +100,13 @@ export class PostService implements IPostService {
 
 	async getAllPosts(): Promise<DataResult<Array<PostDoc>>> {
 		try {
-			const posts: PostDoc[] = await this.postRepository.getAllPosts();
+			const posts: PostDoc[] = await this.postRepository.getAllPopulatedPosts();
 
 			const result: DataResult<Array<PostDoc>> = {
 				statusCode: 200,
 				message: 'Posts fetched!',
 				success: true,
-				data: posts
+				data: posts,
 			};
 
 			return result;
@@ -128,14 +127,14 @@ export class PostService implements IPostService {
 					creator: post.creator,
 					content: {
 						caption: post.content.caption,
-						mediaUrls: post.content.mediaUrls
+						mediaUrls: post.content.mediaUrls,
 					},
 					likes: post.likes,
 					comments: post.comments,
 					poll: post.poll,
 					isUpdated: post.isUpdated,
 					createdAt: post.createdAt,
-					isLiked: post.isLiked(user._id)
+					isLiked: post.isLiked(user._id),
 				} as PostListDto;
 			});
 
@@ -143,7 +142,7 @@ export class PostService implements IPostService {
 				statusCode: 200,
 				message: 'Following posts fetched!',
 				success: true,
-				data: postList
+				data: postList,
 			};
 			return result;
 		} catch (err) {
@@ -156,20 +155,20 @@ export class PostService implements IPostService {
 			const user: User = await this.userRepository.getById(userId);
 			const posts: Array<Post> = await this.postRepository.getAllUniversityPosts(user.university);
 
-			const postList: Array<PostListDto> = posts.map((post) => {
+			const postList: Array<PostListDto> = posts.map(post => {
 				return {
 					_id: post._id,
 					creator: post.creator,
 					content: {
 						caption: post.content.caption,
-						mediaUrls: post.content.mediaUrls
+						mediaUrls: post.content.mediaUrls,
 					},
 					likes: post.likes,
 					comments: post.comments,
 					poll: post.poll,
 					isUpdated: post.isUpdated,
 					createdAt: post.createdAt,
-					isLiked: post.isLiked(user._id)
+					isLiked: post.isLiked(user._id),
 				} as PostListDto;
 			});
 
@@ -177,7 +176,7 @@ export class PostService implements IPostService {
 				statusCode: 200,
 				message: 'University posts fetched!',
 				success: true,
-				data: postList
+				data: postList,
 			};
 
 			return result;
@@ -195,7 +194,7 @@ export class PostService implements IPostService {
 					statusCode: 404,
 					message: 'Post not found!',
 					success: false,
-					data: null
+					data: null,
 				};
 				return result;
 			}
@@ -209,7 +208,7 @@ export class PostService implements IPostService {
 					statusCode: 403,
 					message: 'You are not authorized to view this post!',
 					success: false,
-					data: null
+					data: null,
 				};
 				return result;
 			}
@@ -223,11 +222,11 @@ export class PostService implements IPostService {
 					department: creator.department,
 					university: creator.university,
 					profilePhotoUrl: creator.profilePhotoUrl,
-					friends: creator.friends
+					friends: creator.friends,
 				},
 				content: {
 					caption: post.content.caption,
-					mediaUrls: post.content.mediaUrls
+					mediaUrls: post.content.mediaUrls,
 				},
 				poll: post.poll,
 				likes: post.likes,
@@ -236,14 +235,14 @@ export class PostService implements IPostService {
 				commentCount: post.comments.length,
 				likeCount: post.likes.length,
 				isUpdated: post.isUpdated,
-				isLiked: post.isLiked(user._id)
+				isLiked: post.isLiked(user._id),
 			};
 
 			const result: DataResult<PostDetails> = {
 				statusCode: 200,
 				message: 'Post details fetched!',
 				success: true,
-				data: postDetails
+				data: postDetails,
 			};
 
 			return result;
@@ -261,7 +260,7 @@ export class PostService implements IPostService {
 					statusCode: 404,
 					message: 'Post not found!',
 					success: false,
-					data: null
+					data: null,
 				};
 
 				return result;
@@ -277,7 +276,7 @@ export class PostService implements IPostService {
 					statusCode: 403,
 					message: 'You are not authorized to view this post!',
 					success: false,
-					data: null
+					data: null,
 				};
 				return result;
 			}
@@ -291,11 +290,11 @@ export class PostService implements IPostService {
 					department: creator.department,
 					university: creator.university,
 					profilePhotoUrl: creator.profilePhotoUrl,
-					friends: creator.friends
+					friends: creator.friends,
 				},
 				content: {
 					caption: post.content.caption,
-					mediaUrls: post.content.mediaUrls
+					mediaUrls: post.content.mediaUrls,
 				},
 				poll: post.poll,
 				likes: post.likes,
@@ -304,14 +303,14 @@ export class PostService implements IPostService {
 				commentCount: post.comments.length,
 				likeCount: post.likes.length,
 				isUpdated: post.isUpdated,
-				isLiked: post.isLiked(user._id)
+				isLiked: post.isLiked(user._id),
 			};
 
 			const result: DataResult<PostDetails> = {
 				statusCode: 200,
 				message: 'Post fetched!',
 				success: true,
-				data: postDetails
+				data: postDetails,
 			};
 
 			return result;
@@ -321,16 +320,16 @@ export class PostService implements IPostService {
 		}
 	}
 
-	async likePost(postId: string, userId: string): Promise<DataResult<PostForLike>> {
+	async likePost(postId: string, userId: string): Promise<DataResult<number>> {
 		try {
 			const post: Post = await this.postRepository.getById(postId);
 
 			if (!post) {
-				const result: DataResult<PostForLike> = {
+				const result: DataResult<number> = {
 					statusCode: 404,
 					message: 'Post not found!',
 					success: false,
-					data: null
+					data: null,
 				};
 				return result;
 			}
@@ -338,31 +337,24 @@ export class PostService implements IPostService {
 			const user: User = await this.userRepository.getById(userId);
 
 			if (post.isLiked(user._id)) {
-				const result: DataResult<PostForLike> = {
+				const result: DataResult<number> = {
 					statusCode: 400,
-					message: 'You already liked this post!',
+					message: 'Error! You have already liked this post!',
 					success: false,
-					data: null
+					data: null,
 				};
 				return result;
 			}
 
 			const updatedPost: Post = await this.postRepository.likePost(post._id, user._id);
 
-			const postForLike: PostForLike = {
-				_id: updatedPost._id,
-				creator: updatedPost.creator,
-				content: updatedPost.content,
-				likes: updatedPost.likes,
-				likeCount: updatedPost.likes.length,
-				isUpdated: updatedPost.isUpdated
-			};
+			const updatedPostLikeCount: number = updatedPost.likes.length;
 
-			const result: DataResult<PostForLike> = {
+			const result: DataResult<number> = {
 				statusCode: 200,
 				message: 'Post liked!',
 				success: true,
-				data: postForLike
+				data: updatedPostLikeCount,
 			};
 
 			return result;
@@ -371,16 +363,16 @@ export class PostService implements IPostService {
 			throw err;
 		}
 	}
-	async unlikePost(postId: string, userId: string): Promise<DataResult<PostForLike>> {
+	async unlikePost(postId: string, userId: string): Promise<DataResult<number>> {
 		try {
 			const post: Post = await this.postRepository.getById(postId);
 
 			if (!post) {
-				const result: DataResult<PostForLike> = {
+				const result: DataResult<number> = {
 					statusCode: 404,
 					message: 'Post not found!',
 					success: false,
-					data: null
+					data: null,
 				};
 				return result;
 			}
@@ -388,22 +380,24 @@ export class PostService implements IPostService {
 			const user: User = await this.userRepository.getById(userId);
 
 			if (!post.isLiked(user._id)) {
-				const result: DataResult<PostForLike> = {
+				const result: DataResult<number> = {
 					statusCode: 400,
 					message: "You haven't liked this post yet!",
 					success: false,
-					data: null
+					data: null,
 				};
 				return result;
 			}
 
-			const updatedPost: PostForLike = (await this.postRepository.unlikePost(post._id, user._id)) as PostForLike;
+			const updatedPost: Post = await this.postRepository.unlikePost(post._id, user._id);
 
-			const result: DataResult<PostForLike> = {
+			const updatedPostLikeCount: number = updatedPost.likes.length;
+
+			const result: DataResult<number> = {
 				statusCode: 200,
 				message: 'Post unliked!',
 				success: true,
-				data: updatedPost
+				data: updatedPostLikeCount,
 			};
 
 			return result;
@@ -424,7 +418,7 @@ export class PostService implements IPostService {
 				const result: Result = {
 					statusCode: 404,
 					message: 'Post not found!',
-					success: false
+					success: false,
 				};
 				return result;
 			}
@@ -433,7 +427,7 @@ export class PostService implements IPostService {
 				const result: Result = {
 					statusCode: 403,
 					message: 'You are not authorized to delete this post!',
-					success: false
+					success: false,
 				};
 				return result;
 			}
@@ -445,7 +439,7 @@ export class PostService implements IPostService {
 					const result: Result = {
 						statusCode: 500,
 						message: 'Post deletion failed!',
-						success: false
+						success: false,
 					};
 					return result;
 				}
@@ -457,7 +451,7 @@ export class PostService implements IPostService {
 				const result: Result = {
 					statusCode: 500,
 					message: 'Post deletion failed!',
-					success: false
+					success: false,
 				};
 				return result;
 			}
@@ -465,7 +459,7 @@ export class PostService implements IPostService {
 			const result: Result = {
 				statusCode: 200,
 				message: 'Post deleted!',
-				success: true
+				success: true,
 			};
 			return result;
 		} catch (err) {

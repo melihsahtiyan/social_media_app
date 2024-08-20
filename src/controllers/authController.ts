@@ -9,6 +9,7 @@ import UserForRegister from './../models/dtos/user/user-for-register';
 import { Result } from './../types/result/Result';
 import UserForLogin from './../models/dtos/user/user-for-login';
 import { DataResult } from './../types/result/DataResult';
+import { UserLoginResponse } from '../models/dtos/user/user-login-response';
 
 @controller('/auth')
 export class AuthController {
@@ -25,11 +26,6 @@ export class AuthController {
 
 			const result: Result = await this._authService.register(userToRegister);
 
-			if (result.success)
-				return res.status(result.statusCode).json({
-					message: result.message
-				});
-
 			return res.status(result.statusCode).json({ result });
 		} catch (err) {
 			next(err);
@@ -41,19 +37,21 @@ export class AuthController {
 			isValid(req);
 			const userToLogin: UserForLogin = req.body;
 
-			const result: DataResult<{
-				token: string;
-				id: string;
-				profilePhotoUrl: string;
-			}> = await this._authService.login(userToLogin);
+			const result: DataResult<UserLoginResponse> = await this._authService.login(userToLogin);
 
-			if (result.success)
-				return res.status(200).json({
-					message: 'Token generated',
-					token: result.data.token,
-					id: result.data.id,
-					profilePhotoUrl: result.data.profilePhotoUrl
-				});
+			return res.status(result.statusCode).json({ result });
+		} catch (err) {
+			next(err);
+		}
+	}
+
+	async verifyEmail(req: Request, res: Response, next: NextFunction) {
+		try {
+			isValid(req);
+			const email: string = req.body.email;
+			const verificationToken: string = req.body.verificationToken;
+
+			const result: Result = await this._authService.verifyEmail(email, verificationToken);
 
 			return res.status(result.statusCode).json({ result });
 		} catch (err) {

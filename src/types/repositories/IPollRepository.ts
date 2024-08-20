@@ -1,10 +1,10 @@
 import { Schema } from "mongoose";
-import { PollCreate } from "../../models/dtos/post/poll/poll-create-dto";
 import { Post } from "../../models/entites/Post";
 import { PostDoc } from "../../models/schemas/post.schema";
+import { Poll } from "../../models/entites/Poll";
 
 export interface IPollRepository {
-  createPoll(poll: PollCreate): Promise<Post>;
+  createPoll(poll: Poll): Promise<Post>;
   votePoll(
     pollId: Schema.Types.ObjectId,
     userId: Schema.Types.ObjectId,

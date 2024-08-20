@@ -35,7 +35,7 @@ describe('User Service', () => {
 				posts: [],
 				organizations: [],
 				attendances: [],
-				createdAt: new Date()
+				createdAt: new Date(),
 			})
 		);
 
@@ -57,7 +57,7 @@ describe('User Service', () => {
 				posts: [],
 				organizations: [],
 				attendances: [],
-				createdAt: new Date()
+				createdAt: new Date(),
 			})
 		);
 	});
@@ -79,8 +79,8 @@ describe('User Service', () => {
 					friends: [],
 					friendRequests: [],
 					posts: [],
-					createdAt: new Date()
-				} as UserListDto
+					createdAt: new Date(),
+				} as UserListDto,
 			]);
 			const users = await userService.getAllUsers();
 			expect(users.data).toHaveLength(1);
@@ -123,12 +123,17 @@ describe('User Service', () => {
 				department: 'Mocked Department',
 				profilePhotoUrl: 'mockedProfilePhotoUrl',
 				friends: [],
-				friendCount: 0,
 				createdAt: new Date(),
 				updatedAt: new Date(),
-				isFriend: false
-			});
+				attendances: [],
+				organizations: [],
+				posts: [],
+			} as User);
+
+			jest.spyOn(userRepository, 'getUsersByIds').mockResolvedValue([]);
+
 			const user = await userService.viewUserDetails('mockedId', 'mockedId');
+
 			expect(user.data).toBeDefined();
 			expect(user.message).toBe('User fetched successfully');
 			expect(user.success).toBe(true);
@@ -152,11 +157,9 @@ describe('User Service', () => {
 				department: 'Mocked Department',
 				profilePhotoUrl: 'mockedProfilePhotoUrl',
 				friends: [],
-				friendCount: 0,
 				createdAt: new Date(),
 				updatedAt: new Date(),
-				isFriend: false
-			});
+			} as User);
 			jest.spyOn(userRepository, 'getById').mockResolvedValue(null);
 
 			const user = await userService.viewUserDetails('mockedId', 'mockedId');
@@ -168,12 +171,25 @@ describe('User Service', () => {
 	describe('Search Users by Name', () => {
 		it('should return users', async () => {
 			jest.spyOn(userRepository, 'searchByName').mockResolvedValue([
-				{
+				new User({
 					_id: new Schema.Types.ObjectId('mockedId'),
-					fullName: 'John Doe',
+					firstName: 'John',
+					lastName: 'Doe',
+					email: 'john.doe@example.com',
+					university: 'Mocked University',
+					department: 'Mocked Department',
 					profilePhotoUrl: 'mockedProfilePhotoUrl',
-					isFriend: false
-				}
+					friends: [],
+					createdAt: new Date(),
+					birthDate: new Date(),
+					friendRequests: [],
+					password: 'password',
+					studentEmail: 'john.doe@student.com',
+					status: { studentVerification: false, emailVerification: false },
+					attendances: [],
+					organizations: [],
+					posts: [],
+				}),
 			]);
 
 			const result = await userService.searchByName('John', 'userId');
@@ -223,7 +239,7 @@ describe('User Service', () => {
 				posts: [],
 				organizations: [],
 				attendances: [],
-				createdAt: new Date()
+				createdAt: new Date(),
 			} as UserDoc);
 
 			jest.spyOn(cloudinaryService, 'handleDelete').mockResolvedValue(true);
@@ -239,7 +255,7 @@ describe('User Service', () => {
 				filename: 'mockedProfilePhotoUrl',
 				buffer: Buffer.from('mockedProfilePhotoUrl', 'utf8'),
 				path: 'uploads/mockedProfilePhotoUrl',
-				stream: null
+				stream: null,
 			};
 
 			const result = await userService.changeProfilePhoto('mockedId', file);
@@ -267,7 +283,7 @@ describe('User Service', () => {
 					posts: [],
 					organizations: [],
 					attendances: [],
-					createdAt: new Date()
+					createdAt: new Date(),
 				})
 			);
 
@@ -288,7 +304,7 @@ describe('User Service', () => {
 				posts: [],
 				organizations: [],
 				attendances: [],
-				createdAt: new Date()
+				createdAt: new Date(),
 			} as UserDoc);
 
 			jest.spyOn(cloudinaryService, 'handleUpload').mockResolvedValue('mockedProfilePhotoUrl');
@@ -303,7 +319,7 @@ describe('User Service', () => {
 				filename: 'mockedProfilePhotoUrl',
 				buffer: Buffer.from('mockedProfilePhotoUrl', 'utf8'),
 				path: 'uploads/mockedProfilePhotoUrl',
-				stream: null
+				stream: null,
 			};
 
 			const result = await userService.changeProfilePhoto('mockedId', file);
@@ -334,7 +350,7 @@ describe('User Service', () => {
 				filename: 'mockedProfilePhotoUrl',
 				buffer: Buffer.from('mockedProfilePhotoUrl', 'utf8'),
 				path: 'uploads/mockedProfilePhotoUrl',
-				stream: null
+				stream: null,
 			};
 
 			const result = await userService.changeProfilePhoto('mockedId', file);
@@ -380,7 +396,7 @@ describe('User Service', () => {
 					posts: [],
 					organizations: [],
 					attendances: [],
-					createdAt: new Date()
+					createdAt: new Date(),
 				});
 			});
 
@@ -411,7 +427,7 @@ describe('User Service', () => {
 					posts: [],
 					organizations: [],
 					attendances: [],
-					createdAt: new Date()
+					createdAt: new Date(),
 				});
 			});
 
@@ -433,7 +449,7 @@ describe('User Service', () => {
 					posts: [],
 					organizations: [],
 					attendances: [],
-					createdAt: new Date()
+					createdAt: new Date(),
 				});
 			});
 
@@ -462,7 +478,7 @@ describe('User Service', () => {
 					posts: [],
 					organizations: [],
 					attendances: [],
-					createdAt: new Date()
+					createdAt: new Date(),
 				});
 			});
 
@@ -484,7 +500,7 @@ describe('User Service', () => {
 					posts: [],
 					organizations: [],
 					attendances: [],
-					createdAt: new Date()
+					createdAt: new Date(),
 				});
 			});
 
@@ -505,7 +521,7 @@ describe('User Service', () => {
 				posts: [],
 				organizations: [],
 				attendances: [],
-				createdAt: new Date()
+				createdAt: new Date(),
 			} as UserDoc);
 
 			const result = await userService.sendFriendRequest('mockedId', 'mockedId2');
@@ -533,7 +549,7 @@ describe('User Service', () => {
 					posts: [],
 					organizations: [],
 					attendances: [],
-					createdAt: new Date()
+					createdAt: new Date(),
 				});
 			});
 
@@ -555,7 +571,7 @@ describe('User Service', () => {
 					posts: [],
 					organizations: [],
 					attendances: [],
-					createdAt: new Date()
+					createdAt: new Date(),
 				});
 			});
 
@@ -576,7 +592,7 @@ describe('User Service', () => {
 				posts: [],
 				organizations: [],
 				attendances: [],
-				createdAt: new Date()
+				createdAt: new Date(),
 			} as UserDoc);
 
 			const result = await userService.sendFriendRequest('mockedId', 'mockedId2');
@@ -615,7 +631,7 @@ describe('User Service', () => {
 					posts: [],
 					organizations: [],
 					attendances: [],
-					createdAt: new Date()
+					createdAt: new Date(),
 				});
 			});
 
@@ -648,7 +664,7 @@ describe('User Service', () => {
 					posts: [],
 					organizations: [],
 					attendances: [],
-					createdAt: new Date()
+					createdAt: new Date(),
 				});
 			});
 
@@ -670,7 +686,7 @@ describe('User Service', () => {
 					posts: [],
 					organizations: [],
 					attendances: [],
-					createdAt: new Date()
+					createdAt: new Date(),
 				});
 			});
 
@@ -699,7 +715,7 @@ describe('User Service', () => {
 					posts: [],
 					organizations: [],
 					attendances: [],
-					createdAt: new Date()
+					createdAt: new Date(),
 				});
 			});
 
@@ -721,7 +737,7 @@ describe('User Service', () => {
 					posts: [],
 					organizations: [],
 					attendances: [],
-					createdAt: new Date()
+					createdAt: new Date(),
 				});
 			});
 
@@ -750,7 +766,7 @@ describe('User Service', () => {
 					posts: [],
 					organizations: [],
 					attendances: [],
-					createdAt: new Date()
+					createdAt: new Date(),
 				});
 			});
 
@@ -772,7 +788,7 @@ describe('User Service', () => {
 					posts: [],
 					organizations: [],
 					attendances: [],
-					createdAt: new Date()
+					createdAt: new Date(),
 				});
 			});
 
@@ -790,7 +806,7 @@ describe('User Service', () => {
 				profilePhotoUrl: 'mockedProfilePhotoUrl',
 				friends: [new mongoose.Schema.Types.ObjectId('mockedId2')],
 				friendRequests: [],
-				createdAt: new Date()
+				createdAt: new Date(),
 			} as UserDoc);
 
 			const result = await userService.handleFriendRequest('mockedId', 'mockedId2', true);
@@ -818,7 +834,7 @@ describe('User Service', () => {
 					posts: [],
 					organizations: [],
 					attendances: [],
-					createdAt: new Date()
+					createdAt: new Date(),
 				});
 			});
 
@@ -840,7 +856,7 @@ describe('User Service', () => {
 					posts: [],
 					organizations: [],
 					attendances: [],
-					createdAt: new Date()
+					createdAt: new Date(),
 				});
 			});
 
@@ -858,7 +874,7 @@ describe('User Service', () => {
 				profilePhotoUrl: 'mockedProfilePhotoUrl',
 				friends: [],
 				friendRequests: [],
-				createdAt: new Date()
+				createdAt: new Date(),
 			} as UserDoc);
 
 			const result = await userService.handleFriendRequest('mockedId', 'mockedId2', false);
@@ -888,7 +904,7 @@ describe('User Service', () => {
 					posts: [],
 					organizations: [],
 					attendances: [],
-					createdAt: new Date()
+					createdAt: new Date(),
 				});
 			});
 
@@ -919,7 +935,7 @@ describe('User Service', () => {
 					posts: [],
 					organizations: [],
 					attendances: [],
-					createdAt: new Date()
+					createdAt: new Date(),
 				});
 			});
 
@@ -941,7 +957,7 @@ describe('User Service', () => {
 					posts: [],
 					organizations: [],
 					attendances: [],
-					createdAt: new Date()
+					createdAt: new Date(),
 				});
 			});
 
@@ -970,7 +986,7 @@ describe('User Service', () => {
 					posts: [],
 					organizations: [],
 					attendances: [],
-					createdAt: new Date()
+					createdAt: new Date(),
 				});
 			});
 
@@ -992,7 +1008,7 @@ describe('User Service', () => {
 					posts: [],
 					organizations: [],
 					attendances: [],
-					createdAt: new Date()
+					createdAt: new Date(),
 				});
 			});
 
@@ -1010,7 +1026,7 @@ describe('User Service', () => {
 				profilePhotoUrl: 'mockedProfilePhotoUrl',
 				friends: [],
 				friendRequests: [],
-				createdAt: new Date()
+				createdAt: new Date(),
 			} as UserDoc);
 
 			const result = await userService.unfriend('mockedId', 'mockedId2');
@@ -1049,7 +1065,7 @@ describe('User Service', () => {
 					posts: [],
 					organizations: [],
 					attendances: [],
-					createdAt: new Date()
+					createdAt: new Date(),
 				});
 			});
 
@@ -1078,7 +1094,7 @@ describe('User Service', () => {
 					posts: [],
 					organizations: [],
 					attendances: [],
-					createdAt: new Date()
+					createdAt: new Date(),
 				});
 			});
 
@@ -1109,7 +1125,7 @@ describe('User Service', () => {
 					posts: [],
 					organizations: [],
 					attendances: [],
-					createdAt: new Date()
+					createdAt: new Date(),
 				});
 			});
 
@@ -1128,7 +1144,7 @@ describe('User Service', () => {
 				profilePhotoUrl: null,
 				friends: [],
 				friendRequests: [],
-				createdAt: new Date()
+				createdAt: new Date(),
 			} as UserDoc);
 
 			const result = await userService.deleteProfilePhoto('mockedId');

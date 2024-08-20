@@ -26,6 +26,10 @@ export class Club extends Entity {
 		this.createdAt = new Date(Date.now());
 	}
 
+	getPresidentId(): string {
+		return this.president.toString();
+	}
+
 	isOrganizer(userId: Schema.Types.ObjectId): boolean {
 		return this.organizers.includes(userId) ? true : false;
 	}

@@ -38,7 +38,7 @@ describe('Post Service', () => {
 				university: 'University of the People',
 				status: { emailVerification: true, accountActive: true },
 				organizations: [],
-				studentEmail: 'studentEmail@example.com'
+				studentEmail: 'studentEmail@example.com',
 			});
 		});
 
@@ -48,16 +48,16 @@ describe('Post Service', () => {
 				creator: 'MockId1',
 				content: {
 					caption: 'Caption',
-					mediaUrls: ['mediaUrl']
+					mediaUrls: ['mediaUrl'],
 				},
 				likes: ['MockId1'],
-				likeCount: 0,
+
 				createdAt: new Date(),
 				comments: [],
 				commentCount: 0,
 				poll: null,
 				event: null,
-				isUpdated: false
+				isUpdated: false,
 			});
 		});
 	});
@@ -69,7 +69,7 @@ describe('Post Service', () => {
 	describe('Create Post', () => {
 		it('should return an error when media or caption did not provided', async () => {
 			const postInput: PostInputDto = {
-				caption: ''
+				caption: '',
 			};
 
 			const files: Express.Multer.File[] = [];
@@ -82,7 +82,7 @@ describe('Post Service', () => {
 
 		it('should return an error when media is more than 10', async () => {
 			const postInput: PostInputDto = {
-				caption: 'Caption'
+				caption: 'Caption',
 			};
 
 			const files: Express.Multer.File[] = [];
@@ -98,7 +98,7 @@ describe('Post Service', () => {
 					path: 'uploads/mockedProfilePhotoUrl',
 					stream: null,
 					size: 10000,
-					destination: 'uploads/'
+					destination: 'uploads/',
 				});
 			}
 
@@ -110,7 +110,7 @@ describe('Post Service', () => {
 
 		it('should create a post successfully with valid data', async () => {
 			const postInput: PostInputDto = {
-				caption: 'Caption'
+				caption: 'Caption',
 			};
 
 			const files: Express.Multer.File[] = [];
@@ -125,7 +125,7 @@ describe('Post Service', () => {
 				path: 'uploads/mockedProfilePhotoUrl',
 				stream: null,
 				size: 10000,
-				destination: 'uploads/'
+				destination: 'uploads/',
 			});
 
 			jest.spyOn(cloudinaryService, 'handleUpload').mockImplementation(async () => {
@@ -138,16 +138,16 @@ describe('Post Service', () => {
 					creator: new Schema.Types.ObjectId('MockId'),
 					content: {
 						caption: 'Caption',
-						mediaUrls: ['mediaUrl']
+						mediaUrls: ['mediaUrl'],
 					},
 					likes: [],
-					likeCount: 0,
+
 					createdAt: new Date(),
 					comments: [],
 					commentCount: 0,
 					poll: null,
 					event: null,
-					isUpdated: false
+					isUpdated: false,
 				} as PostDoc;
 			});
 
@@ -160,24 +160,23 @@ describe('Post Service', () => {
 
 	describe('Get All Posts', () => {
 		it('should return all posts successfully', async () => {
-			jest.spyOn(postRepository, 'getAllPosts').mockImplementation(async () => {
+			jest.spyOn(postRepository, 'getAllPopulatedPosts').mockImplementation(async () => {
 				return [
 					{
 						_id: 'MockId',
 						creator: new Schema.Types.ObjectId('MockId'),
 						content: {
 							caption: 'Caption',
-							mediaUrls: ['mediaUrl']
+							mediaUrls: ['mediaUrl'],
 						},
 						likes: [],
-						likeCount: 0,
 						createdAt: new Date(),
 						comments: [],
 						commentCount: 0,
 						poll: null,
 						event: null,
-						isUpdated: false
-					} as PostDoc
+						isUpdated: false,
+					} as PostDoc,
 				];
 			});
 
@@ -197,17 +196,17 @@ describe('Post Service', () => {
 						creator: new Schema.Types.ObjectId('MockId1'),
 						content: {
 							caption: 'Caption',
-							mediaUrls: ['mediaUrl']
+							mediaUrls: ['mediaUrl'],
 						},
 						likes: [],
-						likeCount: 0,
+
 						createdAt: new Date(),
 						comments: [],
 						commentCount: 0,
 						poll: null,
 						event: null,
-						isUpdated: false
-					})
+						isUpdated: false,
+					}),
 				];
 			});
 
@@ -227,17 +226,17 @@ describe('Post Service', () => {
 						creator: new Schema.Types.ObjectId('MockId1'),
 						content: {
 							caption: 'Caption',
-							mediaUrls: ['mediaUrl']
+							mediaUrls: ['mediaUrl'],
 						},
 						likes: [],
-						likeCount: 0,
+
 						createdAt: new Date(),
 						comments: [],
 						commentCount: 0,
 						poll: null,
 						event: null,
-						isUpdated: false
-					})
+						isUpdated: false,
+					}),
 				];
 			});
 
@@ -279,7 +278,7 @@ describe('Post Service', () => {
 					university: 'University of the People',
 					status: { emailVerification: true, accountActive: true },
 					organizations: [],
-					studentEmail: 'studentEmail@example.com'
+					studentEmail: 'studentEmail@example.com',
 				});
 			});
 
@@ -301,7 +300,7 @@ describe('Post Service', () => {
 					university: 'University of the Mock',
 					status: { emailVerification: true, accountActive: true },
 					organizations: [],
-					studentEmail: 'studentEmail@example.com'
+					studentEmail: 'studentEmail@example.com',
 				});
 			});
 
@@ -331,7 +330,7 @@ describe('Post Service', () => {
 					university: 'University of the People',
 					status: { emailVerification: true, accountActive: true },
 					organizations: [],
-					studentEmail: 'studentEmail@example.com'
+					studentEmail: 'studentEmail@example.com',
 				});
 			});
 
@@ -353,7 +352,7 @@ describe('Post Service', () => {
 					university: 'University of the Mock',
 					status: { emailVerification: true, accountActive: true },
 					organizations: [],
-					studentEmail: 'studentEmail@example.com'
+					studentEmail: 'studentEmail@example.com',
 				});
 			});
 
@@ -385,7 +384,7 @@ describe('Post Service', () => {
 					university: 'University of the People',
 					status: { emailVerification: true, accountActive: true },
 					organizations: [],
-					studentEmail: 'studentEmail@example.com'
+					studentEmail: 'studentEmail@example.com',
 				});
 			});
 
@@ -407,7 +406,7 @@ describe('Post Service', () => {
 					university: 'University of the People',
 					status: { emailVerification: true, accountActive: true },
 					organizations: [],
-					studentEmail: 'studentEmail@example.com'
+					studentEmail: 'studentEmail@example.com',
 				});
 			});
 
@@ -450,7 +449,7 @@ describe('Post Service', () => {
 					university: 'University of the Mock',
 					status: { emailVerification: true, accountActive: true },
 					organizations: [],
-					studentEmail: 'studentEmail@example.com'
+					studentEmail: 'studentEmail@example.com',
 				});
 			});
 
@@ -472,7 +471,7 @@ describe('Post Service', () => {
 					university: 'University of the People',
 					status: { emailVerification: true, accountActive: true },
 					organizations: [],
-					studentEmail: 'studentEmail@example.com'
+					studentEmail: 'studentEmail@example.com',
 				});
 			});
 
@@ -502,7 +501,7 @@ describe('Post Service', () => {
 					university: 'University of the People',
 					status: { emailVerification: true, accountActive: true },
 					organizations: [],
-					studentEmail: 'studentEmail@example.com'
+					studentEmail: 'studentEmail@example.com',
 				});
 			});
 
@@ -524,7 +523,7 @@ describe('Post Service', () => {
 					university: 'University of the People',
 					status: { emailVerification: true, accountActive: true },
 					organizations: [],
-					studentEmail: 'studentEmail@example.com'
+					studentEmail: 'studentEmail@example.com',
 				});
 			});
 
@@ -556,22 +555,22 @@ describe('Post Service', () => {
 					creator: 'MockId1',
 					content: {
 						caption: 'Caption',
-						mediaUrls: ['mediaUrl']
+						mediaUrls: ['mediaUrl'],
 					},
 					likes: ['MockId1'],
-					likeCount: 0,
+
 					createdAt: new Date(),
 					comments: [],
 					commentCount: 0,
 					poll: null,
 					event: null,
-					isUpdated: true
+					isUpdated: true,
 				});
 			});
 			const result = await postService.likePost('MockId', 'MockId1');
 
 			expect(result.success).toBe(false);
-			expect(result.message).toBe('You already liked this post!');
+			expect(result.message).toBe('Error! You have already liked this post!');
 		});
 
 		it('should like post successfully', async () => {
@@ -581,16 +580,16 @@ describe('Post Service', () => {
 					creator: 'MockId1',
 					content: {
 						caption: 'Caption',
-						mediaUrls: ['mediaUrl']
+						mediaUrls: ['mediaUrl'],
 					},
 					likes: [],
-					likeCount: 0,
+
 					createdAt: new Date(),
 					comments: [],
 					commentCount: 0,
 					poll: null,
 					event: null,
-					isUpdated: false
+					isUpdated: false,
 				});
 			});
 
@@ -600,16 +599,16 @@ describe('Post Service', () => {
 					creator: 'MockId1',
 					content: {
 						caption: 'Caption',
-						mediaUrls: ['mediaUrl']
+						mediaUrls: ['mediaUrl'],
 					},
 					likes: ['MockId1'],
-					likeCount: 0,
+
 					createdAt: new Date(),
 					comments: [],
 					commentCount: 0,
 					poll: null,
 					event: null,
-					isUpdated: false
+					isUpdated: false,
 				});
 			});
 
@@ -628,16 +627,16 @@ describe('Post Service', () => {
 					creator: 'MockId1',
 					content: {
 						caption: 'Caption',
-						mediaUrls: ['mediaUrl']
+						mediaUrls: ['mediaUrl'],
 					},
 					likes: [],
-					likeCount: 0,
+
 					createdAt: new Date(),
 					comments: [],
 					commentCount: 0,
 					poll: null,
 					event: null,
-					isUpdated: false
+					isUpdated: false,
 				});
 			});
 
@@ -654,16 +653,16 @@ describe('Post Service', () => {
 					creator: 'MockId1',
 					content: {
 						caption: 'Caption',
-						mediaUrls: ['mediaUrl']
+						mediaUrls: ['mediaUrl'],
 					},
 					likes: ['MockId1'],
-					likeCount: 0,
+
 					createdAt: new Date(),
 					comments: [],
 					commentCount: 0,
 					poll: null,
 					event: null,
-					isUpdated: false
+					isUpdated: false,
 				});
 			});
 
@@ -673,16 +672,16 @@ describe('Post Service', () => {
 					creator: 'MockId1',
 					content: {
 						caption: 'Caption',
-						mediaUrls: ['mediaUrl']
+						mediaUrls: ['mediaUrl'],
 					},
 					likes: [],
-					likeCount: 0,
+
 					createdAt: new Date(),
 					comments: [],
 					commentCount: 0,
 					poll: null,
 					event: null,
-					isUpdated: false
+					isUpdated: false,
 				});
 			});
 
@@ -712,16 +711,16 @@ describe('Post Service', () => {
 					creator: 'MockId2',
 					content: {
 						caption: 'Caption',
-						mediaUrls: ['mediaUrl']
+						mediaUrls: ['mediaUrl'],
 					},
 					likes: [],
-					likeCount: 0,
+
 					createdAt: new Date(),
 					comments: [],
 					commentCount: 0,
 					poll: null,
 					event: null,
-					isUpdated: false
+					isUpdated: false,
 				});
 			});
 
@@ -738,16 +737,16 @@ describe('Post Service', () => {
 					creator: 'MockId1',
 					content: {
 						caption: 'Caption',
-						mediaUrls: ['mediaUrl', 'mediaUrl1']
+						mediaUrls: ['mediaUrl', 'mediaUrl1'],
 					},
 					likes: [],
-					likeCount: 0,
+
 					createdAt: new Date(),
 					comments: [],
 					commentCount: 0,
 					poll: null,
 					event: null,
-					isUpdated: false
+					isUpdated: false,
 				});
 			});
 
@@ -768,20 +767,20 @@ describe('Post Service', () => {
 		it('should delete post successfully', async () => {
 			jest.spyOn(postRepository, 'getById').mockImplementationOnce(async () => {
 				return new Post({
-					_id: "MockId",
+					_id: 'MockId',
 					creator: 'MockId1',
 					content: {
 						caption: 'Caption',
-						mediaUrls: ['mediaUrl', 'mediaUrl1']
+						mediaUrls: ['mediaUrl', 'mediaUrl1'],
 					},
 					likes: [],
-					likeCount: 0,
+
 					createdAt: new Date(),
 					comments: [],
 					commentCount: 0,
 					poll: null,
 					event: null,
-					isUpdated: false
+					isUpdated: false,
 				});
 			});
 

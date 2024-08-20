@@ -9,7 +9,6 @@ import { DataResult } from '../types/result/DataResult';
 import { PostDoc } from '../models/schemas/post.schema';
 import PostListDto from '../models/dtos/post/post-list';
 import { PostDetails } from '../models/dtos/post/post-details';
-import { PostForLike } from '../models/dtos/post/post-for-like';
 import { Result } from '../types/result/Result';
 
 @injectable()
@@ -61,7 +60,7 @@ export class PostController {
 			if (result.success) {
 				return res.status(result.statusCode).json({
 					message: result.message,
-					data: result.data
+					data: result.data,
 				});
 			}
 
@@ -78,7 +77,7 @@ export class PostController {
 			if (result.success)
 				return res.status(result.statusCode).json({
 					message: result.message,
-					data: result.data
+					data: result.data,
 				});
 
 			return res.status(result.statusCode).json({ result });
@@ -95,7 +94,7 @@ export class PostController {
 			if (result.success)
 				return res.status(result.statusCode).json({
 					message: result.message,
-					data: result.data
+					data: result.data,
 				});
 
 			return res.status(result.statusCode).json({ result });
@@ -114,7 +113,7 @@ export class PostController {
 			if (result.success)
 				return res.status(result.statusCode).json({
 					message: result.message,
-					data: result.data
+					data: result.data,
 				});
 
 			return res.status(result.statusCode).json({ result });
@@ -128,11 +127,11 @@ export class PostController {
 			const postId: string = req.params.postId;
 			const userId: string = req.userId;
 
-			const result: DataResult<PostForLike> = await this._postService.likePost(postId, userId);
+			const result: DataResult<number> = await this._postService.likePost(postId, userId);
 
 			return res.status(result.statusCode).json({
 				message: result.message,
-				data: result.data
+				data: result.data,
 			});
 		} catch (err) {
 			next(err);
@@ -144,11 +143,11 @@ export class PostController {
 			const postId: string = req.params.postId;
 			const userId: string = req.userId;
 
-			const result: DataResult<PostForLike> = await this._postService.unlikePost(postId, userId);
+			const result: DataResult<number> = await this._postService.unlikePost(postId, userId);
 
 			return res.status(result.statusCode).json({
 				message: result.message,
-				data: result.data
+				data: result.data,
 			});
 		} catch (err) {
 			next(err);
@@ -166,7 +165,7 @@ export class PostController {
 
 			return res.status(result.success ? 201 : result.statusCode).json({
 				message: result.message,
-				data: result.data
+				data: result.data,
 			});
 		} catch (err) {
 			next(err);

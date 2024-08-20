@@ -69,8 +69,7 @@ describe('Auth Service', () => {
 		jest.spyOn(User.prototype, 'comparePassword').mockResolvedValue(true);
 
 		// Mock other User methods
-		jest.spyOn(User.prototype, 'isVerified').mockReturnValue(true);
-		jest.spyOn(User.prototype, 'generateJsonWebToken').mockReturnValue('mockedToken');
+		jest.spyOn(User.prototype, 'hasVerifiedEmail').mockReturnValue(true);
 	});
 
 	describe('register', () => {
@@ -132,6 +131,31 @@ describe('Auth Service', () => {
 		};
 		it('should login a user with valid credentials', async () => {
 			// Call the method under test
+
+			jest.spyOn(userRepository, 'getByEmail').mockResolvedValueOnce(
+				new User({
+					_id: 'mockedId',
+					firstName: 'John',
+					lastName: 'Doe',
+					birthDate: new Date(),
+					email: 'john.doe@example.com',
+					password: 'password123',
+					university: 'Mocked University',
+					department: 'Mocked Department',
+					studentEmail: 'john.doe@student.example.com',
+					status: { studentVerification: true, emailVerification: true },
+					profilePhotoUrl: 'mockedProfilePhotoUrl',
+					friends: [],
+					friendRequests: [],
+					posts: [],
+					organizations: [],
+					attendances: [],
+					createdAt: new Date()
+				})
+			);
+
+			jest.spyOn(User.prototype, 'generateJsonWebToken').mockReturnValue('mockedToken');
+
 			const result = await authService.login(userData);
 
 			// Assert the expected behavior
@@ -184,7 +208,7 @@ describe('Auth Service', () => {
 
 		it('should return an error if the email is not verified', async () => {
 			// Mock isVerified to return false
-			jest.spyOn(User.prototype, 'isVerified').mockReturnValue(false);
+			jest.spyOn(User.prototype, 'hasVerifiedEmail').mockReturnValue(false);
 
 			// Call the method under test
 			const result = await authService.login(userData);

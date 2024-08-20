@@ -10,6 +10,20 @@ import { param } from 'express-validator';
 const controller: PostController = container.get<PostController>(PostController);
 
 function routes(app: Express) {
+
+	/**
+	 * @swagger
+	 * '/post/create':
+	 *  post:
+	 *   tags:
+	 *     - Create Post
+	 *   summary: Create a new post
+	 *   requestBody:
+	 *     required: true
+	 *     contents:
+	 * 		application/json:
+	 * 			schema:
+	 */
 	app.post('/post/create', logRequest, mediaUpload, isAuth, async (req: Request, res: Response, next: NextFunction) => {
 		await controller.createPost(req, res, next);
 	});

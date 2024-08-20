@@ -34,7 +34,7 @@ export class CommentService implements ICommentService {
 					success: false,
 					message: 'User not found',
 					data: null,
-					statusCode: 404
+					statusCode: 404,
 				};
 				return result;
 			}
@@ -42,7 +42,10 @@ export class CommentService implements ICommentService {
 			const comment: Comment = new Comment({
 				content: commentInput.content,
 				creator: creator._id,
-				post: commentInput.postId
+				post: commentInput.postId,
+				replies: [],
+				likes: [],
+				isUpdated: false,
 			});
 
 			const post: Post = await this.postRepository.getById(comment.getPostId());
@@ -52,7 +55,7 @@ export class CommentService implements ICommentService {
 					success: false,
 					message: 'Post not found',
 					data: null,
-					statusCode: 404
+					statusCode: 404,
 				};
 				return result;
 			}
@@ -63,7 +66,7 @@ export class CommentService implements ICommentService {
 				success: true,
 				message: 'Comment created successfully',
 				data: createdComment,
-				statusCode: 201
+				statusCode: 201,
 			};
 
 			return result;
@@ -86,7 +89,7 @@ export class CommentService implements ICommentService {
 					success: false,
 					message: 'User not found',
 					data: null,
-					statusCode: 404
+					statusCode: 404,
 				};
 				return result;
 			}
@@ -98,7 +101,7 @@ export class CommentService implements ICommentService {
 					success: false,
 					message: 'Comment not found',
 					data: null,
-					statusCode: 404
+					statusCode: 404,
 				};
 				return result;
 			}
@@ -106,7 +109,10 @@ export class CommentService implements ICommentService {
 			const reply: Comment = new Comment({
 				content: replyInput.content,
 				creator: creator._id,
-				post: repliedComment.post
+				post: repliedComment.post,
+				replies: [],
+				likes: [],
+				isUpdated: false,
 			});
 
 			const post: Post = await this.postRepository.getById(reply.getPostId());
@@ -116,7 +122,7 @@ export class CommentService implements ICommentService {
 					success: false,
 					message: 'Post not found',
 					data: null,
-					statusCode: 404
+					statusCode: 404,
 				};
 				return result;
 			}
@@ -128,7 +134,7 @@ export class CommentService implements ICommentService {
 					success: false,
 					message: 'Post not found',
 					data: null,
-					statusCode: 404
+					statusCode: 404,
 				};
 				return result;
 			}
@@ -138,7 +144,7 @@ export class CommentService implements ICommentService {
 					success: false,
 					message: 'Post not found',
 					data: null,
-					statusCode: 404
+					statusCode: 404,
 				};
 				return result;
 			}
@@ -149,7 +155,7 @@ export class CommentService implements ICommentService {
 				success: true,
 				message: 'Comment created successfully',
 				data: createdComment,
-				statusCode: 201
+				statusCode: 201,
 			};
 
 			return result;
@@ -171,7 +177,7 @@ export class CommentService implements ICommentService {
 					success: false,
 					message: 'Post not found',
 					data: null,
-					statusCode: 404
+					statusCode: 404,
 				};
 				return result;
 			}
@@ -182,7 +188,7 @@ export class CommentService implements ICommentService {
 				success: true,
 				message: 'Comments retrieved successfully',
 				data: postComments,
-				statusCode: 200
+				statusCode: 200,
 			};
 
 			return result;
@@ -199,7 +205,7 @@ export class CommentService implements ICommentService {
 				const result: Result = {
 					success: false,
 					message: 'User not found',
-					statusCode: 404
+					statusCode: 404,
 				};
 				return result;
 			}
@@ -210,7 +216,7 @@ export class CommentService implements ICommentService {
 				const result: Result = {
 					success: false,
 					message: 'Comment not found',
-					statusCode: 404
+					statusCode: 404,
 				};
 				return result;
 			}
@@ -219,7 +225,7 @@ export class CommentService implements ICommentService {
 				const result: Result = {
 					success: false,
 					message: 'Unauthorized',
-					statusCode: 401
+					statusCode: 401,
 				};
 				return result;
 			}
@@ -230,7 +236,7 @@ export class CommentService implements ICommentService {
 				const result: Result = {
 					success: false,
 					message: 'Comment not found',
-					statusCode: 404
+					statusCode: 404,
 				};
 				return result;
 			}
@@ -238,7 +244,7 @@ export class CommentService implements ICommentService {
 			const result: Result = {
 				success: true,
 				message: 'Comment updated successfully',
-				statusCode: 200
+				statusCode: 200,
 			};
 
 			return result;
@@ -255,7 +261,7 @@ export class CommentService implements ICommentService {
 				const result: Result = {
 					success: false,
 					message: 'Comment not found',
-					statusCode: 404
+					statusCode: 404,
 				};
 				return result;
 			}
@@ -264,7 +270,7 @@ export class CommentService implements ICommentService {
 				const result: Result = {
 					success: false,
 					message: 'Unauthorized',
-					statusCode: 401
+					statusCode: 401,
 				};
 				return result;
 			}
@@ -275,7 +281,7 @@ export class CommentService implements ICommentService {
 				const result: Result = {
 					success: false,
 					message: 'Comment not found',
-					statusCode: 404
+					statusCode: 404,
 				};
 				return result;
 			}
@@ -283,7 +289,7 @@ export class CommentService implements ICommentService {
 			const result: Result = {
 				success: true,
 				message: 'Comment deleted successfully',
-				statusCode: 200
+				statusCode: 200,
 			};
 
 			return result;
