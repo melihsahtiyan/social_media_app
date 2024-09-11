@@ -1,7 +1,7 @@
-import { Schema } from 'mongoose';
+import { ObjectId } from '../../../types/ObjectId';
 
 export interface UserForSearchDto {
-	_id: Schema.Types.ObjectId;
+	_id: ObjectId;
 	fullName: string;
 	profilePhotoUrl: string;
 	isFriend: boolean;

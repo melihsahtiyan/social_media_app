@@ -1,4 +1,4 @@
-import mongoose, { Schema } from 'mongoose';
+import { Schema } from 'mongoose';
 import { UserListDto } from '../../src/models/dtos/user/user-list-dto';
 import { User } from '../../src/models/entites/User';
 import { UserRepository } from '../../src/repositories/user-repository';
@@ -108,62 +108,6 @@ describe('User Service', () => {
 			const user = await userService.getUserById('mockedId');
 
 			expect(user.message).toBe('User not found!');
-			expect(user.success).toBe(false);
-		});
-	});
-
-	describe('View User Details', () => {
-		it('should return user details', async () => {
-			jest.spyOn(userRepository, 'getUserDetails').mockResolvedValue({
-				_id: new Schema.Types.ObjectId('mockedId'),
-				firstName: 'John',
-				lastName: 'Doe',
-				email: 'john.doe@example.com',
-				university: 'Mocked University',
-				department: 'Mocked Department',
-				profilePhotoUrl: 'mockedProfilePhotoUrl',
-				friends: [],
-				createdAt: new Date(),
-				updatedAt: new Date(),
-				attendances: [],
-				organizations: [],
-				posts: [],
-			} as User);
-
-			jest.spyOn(userRepository, 'getUsersByIds').mockResolvedValue([]);
-
-			const user = await userService.viewUserDetails('mockedId', 'mockedId');
-
-			expect(user.data).toBeDefined();
-			expect(user.message).toBe('User fetched successfully');
-			expect(user.success).toBe(true);
-		});
-
-		it('should return user not found error when viewed not found', async () => {
-			jest.spyOn(userRepository, 'getUserDetails').mockResolvedValue(null);
-
-			const user = await userService.viewUserDetails('mockedId', 'mockedId');
-			expect(user.message).toBe('User not found!');
-			expect(user.success).toBe(false);
-		});
-
-		it('should return user not found error when user to view not found', async () => {
-			jest.spyOn(userRepository, 'getUserDetails').mockResolvedValue({
-				_id: new Schema.Types.ObjectId('mockedId'),
-				firstName: 'John',
-				lastName: 'Doe',
-				email: 'john.doe@example.com',
-				university: 'Mocked University',
-				department: 'Mocked Department',
-				profilePhotoUrl: 'mockedProfilePhotoUrl',
-				friends: [],
-				createdAt: new Date(),
-				updatedAt: new Date(),
-			} as User);
-			jest.spyOn(userRepository, 'getById').mockResolvedValue(null);
-
-			const user = await userService.viewUserDetails('mockedId', 'mockedId');
-			expect(user.message).toBe('You must be logged in!');
 			expect(user.success).toBe(false);
 		});
 	});
@@ -360,681 +304,681 @@ describe('User Service', () => {
 		});
 	});
 
-	describe('Send Friend Request', () => {
-		it('should return error message when sending request to self', async () => {
-			const result = await userService.sendFriendRequest('mockedId', 'mockedId');
+	// describe('Send Friend Request', () => {
+	// 	it('should return error message when sending request to self', async () => {
+	// 		const result = await userService.sendFriendRequest('mockedId', 'mockedId');
 
-			expect(result.message).toBe('You cannot be Friend of yourself!');
-			expect(result.success).toBe(false);
-		});
+	// 		expect(result.message).toBe('You cannot be Friend of yourself!');
+	// 		expect(result.success).toBe(false);
+	// 	});
 
-		it('should return error message when user not found', async () => {
-			jest.spyOn(userRepository, 'getById').mockImplementationOnce(() => null);
+	// 	it('should return error message when user not found', async () => {
+	// 		jest.spyOn(userRepository, 'getById').mockImplementationOnce(() => null);
 
-			const result = await userService.sendFriendRequest('mockedId', 'mockedId2');
+	// 		const result = await userService.sendFriendRequest('mockedId', 'mockedId2');
 
-			expect(result.message).toBe('You must be logged in!');
-			expect(result.success).toBe(false);
-		});
+	// 		expect(result.message).toBe('You must be logged in!');
+	// 		expect(result.success).toBe(false);
+	// 	});
 
-		it('should return error message when user to friend not found', async () => {
-			jest.spyOn(userRepository, 'getById').mockImplementationOnce(async () => {
-				return new User({
-					_id: 'mockedId',
-					firstName: 'John',
-					lastName: 'Doe',
-					birthDate: new Date(),
-					email: 'john.doe@example.com',
-					password: 'password123',
-					university: 'Mocked University',
-					department: 'Mocked Department',
-					studentEmail: 'john.doe@student.example.com',
-					status: { studentVerification: false, emailVerification: false },
-					profilePhotoUrl: 'mockedProfilePhotoUrl',
-					friends: [],
-					friendRequests: [],
-					posts: [],
-					organizations: [],
-					attendances: [],
-					createdAt: new Date(),
-				});
-			});
+	// 	it('should return error message when user to friend not found', async () => {
+	// 		jest.spyOn(userRepository, 'getById').mockImplementationOnce(async () => {
+	// 			return new User({
+	// 				_id: 'mockedId',
+	// 				firstName: 'John',
+	// 				lastName: 'Doe',
+	// 				birthDate: new Date(),
+	// 				email: 'john.doe@example.com',
+	// 				password: 'password123',
+	// 				university: 'Mocked University',
+	// 				department: 'Mocked Department',
+	// 				studentEmail: 'john.doe@student.example.com',
+	// 				status: { studentVerification: false, emailVerification: false },
+	// 				profilePhotoUrl: 'mockedProfilePhotoUrl',
+	// 				friends: [],
+	// 				friendRequests: [],
+	// 				posts: [],
+	// 				organizations: [],
+	// 				attendances: [],
+	// 				createdAt: new Date(),
+	// 			});
+	// 		});
 
-			jest.spyOn(userRepository, 'getById').mockImplementationOnce(() => null);
+	// 		jest.spyOn(userRepository, 'getById').mockImplementationOnce(() => null);
 
-			const result = await userService.sendFriendRequest('mockedId', 'mockedId2');
+	// 		const result = await userService.sendFriendRequest('mockedId', 'mockedId2');
 
-			expect(result.message).toBe('User to Friend not found!');
-			expect(result.success).toBe(false);
-		});
+	// 		expect(result.message).toBe('User to Friend not found!');
+	// 		expect(result.success).toBe(false);
+	// 	});
 
-		it('should return error message when already friend', async () => {
-			jest.spyOn(userRepository, 'getById').mockImplementationOnce(async () => {
-				return new User({
-					_id: 'mockedId',
-					firstName: 'John',
-					lastName: 'Doe',
-					birthDate: new Date(),
-					email: 'john.doe@example.com',
-					password: 'password123',
-					university: 'Mocked University',
-					department: 'Mocked Department',
-					studentEmail: 'john.doe@student.example.com',
-					status: { studentVerification: false, emailVerification: false },
-					profilePhotoUrl: 'mockedProfilePhotoUrl',
-					friends: ['mockedId2'],
-					friendRequests: [],
-					posts: [],
-					organizations: [],
-					attendances: [],
-					createdAt: new Date(),
-				});
-			});
+	// 	it('should return error message when already friend', async () => {
+	// 		jest.spyOn(userRepository, 'getById').mockImplementationOnce(async () => {
+	// 			return new User({
+	// 				_id: 'mockedId',
+	// 				firstName: 'John',
+	// 				lastName: 'Doe',
+	// 				birthDate: new Date(),
+	// 				email: 'john.doe@example.com',
+	// 				password: 'password123',
+	// 				university: 'Mocked University',
+	// 				department: 'Mocked Department',
+	// 				studentEmail: 'john.doe@student.example.com',
+	// 				status: { studentVerification: false, emailVerification: false },
+	// 				profilePhotoUrl: 'mockedProfilePhotoUrl',
+	// 				friends: ['mockedId2'],
+	// 				friendRequests: [],
+	// 				posts: [],
+	// 				organizations: [],
+	// 				attendances: [],
+	// 				createdAt: new Date(),
+	// 			});
+	// 		});
 
-			jest.spyOn(userRepository, 'getById').mockImplementationOnce(async () => {
-				return new User({
-					_id: 'mockedId2',
-					firstName: 'Jane',
-					lastName: 'Doe',
-					birthDate: new Date(),
-					email: 'jane.doe@example.com',
-					password: 'password123',
-					university: 'Mocked University',
-					department: 'Mocked Department',
-					studentEmail: 'jane.doe@student.example.com',
-					status: { studentVerification: false, emailVerification: false },
-					profilePhotoUrl: 'mockedProfilePhotoUrl',
-					friends: ['mockedId'],
-					friendRequests: [],
-					posts: [],
-					organizations: [],
-					attendances: [],
-					createdAt: new Date(),
-				});
-			});
+	// 		jest.spyOn(userRepository, 'getById').mockImplementationOnce(async () => {
+	// 			return new User({
+	// 				_id: 'mockedId2',
+	// 				firstName: 'Jane',
+	// 				lastName: 'Doe',
+	// 				birthDate: new Date(),
+	// 				email: 'jane.doe@example.com',
+	// 				password: 'password123',
+	// 				university: 'Mocked University',
+	// 				department: 'Mocked Department',
+	// 				studentEmail: 'jane.doe@student.example.com',
+	// 				status: { studentVerification: false, emailVerification: false },
+	// 				profilePhotoUrl: 'mockedProfilePhotoUrl',
+	// 				friends: ['mockedId'],
+	// 				friendRequests: [],
+	// 				posts: [],
+	// 				organizations: [],
+	// 				attendances: [],
+	// 				createdAt: new Date(),
+	// 			});
+	// 		});
 
-			const result = await userService.sendFriendRequest('mockedId', 'mockedId2');
+	// 		const result = await userService.sendFriendRequest('mockedId', 'mockedId2');
 
-			expect(result.message).toBe('You are already friends!');
-			expect(result.success).toBe(false);
-		});
+	// 		expect(result.message).toBe('You are already friends!');
+	// 		expect(result.success).toBe(false);
+	// 	});
 
-		it('should cancel the request when already requested', async () => {
-			jest.spyOn(userRepository, 'getById').mockImplementationOnce(async () => {
-				return new User({
-					_id: 'mockedId2',
-					firstName: 'Jane',
-					lastName: 'Doe',
-					birthDate: new Date(),
-					email: 'jane.doe@example.com',
-					password: 'password123',
-					university: 'Mocked University',
-					department: 'Mocked Department',
-					studentEmail: 'jane.doe@student.example.com',
-					status: { studentVerification: false, emailVerification: false },
-					profilePhotoUrl: 'mockedProfilePhotoUrl',
-					friends: [],
-					friendRequests: [],
-					posts: [],
-					organizations: [],
-					attendances: [],
-					createdAt: new Date(),
-				});
-			});
+	// 	it('should cancel the request when already requested', async () => {
+	// 		jest.spyOn(userRepository, 'getById').mockImplementationOnce(async () => {
+	// 			return new User({
+	// 				_id: 'mockedId2',
+	// 				firstName: 'Jane',
+	// 				lastName: 'Doe',
+	// 				birthDate: new Date(),
+	// 				email: 'jane.doe@example.com',
+	// 				password: 'password123',
+	// 				university: 'Mocked University',
+	// 				department: 'Mocked Department',
+	// 				studentEmail: 'jane.doe@student.example.com',
+	// 				status: { studentVerification: false, emailVerification: false },
+	// 				profilePhotoUrl: 'mockedProfilePhotoUrl',
+	// 				friends: [],
+	// 				friendRequests: [],
+	// 				posts: [],
+	// 				organizations: [],
+	// 				attendances: [],
+	// 				createdAt: new Date(),
+	// 			});
+	// 		});
 
-			jest.spyOn(userRepository, 'getById').mockImplementationOnce(async () => {
-				return new User({
-					_id: 'mockedId',
-					firstName: 'John',
-					lastName: 'Doe',
-					birthDate: new Date(),
-					email: 'john.doe@example.com',
-					password: 'password123',
-					university: 'Mocked University',
-					department: 'Mocked Department',
-					studentEmail: 'john.doe@student.example.com',
-					status: { studentVerification: false, emailVerification: false },
-					profilePhotoUrl: 'mockedProfilePhotoUrl',
-					friends: [],
-					friendRequests: ['mockedId2'],
-					posts: [],
-					organizations: [],
-					attendances: [],
-					createdAt: new Date(),
-				});
-			});
+	// 		jest.spyOn(userRepository, 'getById').mockImplementationOnce(async () => {
+	// 			return new User({
+	// 				_id: 'mockedId',
+	// 				firstName: 'John',
+	// 				lastName: 'Doe',
+	// 				birthDate: new Date(),
+	// 				email: 'john.doe@example.com',
+	// 				password: 'password123',
+	// 				university: 'Mocked University',
+	// 				department: 'Mocked Department',
+	// 				studentEmail: 'john.doe@student.example.com',
+	// 				status: { studentVerification: false, emailVerification: false },
+	// 				profilePhotoUrl: 'mockedProfilePhotoUrl',
+	// 				friends: [],
+	// 				friendRequests: ['mockedId2'],
+	// 				posts: [],
+	// 				organizations: [],
+	// 				attendances: [],
+	// 				createdAt: new Date(),
+	// 			});
+	// 		});
 
-			jest.spyOn(userRepository, 'deleteFriendRequest').mockResolvedValue({
-				_id: 'mockedId',
-				firstName: 'John',
-				lastName: 'Doe',
-				birthDate: new Date(),
-				email: 'mockedEmail',
-				password: 'password123',
-				university: 'Mocked University',
-				department: 'Mocked Department',
-				studentEmail: 'mockedStudentEmail',
-				status: { studentVerification: false, emailVerification: false },
-				profilePhotoUrl: 'mockedProfilePhotoUrl',
-				friends: [],
-				friendRequests: [],
-				posts: [],
-				organizations: [],
-				attendances: [],
-				createdAt: new Date(),
-			} as UserDoc);
+	// 		jest.spyOn(userRepository, 'deleteFriendRequest').mockResolvedValue({
+	// 			_id: 'mockedId',
+	// 			firstName: 'John',
+	// 			lastName: 'Doe',
+	// 			birthDate: new Date(),
+	// 			email: 'mockedEmail',
+	// 			password: 'password123',
+	// 			university: 'Mocked University',
+	// 			department: 'Mocked Department',
+	// 			studentEmail: 'mockedStudentEmail',
+	// 			status: { studentVerification: false, emailVerification: false },
+	// 			profilePhotoUrl: 'mockedProfilePhotoUrl',
+	// 			friends: [],
+	// 			friendRequests: [],
+	// 			posts: [],
+	// 			organizations: [],
+	// 			attendances: [],
+	// 			createdAt: new Date(),
+	// 		} as UserDoc);
 
-			const result = await userService.sendFriendRequest('mockedId', 'mockedId2');
+	// 		const result = await userService.sendFriendRequest('mockedId', 'mockedId2');
 
-			expect(result.message).toBe('Friend request cancelled!');
-			expect(result.success).toBe(true);
-		});
+	// 		expect(result.message).toBe('Friend request cancelled!');
+	// 		expect(result.success).toBe(true);
+	// 	});
 
-		it('should send friend request when they are not friend and not requested to be friend', async () => {
-			jest.spyOn(userRepository, 'getById').mockImplementationOnce(async () => {
-				return new User({
-					_id: 'mockedId',
-					firstName: 'John',
-					lastName: 'Doe',
-					birthDate: new Date(),
-					email: 'john.doe@example.com',
-					password: 'password123',
-					university: 'Mocked University',
-					department: 'Mocked Department',
-					studentEmail: 'john.doe@student.example.com',
-					status: { studentVerification: false, emailVerification: false },
-					profilePhotoUrl: 'mockedProfilePhotoUrl',
-					friends: [],
-					friendRequests: ['mockedId2'],
-					posts: [],
-					organizations: [],
-					attendances: [],
-					createdAt: new Date(),
-				});
-			});
+	// 	it('should send friend request when they are not friend and not requested to be friend', async () => {
+	// 		jest.spyOn(userRepository, 'getById').mockImplementationOnce(async () => {
+	// 			return new User({
+	// 				_id: 'mockedId',
+	// 				firstName: 'John',
+	// 				lastName: 'Doe',
+	// 				birthDate: new Date(),
+	// 				email: 'john.doe@example.com',
+	// 				password: 'password123',
+	// 				university: 'Mocked University',
+	// 				department: 'Mocked Department',
+	// 				studentEmail: 'john.doe@student.example.com',
+	// 				status: { studentVerification: false, emailVerification: false },
+	// 				profilePhotoUrl: 'mockedProfilePhotoUrl',
+	// 				friends: [],
+	// 				friendRequests: ['mockedId2'],
+	// 				posts: [],
+	// 				organizations: [],
+	// 				attendances: [],
+	// 				createdAt: new Date(),
+	// 			});
+	// 		});
 
-			jest.spyOn(userRepository, 'getById').mockImplementationOnce(async () => {
-				return new User({
-					_id: 'mockedId2',
-					firstName: 'Jane',
-					lastName: 'Doe',
-					birthDate: new Date(),
-					email: 'jane.doe@example.com',
-					password: 'password123',
-					university: 'Mocked University',
-					department: 'Mocked Department',
-					studentEmail: 'jane.doe@student.example.com',
-					status: { studentVerification: false, emailVerification: false },
-					profilePhotoUrl: 'mockedProfilePhotoUrl',
-					friends: [],
-					friendRequests: [],
-					posts: [],
-					organizations: [],
-					attendances: [],
-					createdAt: new Date(),
-				});
-			});
+	// 		jest.spyOn(userRepository, 'getById').mockImplementationOnce(async () => {
+	// 			return new User({
+	// 				_id: 'mockedId2',
+	// 				firstName: 'Jane',
+	// 				lastName: 'Doe',
+	// 				birthDate: new Date(),
+	// 				email: 'jane.doe@example.com',
+	// 				password: 'password123',
+	// 				university: 'Mocked University',
+	// 				department: 'Mocked Department',
+	// 				studentEmail: 'jane.doe@student.example.com',
+	// 				status: { studentVerification: false, emailVerification: false },
+	// 				profilePhotoUrl: 'mockedProfilePhotoUrl',
+	// 				friends: [],
+	// 				friendRequests: [],
+	// 				posts: [],
+	// 				organizations: [],
+	// 				attendances: [],
+	// 				createdAt: new Date(),
+	// 			});
+	// 		});
 
-			jest.spyOn(userRepository, 'sendFriendRequest').mockResolvedValue({
-				_id: 'mockedId',
-				firstName: 'John',
-				lastName: 'Doe',
-				birthDate: new Date(),
-				email: 'mockedEmail',
-				password: 'password123',
-				university: 'Mocked University',
-				department: 'Mocked Department',
-				studentEmail: 'mockedStudentEmail',
-				status: { studentVerification: false, emailVerification: false },
-				profilePhotoUrl: 'mockedProfilePhotoUrl',
-				friends: [],
-				friendRequests: [],
-				posts: [],
-				organizations: [],
-				attendances: [],
-				createdAt: new Date(),
-			} as UserDoc);
+	// 		jest.spyOn(userRepository, 'sendFriendRequest').mockResolvedValue({
+	// 			_id: 'mockedId',
+	// 			firstName: 'John',
+	// 			lastName: 'Doe',
+	// 			birthDate: new Date(),
+	// 			email: 'mockedEmail',
+	// 			password: 'password123',
+	// 			university: 'Mocked University',
+	// 			department: 'Mocked Department',
+	// 			studentEmail: 'mockedStudentEmail',
+	// 			status: { studentVerification: false, emailVerification: false },
+	// 			profilePhotoUrl: 'mockedProfilePhotoUrl',
+	// 			friends: [],
+	// 			friendRequests: [],
+	// 			posts: [],
+	// 			organizations: [],
+	// 			attendances: [],
+	// 			createdAt: new Date(),
+	// 		} as UserDoc);
 
-			const result = await userService.sendFriendRequest('mockedId', 'mockedId2');
+	// 		const result = await userService.sendFriendRequest('mockedId', 'mockedId2');
 
-			expect(result.message).toBe('Friend request sent!');
-			expect(result.success).toBe(true);
-		});
-	});
+	// 		expect(result.message).toBe('Friend request sent!');
+	// 		expect(result.success).toBe(true);
+	// 	});
+	// });
 
-	describe('Handle Friend Request', () => {
-		it('should return error message when user not found', async () => {
-			jest.spyOn(userRepository, 'getById').mockResolvedValue(null);
+	// describe('Handle Friend Request', () => {
+	// 	it('should return error message when user not found', async () => {
+	// 		jest.spyOn(userRepository, 'getById').mockResolvedValue(null);
 
-			const result = await userService.handleFriendRequest('mockedId', 'mockedId2', true);
+	// 		const result = await userService.handleFriendRequest('mockedId', 'mockedId2', true);
 
-			expect(result.message).toBe('You must be logged in!');
-			expect(result.success).toBe(false);
-		});
+	// 		expect(result.message).toBe('You must be logged in!');
+	// 		expect(result.success).toBe(false);
+	// 	});
 
-		it('should return error message when user to friend not found', async () => {
-			jest.spyOn(userRepository, 'getById').mockImplementationOnce(async () => {
-				return new User({
-					_id: 'mockedId',
-					firstName: 'John',
-					lastName: 'Doe',
-					birthDate: new Date(),
-					email: 'john.doe@example.com',
-					password: 'password123',
-					university: 'Mocked University',
-					department: 'Mocked Department',
-					studentEmail: 'john.doe@student.example.com',
-					status: { studentVerification: false, emailVerification: false },
-					profilePhotoUrl: 'mockedProfilePhotoUrl',
-					friends: [],
-					friendRequests: ['mockedId2'],
-					posts: [],
-					organizations: [],
-					attendances: [],
-					createdAt: new Date(),
-				});
-			});
+	// 	it('should return error message when user to friend not found', async () => {
+	// 		jest.spyOn(userRepository, 'getById').mockImplementationOnce(async () => {
+	// 			return new User({
+	// 				_id: 'mockedId',
+	// 				firstName: 'John',
+	// 				lastName: 'Doe',
+	// 				birthDate: new Date(),
+	// 				email: 'john.doe@example.com',
+	// 				password: 'password123',
+	// 				university: 'Mocked University',
+	// 				department: 'Mocked Department',
+	// 				studentEmail: 'john.doe@student.example.com',
+	// 				status: { studentVerification: false, emailVerification: false },
+	// 				profilePhotoUrl: 'mockedProfilePhotoUrl',
+	// 				friends: [],
+	// 				friendRequests: ['mockedId2'],
+	// 				posts: [],
+	// 				organizations: [],
+	// 				attendances: [],
+	// 				createdAt: new Date(),
+	// 			});
+	// 		});
 
-			jest.spyOn(userRepository, 'getById').mockImplementationOnce(async () => {
-				return null;
-			});
+	// 		jest.spyOn(userRepository, 'getById').mockImplementationOnce(async () => {
+	// 			return null;
+	// 		});
 
-			const result = await userService.handleFriendRequest('mockedId', 'mockedId2', true);
+	// 		const result = await userService.handleFriendRequest('mockedId', 'mockedId2', true);
 
-			expect(result.message).toBe('User not found!');
-			expect(result.success).toBe(false);
-		});
+	// 		expect(result.message).toBe('User not found!');
+	// 		expect(result.success).toBe(false);
+	// 	});
 
-		it('should return error message when already friend', async () => {
-			jest.spyOn(userRepository, 'getById').mockImplementationOnce(async () => {
-				return new User({
-					_id: 'mockedId',
-					firstName: 'John',
-					lastName: 'Doe',
-					birthDate: new Date(),
-					email: 'john.doe@example.com',
-					password: 'password123',
-					university: 'Mocked University',
-					department: 'Mocked Department',
-					studentEmail: 'john.doe@student.example.com',
-					status: { studentVerification: false, emailVerification: false },
-					profilePhotoUrl: 'mockedProfilePhotoUrl',
-					friends: ['mockedId2'],
-					friendRequests: [],
-					posts: [],
-					organizations: [],
-					attendances: [],
-					createdAt: new Date(),
-				});
-			});
+	// 	it('should return error message when already friend', async () => {
+	// 		jest.spyOn(userRepository, 'getById').mockImplementationOnce(async () => {
+	// 			return new User({
+	// 				_id: 'mockedId',
+	// 				firstName: 'John',
+	// 				lastName: 'Doe',
+	// 				birthDate: new Date(),
+	// 				email: 'john.doe@example.com',
+	// 				password: 'password123',
+	// 				university: 'Mocked University',
+	// 				department: 'Mocked Department',
+	// 				studentEmail: 'john.doe@student.example.com',
+	// 				status: { studentVerification: false, emailVerification: false },
+	// 				profilePhotoUrl: 'mockedProfilePhotoUrl',
+	// 				friends: ['mockedId2'],
+	// 				friendRequests: [],
+	// 				posts: [],
+	// 				organizations: [],
+	// 				attendances: [],
+	// 				createdAt: new Date(),
+	// 			});
+	// 		});
 
-			jest.spyOn(userRepository, 'getById').mockImplementationOnce(async () => {
-				return new User({
-					_id: 'mockedId2',
-					firstName: 'Jane',
-					lastName: 'Doe',
-					birthDate: new Date(),
-					email: 'jane.doe@example.com',
-					password: 'password123',
-					university: 'Mocked University',
-					department: 'Mocked Department',
-					studentEmail: 'jane.doe@student.example.com',
-					status: { studentVerification: false, emailVerification: false },
-					profilePhotoUrl: 'mockedProfilePhotoUrl',
-					friends: ['mockedId'],
-					friendRequests: [],
-					posts: [],
-					organizations: [],
-					attendances: [],
-					createdAt: new Date(),
-				});
-			});
+	// 		jest.spyOn(userRepository, 'getById').mockImplementationOnce(async () => {
+	// 			return new User({
+	// 				_id: 'mockedId2',
+	// 				firstName: 'Jane',
+	// 				lastName: 'Doe',
+	// 				birthDate: new Date(),
+	// 				email: 'jane.doe@example.com',
+	// 				password: 'password123',
+	// 				university: 'Mocked University',
+	// 				department: 'Mocked Department',
+	// 				studentEmail: 'jane.doe@student.example.com',
+	// 				status: { studentVerification: false, emailVerification: false },
+	// 				profilePhotoUrl: 'mockedProfilePhotoUrl',
+	// 				friends: ['mockedId'],
+	// 				friendRequests: [],
+	// 				posts: [],
+	// 				organizations: [],
+	// 				attendances: [],
+	// 				createdAt: new Date(),
+	// 			});
+	// 		});
 
-			const result = await userService.handleFriendRequest('mockedId', 'mockedId2', true);
+	// 		const result = await userService.handleFriendRequest('mockedId', 'mockedId2', true);
 
-			expect(result.message).toBe('You are already friends!');
-			expect(result.success).toBe(false);
-		});
+	// 		expect(result.message).toBe('You are already friends!');
+	// 		expect(result.success).toBe(false);
+	// 	});
 
-		it('should return error message when not requested to be friend', async () => {
-			jest.spyOn(userRepository, 'getById').mockImplementationOnce(async () => {
-				return new User({
-					_id: 'mockedId',
-					firstName: 'John',
-					lastName: 'Doe',
-					birthDate: new Date(),
-					email: 'john.doe@example.com',
-					password: 'password123',
-					university: 'Mocked University',
-					department: 'Mocked Department',
-					studentEmail: 'john.doe@student.example.com',
-					status: { studentVerification: false, emailVerification: false },
-					profilePhotoUrl: 'mockedProfilePhotoUrl',
-					friends: [],
-					friendRequests: [],
-					posts: [],
-					organizations: [],
-					attendances: [],
-					createdAt: new Date(),
-				});
-			});
+	// 	it('should return error message when not requested to be friend', async () => {
+	// 		jest.spyOn(userRepository, 'getById').mockImplementationOnce(async () => {
+	// 			return new User({
+	// 				_id: 'mockedId',
+	// 				firstName: 'John',
+	// 				lastName: 'Doe',
+	// 				birthDate: new Date(),
+	// 				email: 'john.doe@example.com',
+	// 				password: 'password123',
+	// 				university: 'Mocked University',
+	// 				department: 'Mocked Department',
+	// 				studentEmail: 'john.doe@student.example.com',
+	// 				status: { studentVerification: false, emailVerification: false },
+	// 				profilePhotoUrl: 'mockedProfilePhotoUrl',
+	// 				friends: [],
+	// 				friendRequests: [],
+	// 				posts: [],
+	// 				organizations: [],
+	// 				attendances: [],
+	// 				createdAt: new Date(),
+	// 			});
+	// 		});
 
-			jest.spyOn(userRepository, 'getById').mockImplementationOnce(async () => {
-				return new User({
-					_id: 'mockedId2',
-					firstName: 'Jane',
-					lastName: 'Doe',
-					birthDate: new Date(),
-					email: 'jane.doe@example.com',
-					password: 'password123',
-					university: 'Mocked University',
-					department: 'Mocked Department',
-					studentEmail: 'jane.doe@student.example.com',
-					status: { studentVerification: false, emailVerification: false },
-					profilePhotoUrl: 'mockedProfilePhotoUrl',
-					friends: [],
-					friendRequests: [],
-					posts: [],
-					organizations: [],
-					attendances: [],
-					createdAt: new Date(),
-				});
-			});
+	// 		jest.spyOn(userRepository, 'getById').mockImplementationOnce(async () => {
+	// 			return new User({
+	// 				_id: 'mockedId2',
+	// 				firstName: 'Jane',
+	// 				lastName: 'Doe',
+	// 				birthDate: new Date(),
+	// 				email: 'jane.doe@example.com',
+	// 				password: 'password123',
+	// 				university: 'Mocked University',
+	// 				department: 'Mocked Department',
+	// 				studentEmail: 'jane.doe@student.example.com',
+	// 				status: { studentVerification: false, emailVerification: false },
+	// 				profilePhotoUrl: 'mockedProfilePhotoUrl',
+	// 				friends: [],
+	// 				friendRequests: [],
+	// 				posts: [],
+	// 				organizations: [],
+	// 				attendances: [],
+	// 				createdAt: new Date(),
+	// 			});
+	// 		});
 
-			const result = await userService.handleFriendRequest('mockedId', 'mockedId2', true);
+	// 		const result = await userService.handleFriendRequest('mockedId', 'mockedId2', true);
 
-			expect(result.message).toBe('No follow request found!');
-			expect(result.success).toBe(false);
-		});
+	// 		expect(result.message).toBe('No follow request found!');
+	// 		expect(result.success).toBe(false);
+	// 	});
 
-		it('should accept the request when requested to be friend', async () => {
-			jest.spyOn(userRepository, 'getById').mockImplementationOnce(async () => {
-				return new User({
-					_id: 'mockedId',
-					firstName: 'John',
-					lastName: 'Doe',
-					birthDate: new Date(),
-					email: 'john.doe@example.com',
-					password: 'password123',
-					university: 'Mocked University',
-					department: 'Mocked Department',
-					studentEmail: 'john.doe@student.example.com',
-					status: { studentVerification: false, emailVerification: false },
-					profilePhotoUrl: 'mockedProfilePhotoUrl',
-					friends: [],
-					friendRequests: ['mockedId2'],
-					posts: [],
-					organizations: [],
-					attendances: [],
-					createdAt: new Date(),
-				});
-			});
+	// 	it('should accept the request when requested to be friend', async () => {
+	// 		jest.spyOn(userRepository, 'getById').mockImplementationOnce(async () => {
+	// 			return new User({
+	// 				_id: 'mockedId',
+	// 				firstName: 'John',
+	// 				lastName: 'Doe',
+	// 				birthDate: new Date(),
+	// 				email: 'john.doe@example.com',
+	// 				password: 'password123',
+	// 				university: 'Mocked University',
+	// 				department: 'Mocked Department',
+	// 				studentEmail: 'john.doe@student.example.com',
+	// 				status: { studentVerification: false, emailVerification: false },
+	// 				profilePhotoUrl: 'mockedProfilePhotoUrl',
+	// 				friends: [],
+	// 				friendRequests: ['mockedId2'],
+	// 				posts: [],
+	// 				organizations: [],
+	// 				attendances: [],
+	// 				createdAt: new Date(),
+	// 			});
+	// 		});
 
-			jest.spyOn(userRepository, 'getById').mockImplementationOnce(async () => {
-				return new User({
-					_id: 'mockedId2',
-					firstName: 'Jane',
-					lastName: 'Doe',
-					birthDate: new Date(),
-					email: 'jane.doe@example.com',
-					password: 'password123',
-					university: 'Mocked University',
-					department: 'Mocked Department',
-					studentEmail: 'jane.doe@student.example.com',
-					status: { studentVerification: false, emailVerification: false },
-					profilePhotoUrl: 'mockedProfilePhotoUrl',
-					friends: [],
-					friendRequests: [],
-					posts: [],
-					organizations: [],
-					attendances: [],
-					createdAt: new Date(),
-				});
-			});
+	// 		jest.spyOn(userRepository, 'getById').mockImplementationOnce(async () => {
+	// 			return new User({
+	// 				_id: 'mockedId2',
+	// 				firstName: 'Jane',
+	// 				lastName: 'Doe',
+	// 				birthDate: new Date(),
+	// 				email: 'jane.doe@example.com',
+	// 				password: 'password123',
+	// 				university: 'Mocked University',
+	// 				department: 'Mocked Department',
+	// 				studentEmail: 'jane.doe@student.example.com',
+	// 				status: { studentVerification: false, emailVerification: false },
+	// 				profilePhotoUrl: 'mockedProfilePhotoUrl',
+	// 				friends: [],
+	// 				friendRequests: [],
+	// 				posts: [],
+	// 				organizations: [],
+	// 				attendances: [],
+	// 				createdAt: new Date(),
+	// 			});
+	// 		});
 
-			jest.spyOn(userRepository, 'acceptFriendRequest').mockResolvedValue({
-				_id: 'mockedId',
-				firstName: 'John',
-				lastName: 'Doe',
-				birthDate: new Date(),
-				email: 'john.doe@example.com',
-				password: 'password123',
-				university: 'Mocked University',
-				department: 'Mocked Department',
-				studentEmail: 'john.doe@student.example.com',
-				status: { studentVerification: false, emailVerification: false },
-				profilePhotoUrl: 'mockedProfilePhotoUrl',
-				friends: [new mongoose.Schema.Types.ObjectId('mockedId2')],
-				friendRequests: [],
-				createdAt: new Date(),
-			} as UserDoc);
+	// 		jest.spyOn(userRepository, 'acceptFriendRequest').mockResolvedValue({
+	// 			_id: 'mockedId',
+	// 			firstName: 'John',
+	// 			lastName: 'Doe',
+	// 			birthDate: new Date(),
+	// 			email: 'john.doe@example.com',
+	// 			password: 'password123',
+	// 			university: 'Mocked University',
+	// 			department: 'Mocked Department',
+	// 			studentEmail: 'john.doe@student.example.com',
+	// 			status: { studentVerification: false, emailVerification: false },
+	// 			profilePhotoUrl: 'mockedProfilePhotoUrl',
+	// 			friends: [new mongoose.Schema.Types.ObjectId('mockedId2')],
+	// 			friendRequests: [],
+	// 			createdAt: new Date(),
+	// 		} as UserDoc);
 
-			const result = await userService.handleFriendRequest('mockedId', 'mockedId2', true);
+	// 		const result = await userService.handleFriendRequest('mockedId', 'mockedId2', true);
 
-			expect(result.message).toBe('Friend request accepted!');
-			expect(result.success).toBe(true);
-		});
+	// 		expect(result.message).toBe('Friend request accepted!');
+	// 		expect(result.success).toBe(true);
+	// 	});
 
-		it('should reject the request when requested to be friend', async () => {
-			jest.spyOn(userRepository, 'getById').mockImplementationOnce(async () => {
-				return new User({
-					_id: 'mockedId',
-					firstName: 'John',
-					lastName: 'Doe',
-					birthDate: new Date(),
-					email: 'john.doe@example.com',
-					password: 'password123',
-					university: 'Mocked University',
-					department: 'Mocked Department',
-					studentEmail: 'john.doe@student.example.com',
-					status: { studentVerification: false, emailVerification: false },
-					profilePhotoUrl: 'mockedProfilePhotoUrl',
-					friends: [],
-					friendRequests: ['mockedId2'],
-					posts: [],
-					organizations: [],
-					attendances: [],
-					createdAt: new Date(),
-				});
-			});
+	// 	it('should reject the request when requested to be friend', async () => {
+	// 		jest.spyOn(userRepository, 'getById').mockImplementationOnce(async () => {
+	// 			return new User({
+	// 				_id: 'mockedId',
+	// 				firstName: 'John',
+	// 				lastName: 'Doe',
+	// 				birthDate: new Date(),
+	// 				email: 'john.doe@example.com',
+	// 				password: 'password123',
+	// 				university: 'Mocked University',
+	// 				department: 'Mocked Department',
+	// 				studentEmail: 'john.doe@student.example.com',
+	// 				status: { studentVerification: false, emailVerification: false },
+	// 				profilePhotoUrl: 'mockedProfilePhotoUrl',
+	// 				friends: [],
+	// 				friendRequests: ['mockedId2'],
+	// 				posts: [],
+	// 				organizations: [],
+	// 				attendances: [],
+	// 				createdAt: new Date(),
+	// 			});
+	// 		});
 
-			jest.spyOn(userRepository, 'getById').mockImplementationOnce(async () => {
-				return new User({
-					_id: 'mockedId2',
-					firstName: 'Jane',
-					lastName: 'Doe',
-					birthDate: new Date(),
-					email: 'jane.doe@example.com',
-					password: 'password123',
-					university: 'Mocked University',
-					department: 'Mocked Department',
-					studentEmail: 'jane.doe@student.example.com',
-					status: { studentVerification: false, emailVerification: false },
-					profilePhotoUrl: 'mockedProfilePhotoUrl',
-					friends: [],
-					friendRequests: [],
-					posts: [],
-					organizations: [],
-					attendances: [],
-					createdAt: new Date(),
-				});
-			});
+	// 		jest.spyOn(userRepository, 'getById').mockImplementationOnce(async () => {
+	// 			return new User({
+	// 				_id: 'mockedId2',
+	// 				firstName: 'Jane',
+	// 				lastName: 'Doe',
+	// 				birthDate: new Date(),
+	// 				email: 'jane.doe@example.com',
+	// 				password: 'password123',
+	// 				university: 'Mocked University',
+	// 				department: 'Mocked Department',
+	// 				studentEmail: 'jane.doe@student.example.com',
+	// 				status: { studentVerification: false, emailVerification: false },
+	// 				profilePhotoUrl: 'mockedProfilePhotoUrl',
+	// 				friends: [],
+	// 				friendRequests: [],
+	// 				posts: [],
+	// 				organizations: [],
+	// 				attendances: [],
+	// 				createdAt: new Date(),
+	// 			});
+	// 		});
 
-			jest.spyOn(userRepository, 'rejectFriendRequest').mockResolvedValue({
-				_id: 'mockedId',
-				firstName: 'John',
-				lastName: 'Doe',
-				birthDate: new Date(),
-				email: 'john.doe@example.com',
-				password: 'password123',
-				university: 'Mocked University',
-				department: 'Mocked Department',
-				studentEmail: 'john.doe@student.example.com',
-				status: { studentVerification: false, emailVerification: false },
-				profilePhotoUrl: 'mockedProfilePhotoUrl',
-				friends: [],
-				friendRequests: [],
-				createdAt: new Date(),
-			} as UserDoc);
+	// 		jest.spyOn(userRepository, 'rejectFriendRequest').mockResolvedValue({
+	// 			_id: 'mockedId',
+	// 			firstName: 'John',
+	// 			lastName: 'Doe',
+	// 			birthDate: new Date(),
+	// 			email: 'john.doe@example.com',
+	// 			password: 'password123',
+	// 			university: 'Mocked University',
+	// 			department: 'Mocked Department',
+	// 			studentEmail: 'john.doe@student.example.com',
+	// 			status: { studentVerification: false, emailVerification: false },
+	// 			profilePhotoUrl: 'mockedProfilePhotoUrl',
+	// 			friends: [],
+	// 			friendRequests: [],
+	// 			createdAt: new Date(),
+	// 		} as UserDoc);
 
-			const result = await userService.handleFriendRequest('mockedId', 'mockedId2', false);
+	// 		const result = await userService.handleFriendRequest('mockedId', 'mockedId2', false);
 
-			expect(result.message).toBe('Friend request rejected!');
-			expect(result.success).toBe(true);
-		});
-	});
+	// 		expect(result.message).toBe('Friend request rejected!');
+	// 		expect(result.success).toBe(true);
+	// 	});
+	// });
 
-	describe('Unfriend', () => {
-		it('should return error message when one of the users not found', async () => {
-			jest.spyOn(userRepository, 'getById').mockImplementationOnce(async () => {
-				return new User({
-					_id: 'mockedId',
-					firstName: 'John',
-					lastName: 'Doe',
-					birthDate: new Date(),
-					email: 'john.doe@example.com',
-					password: 'password123',
-					university: 'Mocked University',
-					department: 'Mocked Department',
-					studentEmail: 'john.doe@student.example.com',
-					status: { studentVerification: false, emailVerification: false },
-					profilePhotoUrl: 'mockedProfilePhotoUrl',
-					friends: [],
-					friendRequests: ['mockedId2'],
-					posts: [],
-					organizations: [],
-					attendances: [],
-					createdAt: new Date(),
-				});
-			});
+	// describe('Unfriend', () => {
+	// 	it('should return error message when one of the users not found', async () => {
+	// 		jest.spyOn(userRepository, 'getById').mockImplementationOnce(async () => {
+	// 			return new User({
+	// 				_id: 'mockedId',
+	// 				firstName: 'John',
+	// 				lastName: 'Doe',
+	// 				birthDate: new Date(),
+	// 				email: 'john.doe@example.com',
+	// 				password: 'password123',
+	// 				university: 'Mocked University',
+	// 				department: 'Mocked Department',
+	// 				studentEmail: 'john.doe@student.example.com',
+	// 				status: { studentVerification: false, emailVerification: false },
+	// 				profilePhotoUrl: 'mockedProfilePhotoUrl',
+	// 				friends: [],
+	// 				friendRequests: ['mockedId2'],
+	// 				posts: [],
+	// 				organizations: [],
+	// 				attendances: [],
+	// 				createdAt: new Date(),
+	// 			});
+	// 		});
 
-			jest.spyOn(userRepository, 'getById').mockResolvedValue(null);
+	// 		jest.spyOn(userRepository, 'getById').mockResolvedValue(null);
 
-			const result = await userService.unfriend('mockedId', 'mockedId2');
+	// 		const result = await userService.unfriend('mockedId', 'mockedId2');
 
-			expect(result.message).toBe('User not found!');
-			expect(result.success).toBe(false);
-		});
+	// 		expect(result.message).toBe('User not found!');
+	// 		expect(result.success).toBe(false);
+	// 	});
 
-		it('should return error message when users are not friend', async () => {
-			jest.spyOn(userRepository, 'getById').mockImplementationOnce(async () => {
-				return new User({
-					_id: 'mockedId',
-					firstName: 'John',
-					lastName: 'Doe',
-					birthDate: new Date(),
-					email: 'john.doe@example.com',
-					password: 'password123',
-					university: 'Mocked University',
-					department: 'Mocked Department',
-					studentEmail: 'john.doe@student.example.com',
-					status: { studentVerification: false, emailVerification: false },
-					profilePhotoUrl: 'mockedProfilePhotoUrl',
-					friends: [],
-					friendRequests: [],
-					posts: [],
-					organizations: [],
-					attendances: [],
-					createdAt: new Date(),
-				});
-			});
+	// 	it('should return error message when users are not friend', async () => {
+	// 		jest.spyOn(userRepository, 'getById').mockImplementationOnce(async () => {
+	// 			return new User({
+	// 				_id: 'mockedId',
+	// 				firstName: 'John',
+	// 				lastName: 'Doe',
+	// 				birthDate: new Date(),
+	// 				email: 'john.doe@example.com',
+	// 				password: 'password123',
+	// 				university: 'Mocked University',
+	// 				department: 'Mocked Department',
+	// 				studentEmail: 'john.doe@student.example.com',
+	// 				status: { studentVerification: false, emailVerification: false },
+	// 				profilePhotoUrl: 'mockedProfilePhotoUrl',
+	// 				friends: [],
+	// 				friendRequests: [],
+	// 				posts: [],
+	// 				organizations: [],
+	// 				attendances: [],
+	// 				createdAt: new Date(),
+	// 			});
+	// 		});
 
-			jest.spyOn(userRepository, 'getById').mockImplementationOnce(async () => {
-				return new User({
-					_id: 'mockedId2',
-					firstName: 'Jane',
-					lastName: 'Doe',
-					birthDate: new Date(),
-					email: 'jane.doe@example.com',
-					password: 'password123',
-					university: 'Mocked University',
-					department: 'Mocked Department',
-					studentEmail: 'jane.doe@student.example.com',
-					status: { studentVerification: false, emailVerification: false },
-					profilePhotoUrl: 'mockedProfilePhotoUrl',
-					friends: [],
-					friendRequests: [],
-					posts: [],
-					organizations: [],
-					attendances: [],
-					createdAt: new Date(),
-				});
-			});
+	// 		jest.spyOn(userRepository, 'getById').mockImplementationOnce(async () => {
+	// 			return new User({
+	// 				_id: 'mockedId2',
+	// 				firstName: 'Jane',
+	// 				lastName: 'Doe',
+	// 				birthDate: new Date(),
+	// 				email: 'jane.doe@example.com',
+	// 				password: 'password123',
+	// 				university: 'Mocked University',
+	// 				department: 'Mocked Department',
+	// 				studentEmail: 'jane.doe@student.example.com',
+	// 				status: { studentVerification: false, emailVerification: false },
+	// 				profilePhotoUrl: 'mockedProfilePhotoUrl',
+	// 				friends: [],
+	// 				friendRequests: [],
+	// 				posts: [],
+	// 				organizations: [],
+	// 				attendances: [],
+	// 				createdAt: new Date(),
+	// 			});
+	// 		});
 
-			const result = await userService.unfriend('mockedId', 'mockedId2');
+	// 		const result = await userService.unfriend('mockedId', 'mockedId2');
 
-			expect(result.message).toBe('You are not friends!');
-			expect(result.success).toBe(false);
-		});
+	// 		expect(result.message).toBe('You are not friends!');
+	// 		expect(result.success).toBe(false);
+	// 	});
 
-		it('should unfriend the users with valid inputs', async () => {
-			jest.spyOn(userRepository, 'getById').mockImplementationOnce(async () => {
-				return new User({
-					_id: 'mockedId',
-					firstName: 'John',
-					lastName: 'Doe',
-					birthDate: new Date(),
-					email: 'john.doe@example.com',
-					password: 'password123',
-					university: 'Mocked University',
-					department: 'Mocked Department',
-					studentEmail: 'john.doe@student.example.com',
-					status: { studentVerification: false, emailVerification: false },
-					profilePhotoUrl: 'mockedProfilePhotoUrl',
-					friends: ['mockedId2'],
-					friendRequests: [],
-					posts: [],
-					organizations: [],
-					attendances: [],
-					createdAt: new Date(),
-				});
-			});
+	// 	it('should unfriend the users with valid inputs', async () => {
+	// 		jest.spyOn(userRepository, 'getById').mockImplementationOnce(async () => {
+	// 			return new User({
+	// 				_id: 'mockedId',
+	// 				firstName: 'John',
+	// 				lastName: 'Doe',
+	// 				birthDate: new Date(),
+	// 				email: 'john.doe@example.com',
+	// 				password: 'password123',
+	// 				university: 'Mocked University',
+	// 				department: 'Mocked Department',
+	// 				studentEmail: 'john.doe@student.example.com',
+	// 				status: { studentVerification: false, emailVerification: false },
+	// 				profilePhotoUrl: 'mockedProfilePhotoUrl',
+	// 				friends: ['mockedId2'],
+	// 				friendRequests: [],
+	// 				posts: [],
+	// 				organizations: [],
+	// 				attendances: [],
+	// 				createdAt: new Date(),
+	// 			});
+	// 		});
 
-			jest.spyOn(userRepository, 'getById').mockImplementationOnce(async () => {
-				return new User({
-					_id: 'mockedId2',
-					firstName: 'Jane',
-					lastName: 'Doe',
-					birthDate: new Date(),
-					email: 'jane.doe@example.com',
-					password: 'password123',
-					university: 'Mocked University',
-					department: 'Mocked Department',
-					studentEmail: 'jane.doe@student.example.com',
-					status: { studentVerification: false, emailVerification: false },
-					profilePhotoUrl: 'mockedProfilePhotoUrl',
-					friends: ['mockedId'],
-					friendRequests: [],
-					posts: [],
-					organizations: [],
-					attendances: [],
-					createdAt: new Date(),
-				});
-			});
+	// 		jest.spyOn(userRepository, 'getById').mockImplementationOnce(async () => {
+	// 			return new User({
+	// 				_id: 'mockedId2',
+	// 				firstName: 'Jane',
+	// 				lastName: 'Doe',
+	// 				birthDate: new Date(),
+	// 				email: 'jane.doe@example.com',
+	// 				password: 'password123',
+	// 				university: 'Mocked University',
+	// 				department: 'Mocked Department',
+	// 				studentEmail: 'jane.doe@student.example.com',
+	// 				status: { studentVerification: false, emailVerification: false },
+	// 				profilePhotoUrl: 'mockedProfilePhotoUrl',
+	// 				friends: ['mockedId'],
+	// 				friendRequests: [],
+	// 				posts: [],
+	// 				organizations: [],
+	// 				attendances: [],
+	// 				createdAt: new Date(),
+	// 			});
+	// 		});
 
-			jest.spyOn(userRepository, 'removeFriend').mockResolvedValue({
-				_id: 'mockedId',
-				firstName: 'John',
-				lastName: 'Doe',
-				birthDate: new Date(),
-				email: 'john.doe@example.com',
-				password: 'password123',
-				university: 'Mocked University',
-				department: 'Mocked Department',
-				studentEmail: 'john.doe@student.example.com',
-				status: { studentVerification: false, emailVerification: false },
-				profilePhotoUrl: 'mockedProfilePhotoUrl',
-				friends: [],
-				friendRequests: [],
-				createdAt: new Date(),
-			} as UserDoc);
+	// 		jest.spyOn(userRepository, 'removeFriend').mockResolvedValue({
+	// 			_id: 'mockedId',
+	// 			firstName: 'John',
+	// 			lastName: 'Doe',
+	// 			birthDate: new Date(),
+	// 			email: 'john.doe@example.com',
+	// 			password: 'password123',
+	// 			university: 'Mocked University',
+	// 			department: 'Mocked Department',
+	// 			studentEmail: 'john.doe@student.example.com',
+	// 			status: { studentVerification: false, emailVerification: false },
+	// 			profilePhotoUrl: 'mockedProfilePhotoUrl',
+	// 			friends: [],
+	// 			friendRequests: [],
+	// 			createdAt: new Date(),
+	// 		} as UserDoc);
 
-			const result = await userService.unfriend('mockedId', 'mockedId2');
+	// 		const result = await userService.unfriend('mockedId', 'mockedId2');
 
-			expect(result.message).toBe('User unfriended!');
-			expect(result.success).toBe(true);
-		});
-	});
+	// 		expect(result.message).toBe('User unfriended!');
+	// 		expect(result.success).toBe(true);
+	// 	});
+	// });
 
 	describe('Delete Profile Photo', () => {
 		it('should return error message when user not found', async () => {

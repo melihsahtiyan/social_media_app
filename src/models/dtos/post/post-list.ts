@@ -1,12 +1,12 @@
-import mongoose from 'mongoose';
+import { ObjectId } from '../../../types/ObjectId';
 import { Poll } from '../../../models/entites/Poll';
 
 interface PostListDto {
-	_id: mongoose.Schema.Types.ObjectId;
-	creator: mongoose.Schema.Types.ObjectId;
+	_id: ObjectId;
+	creator: ObjectId;
 	content: { caption: string; mediaUrls: string[] };
-	likes: mongoose.Schema.Types.ObjectId[];
-	comments: mongoose.Schema.Types.ObjectId[];
+	likes: ObjectId[];
+	comments: ObjectId[];
 	poll: Poll;
 	isUpdated: boolean;
 	createdAt: Date;

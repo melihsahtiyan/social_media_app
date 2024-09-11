@@ -7,6 +7,7 @@ import mongoose from 'mongoose';
 import IPostRepository from '../types/repositories/IPostRepository';
 import { Post } from '../models/entites/Post';
 import { Schema } from 'mongoose';
+import { CustomError } from '../types/error/CustomError';
 
 @injectable()
 export class PostRepository implements IPostRepository {
@@ -15,9 +16,7 @@ export class PostRepository implements IPostRepository {
 	async createPost(postForCreate: PostForCreate): Promise<PostDoc> {
 		const createdPost: PostDoc = await posts.create({ ...postForCreate });
 
-		const creator: UserDoc = await users.findById(createdPost.creator);
-		creator.posts.push(createdPost._id);
-		await creator.save();
+		await users.findByIdAndUpdate(createdPost.creator, { $push: { posts: createdPost._id } }, { new: true });
 
 		return createdPost;
 	}
@@ -45,20 +44,15 @@ export class PostRepository implements IPostRepository {
 	// }
 
 	async getById(postId: string): Promise<Post> {
-		const result: Post = await posts.findById(postId);
-		const post: Post = new Post({
-			_id: result._id,
-			creator: result.creator,
-			content: result.content,
-			likes: result.likes,
-			comments: result.comments,
-			commentCount: result.commentCount,
-			poll: result.poll,
-			event: result.event,
-			isUpdated: result.isUpdated,
-			createdAt: result.createdAt,
-		});
-		return post;
+		try {
+			const post: PostDoc = await posts.findById(postId);
+			if (!post) {
+				throw new CustomError('Post not found', 404);
+			}
+			return new Post(post.toObject());
+		} catch (err) {
+			throw new CustomError('Failed to fetch post', 500, [err]);
+		}
 	}
 
 	async getFriendsPosts(userId: string): Promise<Post[]> {
@@ -106,17 +100,25 @@ export class PostRepository implements IPostRepository {
 	async likePost(postId: mongoose.Schema.Types.ObjectId, userId: mongoose.Schema.Types.ObjectId): Promise<Post> {
 		const post: PostDoc = await posts.findById(postId);
 
-		post.likes.push(userId);
+		const version = post.__v;
 
-		const updatedPost: PostDoc = await post.save();
+		const updatedPost: PostDoc = await posts.findByIdAndUpdate(
+			{ _id: postId, __v: version },
+			{ $push: { likes: userId } },
+			{ new: true }
+		);
 		return new Post(updatedPost.toObject());
 	}
 	async unlikePost(postId: mongoose.Schema.Types.ObjectId, userId: mongoose.Schema.Types.ObjectId): Promise<Post> {
 		const post: PostDoc = await posts.findById(postId);
 
-		post.likes = post.likes.filter(like => like.toString() !== userId.toString());
-		const updatedPost = await post.save();
+		const version = post.__v;
 
+		const updatedPost: PostDoc = await posts.findByIdAndUpdate(
+			{ _id: postId, __v: version },
+			{ $pull: { likes: userId } },
+			{ new: true }
+		);
 		return new Post(updatedPost.toObject());
 	}
 }

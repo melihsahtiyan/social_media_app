@@ -7,6 +7,7 @@ import { User } from '../../src/models/entites/User';
 import { PostDoc } from '../../src/models/schemas/post.schema';
 import { Schema } from 'mongoose';
 import { Post } from '../../src/models/entites/Post';
+import { CustomError } from '../../src/types/error/CustomError';
 
 describe('Post Service', () => {
 	let postService: PostService;
@@ -250,13 +251,13 @@ describe('Post Service', () => {
 	describe('Get Post Details', () => {
 		it('should return an error when post not found', async () => {
 			jest.spyOn(postRepository, 'getById').mockImplementationOnce(async () => {
-				return null;
+				throw new CustomError('Post not found', 404);
 			});
 
 			const result = await postService.getPostDetails('MockId', 'MockId');
 
 			expect(result.success).toBe(false);
-			expect(result.message).toBe('Post not found!');
+			expect(result.message).toBe('Post not found');
 		});
 
 		it('should return an error when post creator is not a friend or university member', async () => {

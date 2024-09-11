@@ -1,7 +1,7 @@
-import { Schema } from 'mongoose';
+import { ObjectId } from '../../../types/ObjectId';
 
 export interface UserForRequestDto {
-	_id: Schema.Types.ObjectId;
+	_id: ObjectId;
 	firstName: string;
 	lastName: string;
 	profilePhotoUrl: string;

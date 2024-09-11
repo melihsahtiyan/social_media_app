@@ -1,5 +1,5 @@
 import { Express, NextFunction, Response } from 'express';
-import { body, param } from 'express-validator';
+import { param } from 'express-validator';
 import { fileUpload } from '../util/fileUtil';
 import isAuth from '../middleware/is-auth';
 import { UserController } from '../controllers/userController';
@@ -19,17 +19,6 @@ function routes(app: Express) {
 		// #swagger.tags = ['User']
 		await controller.getAllDetails(req, res, next);
 	});
-
-	app.get(
-		'/user/viewUserDetails/userId=:userId',
-		[param('userId').isAlphanumeric().not().isEmpty()],
-		isAuth,
-		logRequest,
-		async (req: Request, res: Response, next: NextFunction) => {
-			// #swagger.tags = ['User']
-			await controller.viewUserDetails(req, res, next);
-		}
-	);
 
 	app.get(
 		'/user/viewUserProfile/userId=:userId',
@@ -58,80 +47,11 @@ function routes(app: Express) {
 		await controller.getUserByToken(req, res, next);
 	});
 
-	app.get('/user/getFriendRequests', isAuth, logRequest, async (req: Request, res: Response, next: NextFunction) => {
-		// #swagger.tags = ['User']
-		await controller.getAllFriendRequests(req, res, next);
-	});
-
 	app.put('/user/updateProfile', fileUpload, isAuth, async (req: Request, res: Response, next: NextFunction) => {
 		// #swagger.tags = ['User']
 		// #swagger.deprecated = true
 		await controller.updateProfile(req, res, next);
 	});
-
-	app.put(
-		'/user/sendFriendRequest',
-		[body('userId').isAlphanumeric().not().isEmpty().withMessage('User ID cannot be empty!')],
-		isAuth,
-		logRequest,
-		async (req: Request, res: Response, next: NextFunction) => {
-			// #swagger.tags = ['User']
-			/**
-			 * #swagger.parameters['body'] = {
-					in: 'body',
-					description: 'User data.',
-					required: true,
-					schema: {
-						userId: "660ab64a44696d035fec3a2b"
-					}
-				}
-			 */
-			await controller.sendFriendRequest(req, res, next);
-		}
-	);
-
-	app.put(
-		'/user/handleFriendRequest',
-		[body('userId').isAlphanumeric().not().isEmpty(), body('response').isBoolean().not().isEmpty()],
-		isAuth,
-		logRequest,
-		async (req: Request, res: Response, next: NextFunction) => {
-			// #swagger.tags = ['User']
-			/**
-			 * #swagger.parameters['body'] = {
-					in: 'body',
-					description: 'User data.',
-					required: true,
-					schema: {
-						userId: "660ab64a44696d035fec3a2b",
-						response: true
-					}
-				}
-			 */
-			await controller.handleFollowRequest(req, res, next);
-		}
-	);
-
-	app.put(
-		'/user/unfriend',
-		[body('userId').isAlphanumeric().not().isEmpty()],
-		isAuth,
-		logRequest,
-		async (req: Request, res: Response, next: NextFunction) => {
-			// #swagger.tags = ['User']
-			/**
-			 * #swagger.parameters['body'] = {
-					in: 'body',
-					description: 'User data.',
-					required: true,
-					schema: {
-						userId: "660ab64a44696d035fec3a2b"
-					}
-				}
-			 */
-			await controller.unfriendUser(req, res, next);
-		}
-	);
 
 	app.put(
 		'/user/changeProfilePhoto',

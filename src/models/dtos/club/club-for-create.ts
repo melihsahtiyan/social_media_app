@@ -1,4 +1,4 @@
-import { Schema } from 'mongoose';
+import { ObjectId } from '../../../types/ObjectId';
 
 export interface ClubForCreate {
 	name: string;
@@ -6,7 +6,7 @@ export interface ClubForCreate {
 	bannerUrl: string;
 	biography: string;
 	status: boolean;
-	president: Schema.Types.ObjectId;
-	organizers: Schema.Types.ObjectId[];
-	members: Schema.Types.ObjectId[];
+	president: ObjectId;
+	organizers: ObjectId[];
+	members: ObjectId[];
 }

@@ -1,13 +1,14 @@
-import { Schema } from 'mongoose';
+import { ObjectId } from '../../types/ObjectId';
+
 
 export class Poll {
 	question: string;
-	options: Array<{ optionName: string; votes: Schema.Types.ObjectId[] }>;
+	options: Array<{ optionName: string; votes: ObjectId[] }>;
 	totalVotes: number;
 	expiresAt: Date;
 	constructor(
 		question: string,
-		options: Array<{ optionName: string; votes: Schema.Types.ObjectId[] }>,
+		options: Array<{ optionName: string; votes: ObjectId[] }>,
 		totalVotes: number,
 		expiresAt: Date
 	) {
@@ -20,11 +21,11 @@ export class Poll {
 	isAuthenticVoter(voter, creator): boolean {
 		return voter.friends.includes(creator._id) || voter.university === creator.university ? true : false;
 	}
-	findVote(userId: Schema.Types.ObjectId): {
-		votes: Schema.Types.ObjectId[];
+	findVote(userId: ObjectId): {
+		votes: ObjectId[];
 		optionName: string;
 	} {
-		return this.options.find((opt) => opt.votes.includes(userId));
+		return this.options.find(opt => opt.votes.includes(userId));
 	}
 
 	isExpired(): boolean {
@@ -32,7 +33,7 @@ export class Poll {
 	}
 
 	isViableVote(optionName: string): boolean {
-		return this.options.find((opt) => opt.optionName === optionName) ? true : false;
+		return this.options.find(opt => opt.optionName === optionName) ? true : false;
 	}
 
 	// TODO: activate this method after refactoring the vote functionality

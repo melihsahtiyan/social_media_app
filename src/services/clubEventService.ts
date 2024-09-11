@@ -39,36 +39,19 @@ export class ClubEventService implements IClubEventService {
 		try {
 			const organizer: User = await this.userRepository.getById(organizerId);
 
-			if (!organizer) {
-				const result: DataResult<ClubEventInputDto> = {
-					success: false,
-					message: 'Organizer not found!',
-					statusCode: 404,
-					data: null,
-				};
-				return result;
-			}
+			if (!organizer) return { success: false, message: 'Organizer not found!', statusCode: 404, data: null };
 
 			const club: Club = await this.clubRepository.getById(clubEventInput.club);
 
-			if (!club) {
-				const result: DataResult<ClubEventInputDto> = {
-					success: false,
-					message: 'Club not found!',
-					statusCode: 404,
-					data: null,
-				};
-				return result;
-			}
+			if (!club) return { success: false, message: 'Club not found!', statusCode: 404, data: null };
 
 			if (!club.isOrganizer(organizer._id)) {
-				const result: DataResult<ClubEventInputDto> = {
+				return {
 					success: false,
 					message: 'You are not authorized to create an event for this club!',
 					statusCode: 400,
 					data: null,
 				};
-				return result;
 			}
 
 			const eventForCreate: ClubEvent = new ClubEvent({
@@ -81,7 +64,9 @@ export class ClubEventService implements IClubEventService {
 				club: club._id,
 				organizer: organizer._id,
 				isPublic: clubEventInput.isPublic,
+				isUpdated: false,
 				isOnline: clubEventInput.isOnline,
+				attendeeLimit: clubEventInput?.attendeeLimit ? clubEventInput.attendeeLimit : null,
 			});
 
 			if (file) {
@@ -92,14 +77,7 @@ export class ClubEventService implements IClubEventService {
 
 			await this.clubEventRepository.create(eventForCreate);
 
-			const result: DataResult<ClubEventInputDto> = {
-				success: true,
-				message: 'Event created successfully',
-				statusCode: 201,
-				data: clubEventInput,
-			};
-
-			return result;
+			return { success: true, message: 'Event created successfully', statusCode: 201, data: clubEventInput };
 		} catch (err) {
 			const error: CustomError = new Error(err.message);
 			error.statusCode = 500; // Internal Server Error
@@ -110,14 +88,7 @@ export class ClubEventService implements IClubEventService {
 		try {
 			const events = await this.clubEventRepository.getAllPopulated();
 
-			const result: DataResult<Array<ClubEvent>> = {
-				success: true,
-				message: 'Events listed successfully!',
-				statusCode: 200,
-				data: events,
-			};
-
-			return result;
+			return { success: true, message: 'Events listed successfully!', statusCode: 200, data: events };
 		} catch (err) {
 			const error: CustomError = new Error(err.message);
 			error.statusCode = 500; // Internal Server Error
@@ -128,15 +99,7 @@ export class ClubEventService implements IClubEventService {
 		try {
 			const event: ClubEvent = await this.clubEventRepository.getById(id);
 
-			if (!event) {
-				const result: DataResult<ClubEventDetailDto> = {
-					success: false,
-					message: 'Event not found',
-					statusCode: 404,
-					data: null,
-				};
-				return result;
-			}
+			if (!event) return { success: false, message: 'Event not found', statusCode: 404, data: null };
 
 			const club: Club = await this.clubRepository.getById(event.getClubId());
 
@@ -156,24 +119,14 @@ export class ClubEventService implements IClubEventService {
 				isPublic: event.isPublic,
 				isOnline: event.isOnline,
 				attendees: attendees.map(attendee => {
-					return {
-						_id: attendee._id,
-						firstName: attendee.firstName,
-						lastName: attendee.lastName,
-					};
+					return { _id: attendee._id, firstName: attendee.firstName, lastName: attendee.lastName };
 				}),
+				attendeeLimit: event.attendeeLimit,
 				posts: event.posts,
 				isUpdated: event.isUpdated,
 			};
 
-			const result: DataResult<ClubEventDetailDto> = {
-				success: true,
-				message: 'Event found',
-				statusCode: 200,
-				data: eventDetail,
-			};
-
-			return result;
+			return { success: true, message: 'Event found', statusCode: 200, data: eventDetail };
 		} catch (err) {
 			const error: CustomError = new Error(err.message);
 			error.statusCode = 500; // Internal Server Error
@@ -192,25 +145,9 @@ export class ClubEventService implements IClubEventService {
 
 			const events: ClubEvent[] = await this.clubEventRepository.getFutureEventsByUserId(userId);
 
-			if (!events) {
-				const result: DataResult<ClubEvent[]> = {
-					success: true,
-					message: 'Events not found',
-					statusCode: 404,
-					data: null,
-				};
+			if (!events) return { success: true, message: 'Events not found', statusCode: 404, data: null };
 
-				return result;
-			}
-
-			const result: DataResult<ClubEvent[]> = {
-				success: true,
-				message: 'Events found',
-				statusCode: 200,
-				data: events,
-			};
-
-			return result;
+			return { success: true, message: 'Events found', statusCode: 200, data: events };
 		} catch (err) {
 			const error: CustomError = new Error(err.message);
 			error.statusCode = 500; // Internal Server Error
@@ -231,24 +168,10 @@ export class ClubEventService implements IClubEventService {
 			const events: ClubEvent[] = await this.clubEventRepository.getFutureEventsByUserIdAndIsPublic(userId);
 
 			if (!events) {
-				const result: DataResult<ClubEvent[]> = {
-					success: true,
-					message: 'Events not found',
-					statusCode: 404,
-					data: null,
-				};
-
-				return result;
+				return { success: true, message: 'Events not found', statusCode: 404, data: null };
 			}
 
-			const result: DataResult<ClubEvent[]> = {
-				success: true,
-				message: 'Events fetched successfully',
-				statusCode: 200,
-				data: events,
-			};
-
-			return result;
+			return { success: true, message: 'Events fetched successfully', statusCode: 200, data: events };
 		} catch (err) {
 			const error: CustomError = new Error(err.message);
 			error.statusCode = 500; // Internal Server Error
@@ -263,49 +186,18 @@ export class ClubEventService implements IClubEventService {
 		try {
 			const organizer: User = await this.userRepository.getById(organizerId);
 
-			if (!organizer) {
-				const result: DataResult<ClubEventInputDto> = {
-					success: false,
-					message: 'Organizer not found',
-					statusCode: 404,
-					data: null,
-				};
-				return result;
-			}
+			if (!organizer) return { success: false, message: 'Organizer not found', statusCode: 404, data: null };
 
 			const event: ClubEvent = await this.clubEventRepository.getById(id);
 
-			if (!event) {
-				const result: DataResult<ClubEventInputDto> = {
-					success: false,
-					message: 'Event not found',
-					statusCode: 404,
-					data: null,
-				};
-				return result;
-			}
+			if (!event) return { success: false, message: 'Event not found', statusCode: 404, data: null };
 
 			const club: Club = await this.clubRepository.getById(clubEventInput.club);
 
-			if (!club) {
-				const result: DataResult<ClubEventInputDto> = {
-					success: false,
-					message: 'Club not found',
-					statusCode: 404,
-					data: null,
-				};
-				return result;
-			}
+			if (!club) return { success: false, message: 'Club not found', statusCode: 404, data: null };
 
-			if (!club.isOrganizer(organizer._id)) {
-				const result: DataResult<ClubEventInputDto> = {
-					success: false,
-					message: 'You are not authorized to update this event',
-					statusCode: 400,
-					data: null,
-				};
-				return result;
-			}
+			if (!club.isOrganizer(organizer._id))
+				return { success: false, message: 'You are not authorized to update this event', statusCode: 400, data: null };
 
 			const eventForUpdate: ClubEventForCreate = {
 				title: clubEventInput.title,
@@ -318,18 +210,12 @@ export class ClubEventService implements IClubEventService {
 				organizer: event.organizer,
 				isPublic: clubEventInput.isPublic,
 				isOnline: clubEventInput.isOnline,
+				attendeeLimit: clubEventInput?.attendeeLimit ? clubEventInput.attendeeLimit : null,
 			};
 
 			await this.clubEventRepository.update(id, eventForUpdate);
 
-			const result: DataResult<ClubEventInputDto> = {
-				success: true,
-				message: 'Event updated successfully',
-				statusCode: 200,
-				data: clubEventInput,
-			};
-
-			return result;
+			return { success: true, message: 'Event updated successfully', statusCode: 200, data: clubEventInput };
 		} catch (err) {
 			const error: CustomError = new Error(err.message);
 			error.statusCode = 500; // Internal Server Error
@@ -340,60 +226,27 @@ export class ClubEventService implements IClubEventService {
 		try {
 			const organizer: User = await this.userRepository.getById(organizerId);
 
-			if (!organizer) {
-				const result: DataResult<boolean> = {
-					success: false,
-					message: 'Organizer not found',
-					statusCode: 404,
-					data: false,
-				};
-				return result;
-			}
+			if (!organizer) return { success: false, message: 'Organizer not found', statusCode: 404, data: false };
 
 			const event: ClubEvent = await this.clubEventRepository.getById(id);
 
-			if (!event) {
-				const result: DataResult<boolean> = {
-					success: false,
-					message: 'Event not found',
-					statusCode: 404,
-					data: false,
-				};
-				return result;
-			}
+			if (!event) return { success: false, message: 'Event not found', statusCode: 404, data: false };
 
 			const club: Club = await this.clubRepository.getById(event.getClubId());
 
-			if (!club) {
-				const result: DataResult<boolean> = {
-					success: false,
-					message: 'Club not found',
-					statusCode: 404,
-					data: false,
-				};
-				return result;
-			}
+			if (!club) return { success: false, message: 'Club not found', statusCode: 404, data: false };
 
-			if (!club.isOrganizer(organizer._id)) {
-				const result: DataResult<boolean> = {
-					success: false,
-					message: 'You are not authorized to delete this event',
-					statusCode: 400,
-					data: false,
-				};
-				return result;
-			}
+			if (!club.isOrganizer(organizer._id))
+				return { success: false, message: 'You are not authorized to delete this event', statusCode: 400, data: false };
 
 			const deleted: boolean = await this.clubEventRepository.delete(id);
 
-			const result: DataResult<boolean> = {
+			return {
 				success: deleted,
 				message: deleted ? 'Event deleted successfully' : 'Event deletion failed',
 				statusCode: 200,
 				data: deleted,
-			};
-
-			return result;
+			} as DataResult<boolean>;
 		} catch (err) {
 			const error: CustomError = new Error(err.message);
 			error.statusCode = 500; // Internal Server Error

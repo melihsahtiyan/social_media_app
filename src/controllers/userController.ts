@@ -12,7 +12,6 @@ import { UserDetailDto } from '../models/dtos/user/user-detail-dto';
 import { UserListDto } from '../models/dtos/user/user-list-dto';
 import { UserForSearchDto } from '../models/dtos/user/user-for-search-dto';
 import { UserProfileDto } from '../models/dtos/user/user-profile-dto';
-import { UserForRequestDto } from '../models/dtos/user/user-for-request-dto';
 import { UserDoc } from '../models/schemas/user.schema';
 
 @injectable()
@@ -21,26 +20,6 @@ export class UserController {
 
 	constructor(@inject(UserService) userService: UserService) {
 		this.userService = userService;
-	}
-
-	async viewUserDetails(req: Request, res: Response, next: NextFunction) {
-		try {
-			isValid(req);
-			const userId: string = req.params.userId;
-			const viewerId: string = req.userId;
-
-			const result: DataResult<UserDetailDto> = await this.userService.viewUserDetails(userId, viewerId);
-
-			if (result.success)
-				return res.status(200).json({
-					message: result.message,
-					data: result.data
-				});
-
-			return res.status(result.statusCode).json({ result });
-		} catch (err) {
-			next(err);
-		}
 	}
 
 	async viewUserProfile(req: Request, res: Response, next: NextFunction) {
@@ -60,7 +39,7 @@ export class UserController {
 			if (result.success)
 				return res.status(200).json({
 					message: result.message,
-					data: result.data
+					data: result.data,
 				});
 
 			return res.status(result.statusCode).json({ result });
@@ -77,79 +56,21 @@ export class UserController {
 			if (result.success)
 				return res.status(200).json({
 					message: result.message,
-					data: result.data
+					data: result.data,
 				});
 
 			return res.status(result.statusCode).json({ result });
 		} catch (err) {
 			next(err);
 		}
-	}
-
-	async sendFriendRequest(req: Request, res: Response, next: NextFunction) {
-		try {
-			isValid(req);
-			const userToFollow: string = req.body.userId;
-			const followingUser: string = req.userId;
-
-			const result: Result = await this.userService.sendFriendRequest(userToFollow, followingUser);
-
-			if (result.success)
-				return res.status(200).json({
-					message: result.message
-				});
-
-			return res.status(result.statusCode).json({ result });
-		} catch (err) {
-			console.log(err);
-			next(err);
-		}
-	}
-
-	async handleFollowRequest(req: Request, res: Response, next: NextFunction) {
-		try {
-			isValid(req);
-			const receiverUserId: string = req.userId;
-			const senderUserId: string = req.body.userId;
-			const response: boolean = req.body.response;
-
-			const result: Result = await this.userService.handleFriendRequest(receiverUserId, senderUserId, response);
-
-			if (result.success)
-				return res.status(200).json({
-					message: result.message
-				});
-
-			return res.status(result.statusCode).json({ result });
-		} catch (err) {
-			console.log(err);
-			next(err);
-		}
-	}
-
-	async unfriendUser(req: Request, res: Response, next: NextFunction) {
-		try {
-			isValid(req);
-			const userId: string = req.userId;
-			const friendId: string = req.params.friendId;
-
-			const result: Result = await this.userService.unfriend(userId, friendId);
-
-			return res.status(result.statusCode).json({ result });
-		} catch (err) {
-			console.log(err);
-			next(err);
-		}
-	}
-
-	async getAllUsers(req: Request, res: Response, next: NextFunction) {
+	}async getAllUsers(req: Request, res: Response, next: NextFunction) {
 		try {
 			const result: DataResult<Array<UserListDto>> = await this.userService.getAllUsers();
 
 			if (result.success)
 				return res.status(200).json({
 					message: 'Users fetched successfully',
-					data: result.data
+					data: result.data,
 				});
 
 			return res.status(result.statusCode).json({ result });
@@ -166,7 +87,7 @@ export class UserController {
 			if (result.success)
 				return res.status(200).json({
 					message: 'Users fetched successfully',
-					data: result.data
+					data: result.data,
 				});
 
 			return res.status(result.statusCode).json({ result });
@@ -185,26 +106,7 @@ export class UserController {
 			if (result.success)
 				return res.status(200).json({
 					message: result.message,
-					data: result.data
-				});
-
-			return res.status(result.statusCode).json({ result });
-		} catch (err) {
-			next(err);
-		}
-	}
-
-	async getAllFriendRequests(req: Request, res: Response, next: NextFunction) {
-		try {
-			isValid(req);
-			const userId: string = req.userId;
-
-			const result: DataResult<Array<UserForRequestDto>> = await this.userService.getAllFriendRequests(userId);
-
-			if (result.success)
-				return res.status(200).json({
-					message: result.message,
-					data: result.data
+					data: result.data,
 				});
 
 			return res.status(result.statusCode).json({ result });

@@ -1,5 +1,11 @@
-export interface CustomError extends Error {
+export class CustomError extends Error {
 	statusCode?: number;
-	message: string;
 	data?: unknown[];
+
+	constructor(message: string, statusCode?: number, data?: unknown[]) {
+		super(message);
+		this.statusCode = statusCode;
+		this.data = data;
+		Object.setPrototypeOf(this, CustomError.prototype);
+	}
 }

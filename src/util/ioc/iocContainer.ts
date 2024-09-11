@@ -21,6 +21,8 @@ import { ClubEventRepository } from '../../repositories/club-event-repository';
 import { ClubEventService } from '../../services/clubEventService';
 import { ClubEventController } from '../../controllers/clubEventController';
 import { CloudinaryService } from '../../services/cloudinaryService';
+import { FriendshipService } from '../../services/friendshipService';
+import { FriendshipController } from '../../controllers/friendshipController';
 
 const container: Container = new Container();
 
@@ -35,6 +37,9 @@ container.bind<PollController>(PollController).to(PollController).inSingletonSco
 container.bind<UserRepository>(UserRepository).to(UserRepository).inSingletonScope();
 container.bind<UserService>(UserService).to(UserService).inSingletonScope();
 container.bind<UserController>(UserController).to(UserController).inSingletonScope();
+
+container.bind<FriendshipService>(FriendshipService).to(FriendshipService).inSingletonScope();
+container.bind<FriendshipController>(FriendshipController).to(FriendshipController).inSingletonScope();
 
 container.bind<ClubRepository>(ClubRepository).to(ClubRepository).inSingletonScope();
 container.bind<ClubService>(ClubService).to(ClubService).inSingletonScope();

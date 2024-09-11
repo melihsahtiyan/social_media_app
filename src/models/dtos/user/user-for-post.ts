@@ -1,11 +1,11 @@
-import mongoose from 'mongoose';
+import { ObjectId } from '../../../types/ObjectId';
 
 export type UserForPost = {
-	_id: mongoose.Schema.Types.ObjectId;
+	_id: ObjectId;
 	firstName: string;
 	lastName: string;
 	university: string;
 	department: string;
 	profilePhotoUrl: string;
-	friends: mongoose.Schema.Types.ObjectId[];
+	friends: ObjectId[];
 };

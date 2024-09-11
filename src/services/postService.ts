@@ -189,16 +189,6 @@ export class PostService implements IPostService {
 		try {
 			const post: Post = await this.postRepository.getById(postId);
 
-			if (!post) {
-				const result: DataResult<PostDetails> = {
-					statusCode: 404,
-					message: 'Post not found!',
-					success: false,
-					data: null,
-				};
-				return result;
-			}
-
 			const creator: User = await this.userRepository.getById(post.getCreatorId());
 
 			const user: User = (await this.userRepository.getById(userId)) as User;
@@ -247,8 +237,17 @@ export class PostService implements IPostService {
 
 			return result;
 		} catch (err) {
-			const error: CustomError = new Error(err);
-			throw error;
+			if (err instanceof CustomError) {
+				return {
+					success: false,
+					message: err.message,
+					data: null,
+					statusCode: err.statusCode || 500,
+				};
+			}
+
+			// In case of an unexpected error, throw a new CustomError
+			throw new CustomError('An unexpected error occurred while fetching post details', 500, [err]);
 		}
 	}
 	async getPostById(postId: string, userId: string): Promise<DataResult<PostDetails>> {

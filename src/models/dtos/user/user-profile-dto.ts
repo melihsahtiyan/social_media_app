@@ -1,7 +1,7 @@
-import mongoose from 'mongoose';
+import { ObjectId } from '../../../types/ObjectId';
 
 export interface UserProfileDto {
-	_id: mongoose.Schema.Types.ObjectId;
+	_id: ObjectId;
 	firstName: string;
 	lastName: string;
 	email: string;
@@ -21,7 +21,7 @@ export interface UserProfileDto {
 		lastName: string;
 		profilePhotoUrl: string;
 	}>;
-	posts: Array<mongoose.Schema.Types.ObjectId>;
+	posts: Array<ObjectId>;
 	createdAt: Date;
 	updatedAt: Date;
 	isFriend: boolean;

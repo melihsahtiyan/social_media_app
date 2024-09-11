@@ -1,4 +1,4 @@
-import { Schema } from 'mongoose';
+import { ObjectId } from '../../../types/ObjectId';
 
 export interface EventListDto {
 	title: string;
@@ -7,7 +7,7 @@ export interface EventListDto {
 	location: string;
 	date: Date;
 	time: string;
-	club: { _id: Schema.Types.ObjectId; name: string };
+	club: { _id: ObjectId; name: string };
 	isPublic: boolean;
 	isOnline: boolean;
 	attendeeCount: number;

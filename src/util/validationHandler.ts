@@ -6,12 +6,15 @@ export const isValid = (req: Request) => {
 	const errors = validationResult(req);
 	if (!errors.isEmpty()) {
 		// 422 is validation error
-		const error: CustomError = {
-			name: 'Validation Error',
-			message: errors.array()[0].msg,
-			data: errors.array(),
-			statusCode: 422
-		};
+		const firstError = errors.array()[0]?.msg || 'Validation Error';
+		const error: CustomError = new CustomError(firstError, 422, errors.array());
 		throw error;
 	}
 };
+
+// TODO: Add more validation functions here
+// import { body } from 'express-validator';
+
+// export const validateEmail = body('email')
+//     .isEmail()
+//     .withMessage('Invalid email address');

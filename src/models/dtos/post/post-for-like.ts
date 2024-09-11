@@ -1,10 +1,10 @@
-import mongoose from 'mongoose';
+import { ObjectId } from '../../../types/ObjectId';
 
 export interface PostForLike {
-	_id: mongoose.Schema.Types.ObjectId;
-	creator: mongoose.Schema.Types.ObjectId;
+	_id: ObjectId;
+	creator: ObjectId;
 	content: { caption: string; mediaUrls: string[] };
-	likes: mongoose.Schema.Types.ObjectId[];
+	likes: ObjectId[];
 	likeCount: number;
 	isUpdated: boolean;
 }

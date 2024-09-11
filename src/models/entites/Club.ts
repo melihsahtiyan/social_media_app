@@ -1,4 +1,4 @@
-import { Schema } from 'mongoose';
+import { ObjectId } from '../../types/ObjectId';
 import { Entity } from './Entity';
 
 export class Club extends Entity {
@@ -7,11 +7,11 @@ export class Club extends Entity {
 	banner: string;
 	biography: string;
 	status: boolean;
-	president: Schema.Types.ObjectId;
-	organizers: Schema.Types.ObjectId[];
-	members: Schema.Types.ObjectId[];
-	posts: Schema.Types.ObjectId[];
-	events: Schema.Types.ObjectId[];
+	president: ObjectId;
+	organizers: ObjectId[];
+	members: ObjectId[];
+	posts: ObjectId[];
+	events: ObjectId[];
 
 	constructor({ name, biography, status, president }) {
 		super();
@@ -30,11 +30,11 @@ export class Club extends Entity {
 		return this.president.toString();
 	}
 
-	isOrganizer(userId: Schema.Types.ObjectId): boolean {
+	isOrganizer(userId: ObjectId): boolean {
 		return this.organizers.includes(userId) ? true : false;
 	}
 
-	isPresident(userId: Schema.Types.ObjectId): boolean {
+	isPresident(userId: ObjectId): boolean {
 		return this.president === userId ? true : false;
 	}
 }

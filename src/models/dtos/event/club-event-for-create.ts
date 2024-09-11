@@ -1,4 +1,4 @@
-import { Schema } from 'mongoose';
+import { ObjectId } from '../../../types/ObjectId';
 
 export interface ClubEventForCreate {
 	title: string;
@@ -7,8 +7,9 @@ export interface ClubEventForCreate {
 	location: string;
 	date: Date;
 	time: string;
-	club: Schema.Types.ObjectId;
-	organizer: Schema.Types.ObjectId;
+	club: ObjectId;
+	organizer: ObjectId;
 	isPublic: boolean;
 	isOnline: boolean;
+	attendeeLimit?: number;
 }

@@ -48,17 +48,7 @@ export class CommentService implements ICommentService {
 				isUpdated: false,
 			});
 
-			const post: Post = await this.postRepository.getById(comment.getPostId());
-
-			if (!post) {
-				const result: DataResult<Comment> = {
-					success: false,
-					message: 'Post not found',
-					data: null,
-					statusCode: 404,
-				};
-				return result;
-			}
+			await this.postRepository.getById(comment.getPostId());
 
 			const createdComment: Comment = await this.commentRepository.create(comment);
 

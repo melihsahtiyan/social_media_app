@@ -4,6 +4,9 @@ import { PostDoc, posts } from '../models/schemas/post.schema';
 import { injectable } from 'inversify';
 import { Poll } from '../models/entites/Poll';
 import { Post } from '../models/entites/Post';
+import { CustomError } from '../types/error/CustomError';
+
+type ObjectId = Schema.Types.ObjectId;
 
 @injectable()
 export class PollRepository implements IPollRepository {
@@ -12,35 +15,57 @@ export class PollRepository implements IPollRepository {
 	async createPoll(poll: Poll): Promise<Post> {
 		return await posts.create(poll);
 	}
-	async votePoll(pollId: Schema.Types.ObjectId, userId: Schema.Types.ObjectId, option: string): Promise<PostDoc> {
-		const post: PostDoc = await posts.findById(pollId);
+	async votePoll(pollId: ObjectId, userId: ObjectId, option: string): Promise<PostDoc> {
+		const post = await posts.findById(pollId);
+		if (!post) throw new CustomError('Poll not found', 404);
 
-		const poll = post.poll;
-		const optionIndex: number = poll.options.findIndex(opt => opt.optionName === option);
+		const currentVersion = post.__v;
 
-		poll.options[optionIndex].votes.push(userId);
-		poll.totalVotes += 1;
+		const updatedPost = await posts.findOneAndUpdate(
+			{ _id: pollId, __v: currentVersion },
+			{
+				$inc: { 'poll.totalVotes': 1, __v: 1 },
+				$push: { 'poll.options.$[option].votes': userId },
+			},
+			{
+				arrayFilters: [{ 'option.optionName': option }],
+				new: true,
+			}
+		);
 
-		post.poll = poll;
+		if (!updatedPost) {
+			throw new CustomError('Version conflict, please retry', 409);
+		}
 
-		return await post.save();
+		return updatedPost;
 	}
 
 	//TODO: Check this method after testing
-	async deleteVote(pollId: Schema.Types.ObjectId, userId: Schema.Types.ObjectId, option: string): Promise<PostDoc> {
-		const post: PostDoc = await posts.findById(pollId);
+	async deleteVote(pollId: ObjectId, userId: ObjectId, option: string): Promise<PostDoc> {
+		const post = await posts.findById(pollId);
+		if (!post) throw new CustomError('Poll not found', 404);
 
-		const poll = post.poll;
-		const optionIndex: number = poll.options.findIndex(opt => opt.optionName === option);
-		const deletedVotePoll = poll.options[optionIndex].votes.filter(vote => vote !== userId);
+		const currentVersion = post.__v;
 
-		poll.options[optionIndex].votes = deletedVotePoll;
-		poll.totalVotes -= 1;
-		post.poll = poll;
+		const updatedPost = await posts.findOneAndUpdate(
+			{ _id: pollId, __v: currentVersion },
+			{
+				$inc: { 'poll.totalVotes': -1, __v: 1 },
+				$pull: { 'poll.options.$[option].votes': userId },
+			},
+			{
+				arrayFilters: [{ 'option.optionName': option }],
+				new: true,
+			}
+		);
 
-		return await post.save();
+		if (!updatedPost) {
+			throw new CustomError('Version conflict, please retry', 409);
+		}
+
+		return updatedPost;
 	}
-	async deletePoll(pollId: Schema.Types.ObjectId): Promise<PostDoc> {
+	async deletePoll(pollId: ObjectId): Promise<PostDoc> {
 		return await posts.findByIdAndDelete(pollId);
 	}
 }

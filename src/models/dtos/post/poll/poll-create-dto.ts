@@ -1,7 +1,7 @@
-import { Schema } from 'mongoose';
+import { ObjectId } from '../../../../types/ObjectId';
 
 export type PollCreate = {
-	creator: Schema.Types.ObjectId;
+	creator: ObjectId;
 	caption: string;
 	question: string;
 	options: { optionName: string; votes: number }[];

@@ -1,8 +1,8 @@
-import { Schema } from 'mongoose';
+import { ObjectId } from '../../../types/ObjectId';
 import { Poll } from '../../../models/entites/Poll';
 
 export interface PostForCreate {
-	creator: Schema.Types.ObjectId;
+	creator: ObjectId;
 	content: { caption: string; mediaUrls: Array<string> };
 	poll: Poll;
 }

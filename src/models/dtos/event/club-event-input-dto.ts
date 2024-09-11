@@ -7,4 +7,5 @@ export interface ClubEventInputDto {
 	club: string;
 	isPublic: boolean;
 	isOnline: boolean;
+	attendeeLimit?: number;
 }

@@ -1,14 +1,14 @@
-import { Schema } from 'mongoose';
+import { ObjectId } from '../../types/ObjectId';
 import { Entity } from './Entity';
 import { Poll } from './Poll';
 export class Post extends Entity {
-	creator: Schema.Types.ObjectId;
+	creator: ObjectId;
 	content: { caption: string; mediaUrls: Array<string> };
-	likes: Schema.Types.ObjectId[];
-	comments: Schema.Types.ObjectId[];
+	likes: ObjectId[];
+	comments: ObjectId[];
 	commentCount: number;
 	poll: Poll;
-	event?: Schema.Types.ObjectId;
+	event?: ObjectId;
 	isUpdated: boolean;
 
 	constructor({ _id, creator, content, likes, comments, commentCount, poll, event, isUpdated, createdAt }) {
@@ -30,10 +30,10 @@ export class Post extends Entity {
 		return this.creator.toString();
 	}
 
-	isAuthor(userId: Schema.Types.ObjectId): boolean {
+	isAuthor(userId: ObjectId): boolean {
 		return this.creator === userId ? true : false;
 	}
-	isLiked(userId: Schema.Types.ObjectId): boolean {
+	isLiked(userId: ObjectId): boolean {
 		if (this.likes.length === 0) return false;
 		return this.likes.includes(userId) ? true : false;
 	}

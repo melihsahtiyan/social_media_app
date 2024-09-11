@@ -1,26 +1,29 @@
 {
-  "compilerOptions": {
-    "target": "ES6",
-    "module": "commonjs",
-    "outDir": "build",
+	"compilerOptions": {
+		"target": "ES6",
+		"module": "commonjs",
+		"outDir": "build",
 
-    "forceConsistentCasingInFileNames": true,
+		"forceConsistentCasingInFileNames": true,
 
-    "strict": false,
+		"strict": false,
 
-    "moduleResolution": "Node",
-    "baseUrl": ".",
-    "esModuleInterop": true,
+		"moduleResolution": "Node",
+		"baseUrl": ".",
+		"paths": {
+      "@/*": ["src/*"]
+		},
+		"esModuleInterop": true,
 
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true,
-    "noImplicitAny": false,
+		"experimentalDecorators": true,
+		"emitDecoratorMetadata": true,
+		"noImplicitAny": false,
 
-    "skipLibCheck": true,
-    "moduleDetection": "auto",
-    "sourceMap": true,
-    "removeComments": true,
-    "resolveJsonModule": true
-  },
-  "include": ["./**/*.ts"]
+		"skipLibCheck": true,
+		"moduleDetection": "auto",
+		"sourceMap": true,
+		"removeComments": true,
+		"resolveJsonModule": true
+	},
+	"include": ["./**/*.ts", "./src/**/*"]
 }

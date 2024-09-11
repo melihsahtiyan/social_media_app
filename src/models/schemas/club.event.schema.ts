@@ -5,67 +5,71 @@ export type ClubEventDoc = mongoose.Document & ClubEvent;
 export const clubEventSchema = new mongoose.Schema({
 	title: {
 		type: String,
-		required: true
+		required: true,
 	},
 	description: {
-		type: String
+		type: String,
 	},
 	image: {
-		type: String
+		type: String,
 	},
 	location: {
 		type: String,
-		required: true
+		required: true,
 	},
 	date: {
 		type: Date,
-		required: true
+		required: true,
 	},
 	time: {
-		type: String
+		type: String,
 	},
 	club: {
 		type: mongoose.Schema.Types.ObjectId,
 		ref: 'Club',
-		required: true
+		required: true,
 	},
 	organizer: {
 		type: mongoose.Schema.Types.ObjectId,
 		ref: 'User',
-		required: true
+		required: true,
 	},
 	isPublic: {
-		type: Boolean
+		type: Boolean,
 	},
 	isOnline: {
-		type: Boolean
+		type: Boolean,
 	},
 	attendees: [
 		{
 			type: mongoose.Schema.Types.ObjectId,
 			ref: 'User',
-			default: []
-		}
+			default: [],
+		},
 	],
+	attendeeLimit: {
+		type: Number,
+		required: false,
+	},
 	posts: [
 		{
 			type: mongoose.Schema.Types.ObjectId,
 			ref: 'Post',
-			default: []
-		}
+			default: [],
+		},
 	],
 	isUpdated: {
 		type: Boolean,
-		default: false
+		default: false,
 	},
 	createdAt: {
 		type: Date,
-		default: Date.now()
+		default: Date.now(),
 	},
 	updatedAt: {
 		type: Date,
-		default: null
-	}
+		default: null,
+	},
 });
 
 const clubEvents: mongoose.Model<ClubEventDoc> =

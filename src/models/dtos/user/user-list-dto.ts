@@ -1,4 +1,4 @@
-import { Schema } from 'mongoose';
+import { ObjectId } from '../../../types/ObjectId';
 
 export interface UserListDto {
 	firstName: string;
@@ -10,5 +10,5 @@ export interface UserListDto {
 	profilePhotoUrl: string;
 	friends: { _id: string; firstName: string; lastName: string }[];
 	friendRequests: { _id: string; firstName: string; lastName: string }[];
-	posts: Schema.Types.ObjectId[];
+	posts: ObjectId[];
 }

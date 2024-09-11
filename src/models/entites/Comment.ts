@@ -1,13 +1,13 @@
-import { Schema } from 'mongoose';
+import { ObjectId } from '@/types/ObjectId';
 import { Entity } from './Entity';
 
 export class Comment extends Entity {
-	creator: Schema.Types.ObjectId;
-	post: Schema.Types.ObjectId;
+	creator: ObjectId;
+	post: ObjectId;
 	content: string;
 	isUpdated: boolean;
-	likes: Schema.Types.ObjectId[];
-	replies: Schema.Types.ObjectId[];
+	likes: ObjectId[];
+	replies: ObjectId[];
 
 	constructor({
 		creator,
@@ -17,12 +17,12 @@ export class Comment extends Entity {
 		likes,
 		replies,
 	}: {
-		creator: Schema.Types.ObjectId;
-		post: Schema.Types.ObjectId;
+		creator: ObjectId;
+		post: ObjectId;
 		content: string;
 		isUpdated: boolean;
-		likes: Schema.Types.ObjectId[];
-		replies: Schema.Types.ObjectId[];
+		likes: ObjectId[];
+		replies: ObjectId[];
 	}) {
 		super();
 		this.creator = creator;
@@ -40,5 +40,23 @@ export class Comment extends Entity {
 	}
 	checkReplyPostIdMatches(replyPostId: string): boolean {
 		return this.post.toString() === replyPostId ? true : false;
+	}
+	getCreatorId(): string {
+		return this.creator.toString();
+	}
+	addLike(userId: ObjectId): void {
+		if (!this.likes.includes(userId)) this.likes.push(userId);
+	}
+	removeLike(userId: ObjectId): void {
+		this.likes = this.likes.filter(like => like.toString() !== userId.toString());
+	}
+	addReply(replyId: ObjectId): void {
+		if (!this.replies.includes(replyId)) this.replies.push(replyId);
+	}
+	removeReply(replyId: ObjectId): void {
+		this.replies = this.replies.filter(reply => reply.toString() !== replyId.toString());
+	}
+	getLikeCount(): number {
+		return this.likes.length;
 	}
 }

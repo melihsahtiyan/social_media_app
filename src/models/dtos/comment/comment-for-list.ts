@@ -1,10 +1,10 @@
-import { Schema } from 'mongoose';
+import { ObjectId } from '../../../types/ObjectId';
 import { UserForSearchDto } from '../user/user-for-search-dto';
 
 export interface CommentForListDto {
-	_id: Schema.Types.ObjectId;
+	_id: ObjectId;
 	creator: {
-		_id: Schema.Types.ObjectId;
+		_id: ObjectId;
 		firstName: string;
 		lastName: string;
 		profilePicture: string;

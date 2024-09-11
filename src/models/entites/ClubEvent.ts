@@ -1,4 +1,4 @@
-import { Schema } from 'mongoose';
+import { ObjectId } from '../../types/ObjectId';
 import { Entity } from './Entity';
 
 export class ClubEvent extends Entity {
@@ -8,13 +8,14 @@ export class ClubEvent extends Entity {
 	location: string;
 	date: Date;
 	time: string;
-	club: Schema.Types.ObjectId;
-	organizer: Schema.Types.ObjectId;
+	club: ObjectId;
+	organizer: ObjectId;
 	isPublic: boolean;
 	isOnline: boolean;
-	attendees: Schema.Types.ObjectId[];
-	posts: Schema.Types.ObjectId[];
+	attendees: ObjectId[];
+	posts: ObjectId[];
 	isUpdated: boolean;
+	attendeeLimit?: number;
 
 	constructor({
 		title,
@@ -25,8 +26,10 @@ export class ClubEvent extends Entity {
 		time,
 		club,
 		organizer,
+		isUpdated,
 		isPublic,
 		isOnline,
+		attendeeLimit,
 	}: {
 		title: string;
 		description: string;
@@ -34,10 +37,12 @@ export class ClubEvent extends Entity {
 		location: string;
 		date: Date;
 		time: string;
-		club: Schema.Types.ObjectId;
-		organizer: Schema.Types.ObjectId;
+		club: ObjectId;
+		organizer: ObjectId;
+		isUpdated: boolean;
 		isPublic: boolean;
 		isOnline: boolean;
+		attendeeLimit?: number;
 	}) {
 		super();
 		this.title = title;
@@ -52,7 +57,8 @@ export class ClubEvent extends Entity {
 		this.isOnline = isOnline;
 		this.attendees = [];
 		this.posts = [];
-		this.isUpdated = false;
+		this.isUpdated = isUpdated;
+		this.attendeeLimit = attendeeLimit;
 	}
 
 	getClubId(): string {

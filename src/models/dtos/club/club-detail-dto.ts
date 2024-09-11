@@ -1,4 +1,4 @@
-import { Schema } from 'mongoose';
+import { ObjectId } from '../../../types/ObjectId';
 
 export interface ClubDetailDto {
 	name: string;
@@ -7,20 +7,20 @@ export interface ClubDetailDto {
 	biography: string;
 	status: boolean;
 	president: {
-		_id: Schema.Types.ObjectId;
+		_id: ObjectId;
 		firstName: string;
 		lastName: string;
 	};
 	organizers: {
-		_id: Schema.Types.ObjectId;
+		_id: ObjectId;
 		firstName: string;
 		lastName: string;
 	}[];
 	members: {
-		_id: Schema.Types.ObjectId;
+		_id: ObjectId;
 		firstName: string;
 		lastName: string;
 	}[];
-	posts: Schema.Types.ObjectId[];
-	events: Schema.Types.ObjectId[];
+	posts: ObjectId[];
+	events: ObjectId[];
 }

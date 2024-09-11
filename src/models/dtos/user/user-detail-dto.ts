@@ -1,7 +1,7 @@
-import mongoose from 'mongoose';
+import { ObjectId } from '../../../types/ObjectId';
 
 export interface UserDetailDto {
-	_id: mongoose.Schema.Types.ObjectId;
+	_id: ObjectId;
 	firstName: string;
 	lastName: string;
 	email: string;

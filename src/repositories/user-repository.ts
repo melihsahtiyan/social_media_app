@@ -79,8 +79,6 @@ export class UserRepository implements IUserRepository {
 			.match({ fullName: { $regex: name, $options: 'i' } })
 			.sort({ fullName: 1 })
 			.exec();
-
-		console.log(userSearchList);
 		const result: Array<User> = userSearchList.map(user => new User(user));
 
 		return result;

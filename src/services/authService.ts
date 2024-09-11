@@ -15,69 +15,37 @@ import { UserLoginResponse } from '../models/dtos/user/user-login-response';
 
 @injectable()
 export class AuthService implements IAuthService {
-	_userRepository: UserRepository;
+	private readonly _userRepository: UserRepository;
 	constructor(@inject(UserRepository) userRepository: UserRepository) {
 		this._userRepository = userRepository;
 	}
 	async register(userToRegister: UserForRegister): Promise<Result> {
-		// TODO: profile picture addition will be on the update profile part
-		// const profilePhotoUrl: string = req.file
-		//   ? "/media/profilePhotos/" + req.file.filename
-		//   : null;
-
 		try {
 			// Check the age of the user whether it is older than 18 or not (using birthDate)
 			const age = new Date(Date.now()).getFullYear() - new Date(userToRegister.birthDate).getFullYear();
 
 			if (age < 18) {
-				const result: Result = {
-					statusCode: 400,
-					message: 'You must be 18 years old',
-					success: false,
-				};
-
-				return result;
+				return { statusCode: 400, message: 'You must be 18 years old', success: false };
 			}
 			// Checking e-mail whether it exists.
-			console.log('email: ', userToRegister.email);
 			const userToCheck: User = await this._userRepository.getByEmail(userToRegister.email);
-
 			if (userToCheck) {
-				const result: Result = {
-					statusCode: 409,
-					message: 'User already exists',
-					success: false,
-				};
-
-				return result;
+				return { statusCode: 409, message: 'User already exists', success: false };
 			}
 
 			const hashedPassword = await User.hashPassword(userToRegister.password);
 
-			const userToCreate: UserForCreate = {
-				...userToRegister,
-				password: hashedPassword,
-			};
+			const userToCreate: UserForCreate = { ...userToRegister, password: hashedPassword };
+			// TODO: Handle the case where the verification email is not sent. Suggestions: send the verification email again or delete the user
+			await this._userRepository.create(userToCreate);
 
 			const isSent: boolean = await this.sendVerificationEmail(userToRegister.email, 'personal');
 
-			if (isSent) {
-				const result: Result = {
-					statusCode: 500,
-					message: 'Email could not be sent. Registration failed!',
-					success: false,
-				};
-
-				return result;
+			if (!isSent) {
+				return { statusCode: 500, message: 'Email could not be sent. Registration failed!', success: false };
 			}
 
-			await this._userRepository.create(userToCreate);
-
-			const result: Result = {
-				statusCode: 201,
-				message: 'User registered successfully',
-				success: true,
-			};
+			const result: Result = { statusCode: 201, message: 'User registered successfully', success: true };
 
 			return result;
 		} catch (err) {
@@ -151,8 +119,7 @@ export class AuthService implements IAuthService {
 
 			return result;
 		} catch (err) {
-			const error: CustomError = new Error(err.message);
-			error.statusCode = err.statusCode || 500;
+			const error: CustomError = new CustomError(err.message, 500, ['Internal Server Error']);
 			throw error;
 		}
 	}
@@ -215,32 +182,21 @@ export class AuthService implements IAuthService {
 			};
 
 			const transporter: Transporter = nodemailer.createTransport({
-				host: 'stmp.gmail.com',
+				service: 'gmail',
 				auth: {
 					type: 'OAuth2',
-					user: process.env.VERFICATION_SERVICE_EMAIL,
+					user: process.env.VERIFICATION_SERVICE_EMAIL,
 					clientId: process.env.OAUTH_CLIENT_ID,
 					clientSecret: process.env.OAUTH_CLIENT_SECRET,
 					refreshToken: process.env.OAUTH_REFRESH_TOKEN,
 				},
 			});
 
-			let isSent: boolean = false;
-			transporter.sendMail(mailOptions, function (error, info) {
-				if (error) {
-					console.log(error);
-					isSent = false;
-				} else {
-					console.log('Email sent: ' + info.response);
-					isSent = true;
-				}
-			});
-
-			return isSent;
-		} catch (err) {
-			const error: CustomError = new Error(err.message);
-			error.statusCode = 500;
-			throw error;
+			await transporter.sendMail(mailOptions);
+			return true;
+		} catch (error) {
+			console.log('Error sending verification email:', error);
+			return false;
 		}
 	}
 }

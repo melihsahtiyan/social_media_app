@@ -1,4 +1,4 @@
-import mongoose, { Schema } from 'mongoose';
+import { ObjectId } from '../../types/ObjectId';
 import { Entity } from './Entity';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
@@ -17,12 +17,12 @@ export class User extends Entity {
 		emailVerification: boolean;
 	};
 	profilePhotoUrl: string;
-	friends: mongoose.Schema.Types.ObjectId[];
-	// friendRequests: { userId: mongoose.Schema.Types.ObjectId; createdAt: Date }[];
-	friendRequests: mongoose.Schema.Types.ObjectId[];
-	posts: mongoose.Schema.Types.ObjectId[];
-	organizations: mongoose.Schema.Types.ObjectId[];
-	attendances: mongoose.Schema.Types.ObjectId[];
+	friends: ObjectId[];
+	// friendRequests: { userId: ObjectId; createdAt: Date }[];
+	friendRequests: ObjectId[];
+	posts: ObjectId[];
+	organizations: ObjectId[];
+	attendances: ObjectId[];
 	constructor({
 		_id,
 		firstName,
@@ -76,23 +76,26 @@ export class User extends Entity {
 				lastName: this.lastName,
 			},
 			process.env.SECRET_KEY
-			// { expiresIn: "1h" }
+			// ,{ expiresIn: "1h" }
 		);
 		return token;
 	}
 	isFriendOrSameUniversity(creator: User): boolean {
-		return this.friends.includes(creator._id) || creator.university === this.university;
+		return (
+			(this.friends.find(friend => friend.toString() === creator._id.toString()) ? true : false) ||
+			creator.university === this.university
+		);
 	}
 
-	isFriend(userId: Schema.Types.ObjectId): boolean {
-		return this.friends.includes(userId) ? true : false;
+	isFriend(userId: ObjectId): boolean {
+		return this.friends.find(friend => friend.toString() === userId.toString()) ? true : false;
 	}
-	hasFriendRequest(userId: Schema.Types.ObjectId): boolean {
-		return this.friendRequests.includes(userId) ? true : false;
+	hasFriendRequest(userId: ObjectId): boolean {
+		return this.friendRequests.find(friend => friend.toString() === userId.toString()) ? true : false;
 	}
 
 	static async hashPassword(password: string): Promise<string> {
-		return bcrypt.hash(password, 12);
+		return await bcrypt.hash(password, 12);
 	}
 
 	async comparePassword(password: string): Promise<boolean> {

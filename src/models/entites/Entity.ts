@@ -1,7 +1,7 @@
-import mongoose from 'mongoose';
+import { ObjectId } from '../../types/ObjectId';
 
 export class Entity {
-	_id: mongoose.Schema.Types.ObjectId;
+	_id: ObjectId;
 	createdAt: Date;
 	updatedAt: Date;
 }

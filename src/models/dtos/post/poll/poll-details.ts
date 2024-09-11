@@ -1,18 +1,18 @@
-import mongoose from 'mongoose';
+import { ObjectId } from '../../../../types/ObjectId';
 
 export type PollDetails = {
-	_id: mongoose.Schema.Types.ObjectId;
-	creator: mongoose.Schema.Types.ObjectId;
+	_id: ObjectId;
+	creator: ObjectId;
 	options: { optionName: Array<string>; totalVotes: number }[];
 	votes: [
 		{
-			voter: mongoose.Schema.Types.ObjectId;
+			voter: ObjectId;
 			option: string;
 		}
 	];
 	likeCount: number;
-	likes: mongoose.Schema.Types.ObjectId[];
-	comments: mongoose.Schema.Types.ObjectId[];
+	likes: ObjectId[];
+	comments: ObjectId[];
 	commentCount: number;
 	totalVotes: number;
 	expiresAt: Date;
