@@ -1,4 +1,4 @@
-import * as mongoose from 'mongoose';
+import mongoose from 'mongoose';
 import { User } from '../entites/User';
 
 export type UserDoc = mongoose.Document & User;
@@ -15,54 +15,54 @@ const userSchema = new mongoose.Schema({
 	status: {
 		type: {
 			studentVerification: Boolean,
-			emailVerification: Boolean
+			emailVerification: Boolean,
 		},
 		default: {
 			studentVerification: false,
-			emailVerification: false
+			emailVerification: false,
 		},
-		_id: false
+		_id: false,
 	},
 	profilePhotoUrl: { type: String, default: null },
 	friends: [
 		{
 			type: mongoose.Schema.Types.ObjectId,
 			ref: 'User',
-			default: []
-		}
+			default: [],
+		},
 	],
 	friendRequests: [
 		{
 			type: mongoose.Schema.Types.ObjectId,
 			ref: 'User',
-			default: []
-		}
+			default: [],
+		},
 	],
 	posts: [
 		{
 			type: mongoose.Schema.Types.ObjectId,
 			ref: 'Post',
-			default: []
-		}
+			default: [],
+		},
 	],
 	organizations: [
 		{
 			type: mongoose.Schema.Types.ObjectId,
 			ref: 'Club',
-			default: []
-		}
+			default: [],
+		},
 	],
 	attendances: [
 		{
 			type: mongoose.Schema.Types.ObjectId,
 			ref: 'Event',
-			default: []
-		}
+			default: [],
+		},
 	],
 	createdAt: {
 		type: Date,
-		default: Date.now()
-	}
+		default: Date.now(),
+	},
 });
 
 const users: mongoose.Model<UserDoc> = mongoose.models.users || mongoose.model<UserDoc>('User', userSchema);
