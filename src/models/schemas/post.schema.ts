@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { Post } from '../entites/Post';
+import { Post } from '../entities/Post';
 
 export type PostDoc = mongoose.Document & Post;
 

@@ -7,11 +7,11 @@ import { UserRepository } from '../repositories/user-repository';
 import { DataResult } from '../types/result/DataResult';
 import { PollInputDto } from '../models/dtos/post/poll/poll-input-dto';
 import { PostForCreate } from '../models/dtos/post/post-for-create';
-import { Poll } from '../models/entites/Poll';
+import { Poll } from '../models/entities/Poll';
 import { CustomError } from '../types/error/CustomError';
 import { VoteInputDto } from '../models/dtos/post/poll/vote-input-dto';
-import { User } from '../models/entites/User';
-import { Post } from '../models/entites/Post';
+import { User } from '../models/entities/User';
+import { Post } from '../models/entities/Post';
 import { Schema } from 'mongoose';
 import { CloudinaryService } from './cloudinaryService';
 

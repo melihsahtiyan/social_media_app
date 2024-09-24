@@ -1,4 +1,4 @@
-import { ClubEvent } from '../../models/entites/ClubEvent';
+import { ClubEvent } from '../../models/entities/ClubEvent';
 import { ClubEventInputDto } from '../../models/dtos/event/club-event-input-dto';
 import { ClubEventDetailDto } from '../../models/dtos/event/club-event-detail-dto';
 import { DataResult } from '../result/DataResult';

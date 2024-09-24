@@ -29,6 +29,8 @@ export class Chat extends Entity {
 		sharedMedias,
 		sharedPosts,
 		sharedEvents,
+		pinnedMessages,
+		unreadMessages,
 		isGroup,
 		admins,
 		title,
@@ -42,6 +44,8 @@ export class Chat extends Entity {
 		this.sharedMedias = sharedMedias;
 		this.sharedPosts = sharedPosts;
 		this.sharedEvents = sharedEvents;
+		this.pinnedMessages = pinnedMessages;
+		this.unreadMessages = unreadMessages;
 		this.isGroup = isGroup;
 		this.admins = admins;
 		this.title = title;

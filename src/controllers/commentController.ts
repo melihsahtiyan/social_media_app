@@ -7,7 +7,7 @@ import { Result } from '../types/result/Result';
 import { NextFunction, Response } from 'express';
 import Request from '../types/Request';
 import { isValid } from '../util/validationHandler';
-import { Comment } from '../models/entites/Comment';
+import { Comment } from '../models/entities/Comment';
 import isAuth from '../middleware/is-auth';
 
 @injectable()

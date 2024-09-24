@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { ClubEvent } from '../entites/ClubEvent';
+import { ClubEvent } from '../entities/ClubEvent';
 export type ClubEventDoc = mongoose.Document & ClubEvent;
 
 export const clubEventSchema = new mongoose.Schema({

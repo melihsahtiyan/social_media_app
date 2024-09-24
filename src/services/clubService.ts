@@ -1,8 +1,8 @@
 import { inject, injectable } from 'inversify';
 import { ClubRepository } from '../repositories/club-repository';
 import { ClubInputDto } from '../models/dtos/club/club-input-dto';
-import { Club } from '../models/entites/Club';
-import { User } from '../models/entites/User';
+import { Club } from '../models/entities/Club';
+import { User } from '../models/entities/User';
 import { UserRepository } from '../repositories/user-repository';
 import { IClubService } from '../types/services/IClubService';
 import { DataResult } from '../types/result/DataResult';

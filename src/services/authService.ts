@@ -8,7 +8,7 @@ import UserForCreate from '../models/dtos/user/user-for-create';
 import { Result } from '../types/result/Result';
 import { DataResult } from '../types/result/DataResult';
 import IAuthService from '../types/services/IAuthService';
-import { User } from '../models/entites/User';
+import { User } from '../models/entities/User';
 import jwt from 'jsonwebtoken';
 import nodemailer, { Transporter } from 'nodemailer';
 import { UserLoginResponse } from '../models/dtos/user/user-login-response';

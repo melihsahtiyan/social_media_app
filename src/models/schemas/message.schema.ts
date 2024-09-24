@@ -1,6 +1,6 @@
 import { Document, Schema } from 'mongoose';
-import { Message } from '../entites/Chat/Message';
-import { MessageStatus, MessageTypes } from '../entites/enums/messageEnums';
+import { Message } from '../entities/Chat/Message';
+import { MessageStatus, MessageTypes } from '../entities/enums/messageEnums';
 
 export type MessageDoc = Document & Message;
 

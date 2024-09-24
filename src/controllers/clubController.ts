@@ -6,7 +6,7 @@ import { ClubInputDto } from '../models/dtos/club/club-input-dto';
 import { isValid } from '../util/validationHandler';
 import { Result } from '../types/result/Result';
 import { DataResult } from '../types/result/DataResult';
-import { Club } from '../models/entites/Club';
+import { Club } from '../models/entities/Club';
 import { ClubForUpdateDto } from '../models/dtos/club/club-for-update-dto';
 
 @injectable()

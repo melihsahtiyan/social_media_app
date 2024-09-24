@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { Club } from '../entites/Club';
+import { Club } from '../entities/Club';
 
 export type ClubDoc = mongoose.Document & Club;
 

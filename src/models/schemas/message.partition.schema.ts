@@ -1,5 +1,5 @@
 import mongoose, { Document, Model, Schema } from 'mongoose';
-import { MessagePartition } from '../entites/Chat/MessagePartition';
+import { MessagePartition } from '../entities/Chat/MessagePartition';
 
 export type MessagePartitionDoc = Document & MessagePartition;
 

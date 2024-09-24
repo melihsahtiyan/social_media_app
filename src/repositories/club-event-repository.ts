@@ -1,7 +1,7 @@
 import { IClubEventRepository } from '../types/repositories/IClubEventRepository';
 import { ClubEventForUpdate } from '../models/dtos/event/club-event-for-update';
 import { ClubEventDoc, clubEvents } from '../models/schemas/club.event.schema';
-import { ClubEvent } from '../models/entites/ClubEvent';
+import { ClubEvent } from '../models/entities/ClubEvent';
 import { injectable } from 'inversify';
 
 @injectable()

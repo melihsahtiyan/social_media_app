@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { User } from '../entites/User';
+import { User } from '../entities/User';
 
 export type UserDoc = mongoose.Document & User;
 

@@ -1,4 +1,4 @@
-import { Comment } from "../../models/entites/Comment";
+import { Comment } from "../../models/entities/Comment";
 
 export interface ICommentRepository {
   create(comment: Comment): Promise<Comment>;

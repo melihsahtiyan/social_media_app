@@ -1,6 +1,6 @@
 import { ClubDoc } from '../../models/schemas/club.schema';
 import { ClubForUpdateDto } from '../../models/dtos/club/club-for-update-dto';
-import { Club } from '../../models/entites/Club';
+import { Club } from '../../models/entities/Club';
 
 export interface IClubRepository {
 	createClub(club: Club): Promise<Club>;

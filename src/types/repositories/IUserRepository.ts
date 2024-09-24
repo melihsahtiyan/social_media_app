@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 import UserForCreate from '../../models/dtos/user/user-for-create';
 import { UserForUpdate } from '../../models/dtos/user/user-for-update';
 import { UserDoc } from '../../models/schemas/user.schema';
-import { User } from '../../models/entites/User';
+import { User } from '../../models/entities/User';
 import { UserListDto } from '../../models/dtos/user/user-list-dto';
 import { UserForSearchDto } from '../../models/dtos/user/user-for-search-dto';
 import { UserForRequestDto } from '../../models/dtos/user/user-for-request-dto';

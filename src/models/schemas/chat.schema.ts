@@ -1,5 +1,5 @@
 import mongoose, { Document, Model, Schema } from 'mongoose';
-import { Chat } from '../entites/Chat/Chat';
+import { Chat } from '../entities/Chat/Chat';
 
 export type ChatDoc = Document & Chat;
 
