@@ -46,7 +46,6 @@ export class ChatService implements IChatService {
 			const allMembers: User[] = (await this.userService.getUsersByIds(members)).data;
 			if (allMembers.length === 0) return { success: false, message: 'Members not found', statusCode: 404 } as Result;
 
-
 			// Check if all members are friends with the admin
 			let isFriend: boolean = true;
 			allMembers.forEach(member => {
@@ -82,12 +81,14 @@ export class ChatService implements IChatService {
 			const allChats: Chat[] = await this.chatRepository.getAll();
 
 			if (allChats) {
-				return { success: true, data: allChats } as DataResult<Chat[]>;
+				return { success: true, message: 'Chats fetched successfully!', data: allChats, statusCode: 201 } as DataResult<Chat[]>;
 			}
 
-			return { success: false, message: 'No chats found' } as DataResult<Chat[]>;
+			return { success: false, message: 'No chats found', statusCode: 404 } as DataResult<Chat[]>;
 		} catch (err) {
 			const error: CustomError = new Error(err);
+			error.className = err.className || 'ChatService';
+			error.functionName = err.functionName || 'createChat';
 			throw error;
 		}
 	}
@@ -96,12 +97,14 @@ export class ChatService implements IChatService {
 			const chat: Chat = await this.chatRepository.getById(chatId);
 
 			if (chat) {
-				return { success: true, data: chat } as DataResult<Chat>;
+				return { success: true, data: chat, statusCode: 201 } as DataResult<Chat>;
 			}
 
-			return { success: false, message: 'Chat not found' } as DataResult<Chat>;
+			return { success: false, message: 'Chat not found', statusCode: 404 } as DataResult<Chat>;
 		} catch (err) {
 			const error: CustomError = new Error(err);
+			error.className = err.className || 'ChatService';
+			error.functionName = err.functionName || 'createChat';
 			throw error;
 		}
 	}
@@ -124,12 +127,14 @@ export class ChatService implements IChatService {
 					}),
 				};
 
-				return { success: true, data: chatDetailDto } as DataResult<ChatDetailDto>;
+				return { success: true, data: chatDetailDto, statusCode: 201 } as DataResult<ChatDetailDto>;
 			}
 
-			return { success: false, message: 'Chat not found' } as DataResult<ChatDetailDto>;
+			return { success: false, message: 'Chat not found', statusCode: 404 } as DataResult<ChatDetailDto>;
 		} catch (err) {
 			const error: CustomError = new Error(err);
+			error.className = err.className || 'ChatService';
+			error.functionName = err.functionName || 'createChat';
 			throw error;
 		}
 	}
@@ -137,25 +142,27 @@ export class ChatService implements IChatService {
 		try {
 			const user: User = (await this.userService.getUserById(userId)).data;
 
-			if (!user) return { success: false, message: 'User not found' } as Result;
+			if (!user) return { success: false, message: 'User not found', statusCode: 404 } as Result;
 
 			const chatToUpdate: Chat = await this.chatRepository.getById(chatId);
 
-			if (!chatToUpdate) return { success: false, message: 'Chat not found' } as Result;
+			if (!chatToUpdate) return { success: false, message: 'Chat not found', statusCode: 404 } as Result;
 
 			const isMember: boolean = chatToUpdate.members.includes(user._id);
 
-			if (!isMember) return { success: false, message: 'You are not a member of this chat' } as Result;
+			if (!isMember) return { success: false, message: 'You are not a member of this chat', statusCode: 403 } as Result;
 
 			const updatedChat: Chat = await this.chatRepository.update(chat);
 
 			if (updatedChat) {
-				return { success: true, message: 'Chat updated successfully' } as Result;
+				return { success: true, message: 'Chat updated successfully', statusCode: 201 } as Result;
 			}
 
-			return { success: false, message: 'Chat update failed' } as Result;
+			return { success: false, message: 'Chat update failed', statusCode: 500 } as Result;
 		} catch (err) {
 			const error: CustomError = new Error(err);
+			error.className = err.className || 'ChatService';
+			error.functionName = err.functionName || 'createChat';
 			throw error;
 		}
 	}
@@ -164,22 +171,25 @@ export class ChatService implements IChatService {
 			const chat: Chat = await this.chatRepository.getById(chatId);
 			const member: User = (await this.userService.getUserById(memberId)).data;
 
-			if (!chat) return { success: false, message: 'Chat not found' } as Result;
-			if (!member) return { success: false, message: 'Member not found' } as Result;
+			if (!chat) return { success: false, message: 'Chat not found', statusCode: 404 } as Result;
+			if (!member) return { success: false, message: 'Member not found', statusCode: 404 } as Result;
 
 			const isMember: boolean = chat.members.includes(member._id);
 
-			if (isMember) return { success: false, message: 'User is already a member of this chat' } as Result;
+			if (isMember)
+				return { success: false, message: 'User is already a member of this chat', statusCode: 409 } as Result;
 
 			const updatedChat: Chat = await this.chatRepository.addMember(chat._id, member._id);
 
 			if (updatedChat) {
-				return { success: true, message: 'Member added successfully' } as Result;
+				return { success: true, message: 'Member added successfully', statusCode: 201 } as Result;
 			}
 
-			return { success: false, message: 'Member addition failed' } as Result;
+			return { success: false, message: 'Member addition failed', statusCode: 500 } as Result;
 		} catch (err) {
 			const error: CustomError = new Error(err);
+			error.className = err.className || 'ChatService';
+			error.functionName = err.functionName || 'createChat';
 			throw error;
 		}
 	}
@@ -188,62 +198,70 @@ export class ChatService implements IChatService {
 			const chat: Chat = await this.chatRepository.getById(chatId);
 			const member: User = (await this.userService.getUserById(memberId)).data;
 
-			if (!chat) return { success: false, message: 'Chat not found' } as Result;
-			if (!member) return { success: false, message: 'Member not found' } as Result;
+			if (!chat) return { success: false, message: 'Chat not found', statusCode: 404 } as Result;
+			if (!member) return { success: false, message: 'Member not found', statusCode: 404 } as Result;
 
 			const isMember: boolean = chat.members.includes(member._id);
 
-			if (!isMember) return { success: false, message: 'User is not a member of this chat' } as Result;
+			if (!isMember) return { success: false, message: 'User is not a member of this chat', statusCode: 403 } as Result;
 
 			const updatedChat: Chat = await this.chatRepository.removeMember(chat._id, member._id);
 
 			if (updatedChat) {
-				return { success: true, message: 'Member removed successfully' } as Result;
+				return { success: true, message: 'Member removed successfully', statusCode: 201 } as Result;
 			}
 
-			return { success: false, message: 'Member removal failed' } as Result;
+			return { success: false, message: 'Member removal failed', statusCode: 500 } as Result;
 		} catch (err) {
 			const error: CustomError = new Error(err);
+			error.className = err.className || 'ChatService';
+			error.functionName = err.functionName || 'createChat';
 			throw error;
 		}
 	}
 	async setChatAvatar(chatId: string, avatar: Express.Multer.File): Promise<Result> {
 		try {
 			const chat: Chat = await this.chatRepository.getById(chatId);
-			if (!chat) return { success: false, message: 'Chat not found' } as Result;
+			if (!chat) return { success: false, message: 'Chat not found', statusCode: 404 } as Result;
+
+			// TODO: delete old avatar
 
 			await chat.setAvatar(await this.cloudinaryService.handleUpload(avatar, 'avatar'));
 
-			if (!chat.avatar) return { success: false, message: 'Avatar upload failed' } as Result;
+			if (!chat.avatar) return { success: false, message: 'Avatar upload failed', statusCode: 500 } as Result;
 
 			const updatedChat: Chat = await this.chatRepository.update(chat);
 
 			if (updatedChat) {
-				return { success: true, message: 'Avatar set successfully' } as Result;
+				return { success: true, message: 'Avatar set successfully', statusCode: 200 } as Result;
 			}
 
-			return { success: false, message: 'Avatar setting failed' } as Result;
+			return { success: false, message: 'Avatar setting failed', statusCode: 500 } as Result;
 		} catch (err) {
 			const error: CustomError = new Error(err);
+			error.className = err.className || 'ChatService';
+			error.functionName = err.functionName || 'createChat';
 			throw error;
 		}
 	}
 	async setDescription(chatId: string, description: string): Promise<Result> {
 		try {
 			const chat: Chat = await this.chatRepository.getById(chatId);
-			if (!chat) return { success: false, message: 'Chat not found' } as Result;
+			if (!chat) return { success: false, message: 'Chat not found', statusCode: 404 } as Result;
 
 			chat.description = description;
 
 			const updatedChat: Chat = await this.chatRepository.update(chat);
 
 			if (updatedChat) {
-				return { success: true, message: 'Description set successfully' } as Result;
+				return { success: true, message: 'Description set successfully', statusCode: 201 } as Result;
 			}
 
-			return { success: false, message: 'Description setting failed' } as Result;
+			return { success: false, message: 'Description setting failed', statusCode: 500 } as Result;
 		} catch (err) {
 			const error: CustomError = new Error(err);
+			error.className = err.className || 'ChatService';
+			error.functionName = err.functionName || 'createChat';
 			throw error;
 		}
 	}
@@ -251,24 +269,26 @@ export class ChatService implements IChatService {
 		try {
 			const chat: Chat = await this.chatRepository.getById(chatId);
 
-			if (!chat) return { success: false, message: 'Chat not found' } as Result;
+			if (!chat) return { success: false, message: 'Chat not found', statusCode: 404 } as Result;
 
 			const isDeleted: boolean = await this.cloudinaryService.handleDelete(chat.avatar);
 
 			// TODO: delete media files
 			// TODO: delete message chunks
 
-			if (!isDeleted) return { success: false, message: 'Chat avatar deletion failed' } as Result;
+			if (!isDeleted) return { success: false, message: 'Chat avatar deletion failed', statusCode: 500 } as Result;
 
 			const deletedChat: boolean = await this.chatRepository.delete(chatId);
 
 			if (deletedChat) {
-				return { success: true, message: 'Chat deleted successfully' } as Result;
+				return { success: true, message: 'Chat deleted successfully', statusCode: 201 } as Result;
 			}
 
-			return { success: false, message: 'Chat deletion failed' } as Result;
+			return { success: false, message: 'Chat deletion failed', statusCode: 500 } as Result;
 		} catch (err) {
 			const error: CustomError = new Error(err);
+			error.className = err.className || 'ChatService';
+			error.functionName = err.functionName || 'createChat';
 			throw error;
 		}
 	}

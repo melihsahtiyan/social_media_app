@@ -7,9 +7,14 @@ import isAuth from '../middleware/is-auth';
 const controller: ChatController = container.get<ChatController>(ChatController);
 
 function routes(app: express.Express) {
-	app.put('/chat/create', isAuth,async (req: Request, res: Response, next: NextFunction) => {
+	app.put('/chat/create', isAuth, async (req: Request, res: Response, next: NextFunction) => {
 		// #swagger.tags = ['Chat']
 		await controller.createChat(req, res, next);
+	});
+
+	app.get('/chat/getAll', async (req: Request, res: Response, next: NextFunction) => {
+		// #swagger.tags = ['Chat']
+		await controller.getAllChats(req, res, next);
 	});
 }
 

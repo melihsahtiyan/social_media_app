@@ -27,4 +27,14 @@ export class ChatController {
 			next(err);
 		}
 	}
+
+	async getAllChats(req: Request, res: Response, next: NextFunction) {
+		try {
+			const result = await this.chatService.getAllChats();
+
+			res.status(result.statusCode).json(result);
+		} catch (err) {
+			next(err);
+		}
+	}
 }

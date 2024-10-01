@@ -42,7 +42,7 @@ export class ChatRepository implements IChatRepository {
 		if (chat) return new Chat(chat.toObject());
 	}
 	async getAll(): Promise<Array<Chat>> {
-		const allChats = await chats.find();
+		const allChats = await chats.find().populate('members', '_id firstName lastName');
 
 		return allChats.map(chat => new Chat(chat.toObject()));
 	}
