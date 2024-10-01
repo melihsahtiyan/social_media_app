@@ -1,3 +1,4 @@
+import "reflect-metadata"
 import { NextFunction, Response } from 'express';
 import Request from '../types/Request';
 import { inject, injectable } from 'inversify';

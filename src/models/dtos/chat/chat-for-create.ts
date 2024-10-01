@@ -1,7 +1,7 @@
-import { ObjectId } from '@/types/ObjectId';
+import { ObjectId } from '../../../types/ObjectId';
 
 export interface ChatForCreate {
-	members: ObjectId[];
+	members: string[];
 
 	// Group chat
 	isGroup: boolean;

@@ -80,6 +80,19 @@
         }
       }
     },
+    "/chat/create": {
+      "put": {
+        "tags": [
+          "Chat"
+        ],
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
     "/clubEvent/create": {
       "post": {
         "description": "",

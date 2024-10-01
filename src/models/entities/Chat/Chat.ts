@@ -1,21 +1,33 @@
-import { ObjectId } from '@/types/ObjectId';
+import { ObjectId } from '../../../types/ObjectId';
 import { Entity } from '../Entity';
-import { MessagePartition } from './MessagePartition';
 
 export class Chat extends Entity {
+	// Update members
 	members: ObjectId[];
-	messagePartitions: MessagePartition[];
+
+	// Creating new chunks
+	messageChunks: ObjectId[];
+
+	// Adding or removing media, post, event
 	sharedMedias: string[];
 	sharedPosts: ObjectId[];
 	sharedEvents: ObjectId[];
+
+	// Pinning or unpinning message
 	pinnedMessages: Array<{
 		pinnedUser: ObjectId[];
 		messageId: ObjectId;
 	}>;
+
+	// Marking or unmarking message as unread
 	unreadMessages: Array<{
 		userId: ObjectId;
 		messageId: ObjectId;
 	}>;
+
+	// Details
+	description?: string;
+	avatar?: string;
 
 	// Group chat
 	isGroup: boolean;
@@ -34,13 +46,15 @@ export class Chat extends Entity {
 		isGroup,
 		admins,
 		title,
+		description,
+		avatar,
 		createdAt,
 		updatedAt,
 	}) {
 		super();
 		this._id = _id;
 		this.members = members;
-		this.messagePartitions = messagePartitions;
+		this.messageChunks = messagePartitions;
 		this.sharedMedias = sharedMedias;
 		this.sharedPosts = sharedPosts;
 		this.sharedEvents = sharedEvents;
@@ -49,7 +63,18 @@ export class Chat extends Entity {
 		this.isGroup = isGroup;
 		this.admins = admins;
 		this.title = title;
+		this.description = description;
+		this.avatar = avatar;
 		this.createdAt = createdAt;
 		this.updatedAt = updatedAt;
+	}
+
+	async pushMessagePartition(messagePartition: ObjectId) {
+		this.messageChunks.push(messagePartition);
+		throw new Error('Not implemented');
+	}
+
+	async setAvatar(avatar: string) {
+		this.avatar = avatar;
 	}
 }

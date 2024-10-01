@@ -1,3 +1,4 @@
+import 'reflect-metadata';
 import { inject, injectable } from 'inversify';
 import { ClubService } from '../services/clubService';
 import Request from '../types/Request';
@@ -11,15 +12,15 @@ import { ClubForUpdateDto } from '../models/dtos/club/club-for-update-dto';
 
 @injectable()
 export class ClubController {
-	private _clubService: ClubService;
+	private clubService: ClubService;
 	constructor(@inject(ClubService) clubService: ClubService) {
-		this._clubService = clubService;
+		this.clubService = clubService;
 	}
 
 	async getClubs(req: Request, res: Response, next: NextFunction) {
 		try {
 			isValid(req);
-			const result: DataResult<Array<Club>> = await this._clubService.getAllClubs();
+			const result: DataResult<Array<Club>> = await this.clubService.getAllClubs();
 
 			if (result.success) {
 				return res.status(result.statusCode).json({
@@ -38,7 +39,7 @@ export class ClubController {
 		try {
 			isValid(req);
 			const id: string = req.params.id;
-			const result: DataResult<Club> = await this._clubService.getClubById(id);
+			const result: DataResult<Club> = await this.clubService.getClubById(id);
 
 			if (result.success) {
 				return res.status(result.statusCode).json({
@@ -59,7 +60,7 @@ export class ClubController {
 			club.president = req.userId;
 			const logo: Express.Multer.File = req.file;
 
-			const result = await this._clubService.createClub(club, logo);
+			const result = await this.clubService.createClub(club, logo);
 
 			if (result.success) {
 				return res.status(result.statusCode).json({
@@ -79,7 +80,7 @@ export class ClubController {
 			const id: string = req.params.id;
 			const club: ClubForUpdateDto = req.body;
 			const organizerId: string = req.userId;
-			const result: Result = await this._clubService.updateClub(id, club, organizerId);
+			const result: Result = await this.clubService.updateClub(id, club, organizerId);
 
 			if (result.success) {
 				return res.status(result.statusCode).json({ result });
@@ -106,7 +107,7 @@ export class ClubController {
 				return res.status(result.statusCode).json({ result });
 			}
 
-			const result: Result = await this._clubService.updateClubLogo(id, logo, organizerId);
+			const result: Result = await this.clubService.updateClubLogo(id, logo, organizerId);
 
 			if (result.success) {
 				return res.status(result.statusCode).json({ result });
@@ -133,7 +134,7 @@ export class ClubController {
 				return res.status(result.statusCode).json({ result });
 			}
 
-			const result: Result = await this._clubService.updateClubBanner(id, banner, organizerId);
+			const result: Result = await this.clubService.updateClubBanner(id, banner, organizerId);
 
 			if (result.success) {
 				return res.status(result.statusCode).json({ result });
@@ -150,7 +151,7 @@ export class ClubController {
 			const id: string = req.params.id;
 			const presidentId: string = req.userId;
 			const updatedPresidentId: string = req.body.presidentId;
-			const result: Result = await this._clubService.updateClubPresident(id, presidentId, updatedPresidentId);
+			const result: Result = await this.clubService.updateClubPresident(id, presidentId, updatedPresidentId);
 
 			if (result.success) {
 				return res.status(result.statusCode).json({ result });
@@ -166,7 +167,7 @@ export class ClubController {
 			isValid(req);
 			const id: string = req.params.id;
 			const userId: string = req.userId;
-			const result: Result = await this._clubService.deleteClub(id, userId);
+			const result: Result = await this.clubService.deleteClub(id, userId);
 
 			if (result.success) {
 				return res.status(result.statusCode).json({ result });

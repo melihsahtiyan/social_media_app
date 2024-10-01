@@ -8,7 +8,7 @@ export const handleError = (err: CustomError | Error, req: Request, res: Respons
 	const customError: CustomError = err;
 	const name: string = customError.name || 'Error';
 	const message: string = process.env.NODE_ENV === 'development' ? customError.message : 'Something went wrong!';
-	const status: number = customError.statusCode || 500;
+	const status: number = customError?.statusCode || 500;
 	const isClientError = status >= 400 && status < 500;
 	const date = `${new Date(Date.now())}`;
 

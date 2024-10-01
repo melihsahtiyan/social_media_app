@@ -1,4 +1,4 @@
-import { Document, Schema } from 'mongoose';
+import mongoose, { Document, Model, model, Schema } from 'mongoose';
 import { Message } from '../entities/Chat/Message';
 import { MessageStatus, MessageTypes } from '../entities/enums/messageEnums';
 
@@ -70,3 +70,7 @@ export const messageSchema = new Schema({
 		default: null,
 	},
 });
+
+const messages: Model<MessageDoc> = mongoose.models.messages || model<MessageDoc>('Message', messageSchema);
+
+export { messages };

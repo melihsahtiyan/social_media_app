@@ -1,3 +1,4 @@
+import "reflect-metadata"
 import { comments } from '../models/schemas/comment.schema';
 import { Comment } from '../models/entities/Comment';
 import { ICommentRepository } from '../types/repositories/ICommentRepository';

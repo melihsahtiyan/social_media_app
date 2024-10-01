@@ -20,27 +20,39 @@ export class CloudinaryService implements ICloudinaryService {
 		const videoExtensions = ['mp4', 'mov', 'avi', 'mkv', 'webm', 'm4v'];
 		const imageExtensions = ['jpg', 'jpeg', 'png', 'webp', 'heic', 'gif'];
 
-		if (type === 'profilePhoto') {
-			if (!imageExtensions.includes(extension)) {
-				const error: CustomError = new Error('Invalid file type! Profile photo must be an image.');
-				error.statusCode = 422;
-				throw error;
-			}
-			folder = 'profilePhotos/';
-		} else if (type === 'media') {
-			if (videoExtensions.includes(extension)) {
-				folder = 'media/videos/';
-			} else if (imageExtensions.includes(extension)) {
-				folder = 'media/images/';
-			} else {
+		switch (type) {
+			case 'profilePhoto':
+				if (!imageExtensions.includes(extension)) {
+					const error: CustomError = new Error('Invalid file type! Profile photo must be an image.');
+					error.statusCode = 422;
+					throw error;
+				}
+				folder = 'profilePhotos/';
+				break;
+			case 'avatar':
+				if (!imageExtensions.includes(extension)) {
+					const error: CustomError = new Error('Invalid file type! Profile photo must be an image.');
+					error.statusCode = 422;
+					throw error;
+				}
+				folder = 'avatars/';
+				break;
+			case 'media':
+				if (videoExtensions.includes(extension)) {
+					folder = 'media/videos/';
+				} else if (imageExtensions.includes(extension)) {
+					folder = 'media/images/';
+				} else {
+					const error: CustomError = new Error('Invalid file type!');
+					error.statusCode = 422;
+					throw error;
+				}
+				break;
+			default: {
 				const error: CustomError = new Error('Invalid file type!');
 				error.statusCode = 422;
 				throw error;
 			}
-		} else {
-			const error: CustomError = new Error('Invalid file type!');
-			error.statusCode = 422;
-			throw error;
 		}
 
 		const fileBuffer = file.buffer.toString('base64');

@@ -1,9 +1,9 @@
 import mongoose, { Document, Model, Schema } from 'mongoose';
-import { MessagePartition } from '../entities/Chat/MessagePartition';
+import { MessageChunk } from '../entities/Chat/MessageChunk';
 
-export type MessagePartitionDoc = Document & MessagePartition;
+export type MessageChunkDoc = Document & MessageChunk;
 
-export const messagePartitionSchema: Schema = new Schema({
+export const messageChunkSchema: Schema = new Schema({
 	messages: [
 		{
 			type: Schema.Types.ObjectId,
@@ -28,12 +28,14 @@ export const messagePartitionSchema: Schema = new Schema({
 	previousPartition: {
 		type: Schema.Types.ObjectId,
 		ref: 'MessagePartition',
-		default: null,
+		default: function (this: MessageChunkDoc) {
+			return this.isFull;
+		},
 	},
 	nextPartition: {
 		type: Schema.Types.ObjectId,
 		ref: 'MessagePartition',
-		required: true,
+		required: null,
 	},
 	createdAt: {
 		type: Date,
@@ -43,7 +45,7 @@ export const messagePartitionSchema: Schema = new Schema({
 	},
 });
 
-const messagePartitions: Model<MessagePartitionDoc> =
-	mongoose.models.messagePartitions || mongoose.model<MessagePartitionDoc>('MessagePartition', messagePartitionSchema);
+const messageChunks: Model<MessageChunkDoc> =
+	mongoose.models.messageChunks || mongoose.model<MessageChunkDoc>('MessageChunk', messageChunkSchema);
 
-export { messagePartitions };
+export { messageChunks };

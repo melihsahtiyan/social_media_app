@@ -92,6 +92,13 @@ const chatSchema = new Schema({
 			return this.isGroup;
 		},
 	},
+	avatar: {
+		type: String,
+		default: null,
+		required: function (this: ChatDoc) {
+			return this.isGroup;
+		},
+	},
 	createdAt: {
 		type: Date,
 		default: Date.now,

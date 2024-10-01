@@ -1,3 +1,4 @@
+import "reflect-metadata"
 import { inject, injectable } from 'inversify';
 import { ClubRepository } from '../repositories/club-repository';
 import { ClubInputDto } from '../models/dtos/club/club-input-dto';
@@ -54,6 +55,13 @@ export class ClubService implements IClubService {
 				biography: club.biography,
 				status: club.status,
 				president: president._id,
+				banner: null,
+				logo: null,
+				createdAt: new Date(Date.now()),
+				events: [],
+				members: [],
+				organizers: [president._id],
+				posts: [],
 			});
 
 			// TODO: refactor this block after implementing file upload

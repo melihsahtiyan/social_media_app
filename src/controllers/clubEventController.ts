@@ -1,3 +1,4 @@
+import "reflect-metadata"
 import { inject, injectable } from 'inversify';
 import { ClubEventService } from '../services/clubEventService';
 import { Response, NextFunction } from 'express';

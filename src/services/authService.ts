@@ -39,11 +39,11 @@ export class AuthService implements IAuthService {
 			// TODO: Handle the case where the verification email is not sent. Suggestions: send the verification email again or delete the user
 			await this._userRepository.create(userToCreate);
 
-			const isSent: boolean = await this.sendVerificationEmail(userToRegister.email, 'personal');
+			// const isSent: boolean = await this.sendVerificationEmail(userToRegister.email, 'personal');
 
-			if (!isSent) {
-				return { statusCode: 500, message: 'Email could not be sent. Registration failed!', success: false };
-			}
+			// if (!isSent) {
+			// 	return { statusCode: 500, message: 'Email could not be sent. Registration failed!', success: false };
+			// }
 
 			const result: Result = { statusCode: 201, message: 'User registered successfully', success: true };
 

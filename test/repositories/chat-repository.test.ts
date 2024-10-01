@@ -1,10 +1,10 @@
-import { ChatForCreate } from '@/models/dtos/chat/chat-for-create';
 import { chats } from '../../src/models/schemas/chat.schema';
 import { Chat } from '../../src/models/entities/Chat/Chat';
 import { ChatRepository } from '../../src/repositories/chat-repository';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
-import { ObjectId } from '@/types/ObjectId';
+import { ChatForCreate } from '../../src/models/dtos/chat/chat-for-create';
+import { ObjectId } from '../../src/types/ObjectId';
 
 dotenv.config();
 
@@ -28,7 +28,7 @@ describe('ChatRepository', () => {
 			title: null,
 		};
 
-		const createdChat: Chat = await chatRepository.create(chatForCreate);
+		const createdChat: Chat = await chats.create(chatForCreate);
 
 		chat = createdChat;
 	});

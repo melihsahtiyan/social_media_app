@@ -1,3 +1,4 @@
+import "reflect-metadata"
 import { IClubEventRepository } from '../types/repositories/IClubEventRepository';
 import { ClubEventForUpdate } from '../models/dtos/event/club-event-for-update';
 import { ClubEventDoc, clubEvents } from '../models/schemas/club.event.schema';

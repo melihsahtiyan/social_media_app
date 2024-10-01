@@ -1,7 +1,7 @@
-import { ObjectId } from '@/types/ObjectId';
+import { ObjectId } from '../../../types/ObjectId';
 import { Entity } from '../Entity';
 
-export class MessagePartition extends Entity {
+export class MessageChunk extends Entity {
 	messages: ObjectId[];
 	maxMessageCount: number = 50;
 	messageCount: number; // string messages counts 1 and media messages counts 10 and post or event messages counts 10
@@ -13,7 +13,6 @@ export class MessagePartition extends Entity {
 	constructor({
 		_id,
 		messages,
-		maxMessageCount,
 		messageCount,
 		partitionIndex,
 		isFull,
@@ -25,7 +24,6 @@ export class MessagePartition extends Entity {
 		super();
 		this._id = _id;
 		this.messages = messages;
-		this.maxMessageCount = maxMessageCount;
 		this.messageCount = messageCount;
 		this.partitionIndex = partitionIndex;
 		this.isFull = isFull;

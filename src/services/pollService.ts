@@ -1,3 +1,4 @@
+import "reflect-metadata"
 import { inject, injectable } from 'inversify';
 import { PollRepository } from '../repositories/poll-repository';
 import { IPollService } from '../types/services/IPollService';

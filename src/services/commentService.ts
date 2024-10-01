@@ -1,3 +1,4 @@
+import "reflect-metadata"
 import { inject, injectable } from 'inversify';
 import { ICommentService } from '../types/services/ICommentService';
 import { CommentForCreateDto } from '../models/dtos/comment/comment-for-create';

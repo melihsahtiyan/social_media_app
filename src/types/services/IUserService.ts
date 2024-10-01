@@ -14,6 +14,7 @@ interface IUserService {
 	getAllDetails(): Promise<DataResult<Array<UserDoc>>>;
 
 	getUserById(userId: string): Promise<DataResult<User>>;
+	getUsersByIds(userIds: Array<string>): Promise<DataResult<Array<User>>>;
 
 	viewUserProfile(userId: string, viewerId: string): Promise<DataResult<UserProfileDto | UserDetailDto>>;
 

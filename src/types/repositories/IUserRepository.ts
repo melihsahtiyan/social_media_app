@@ -6,13 +6,15 @@ import { User } from '../../models/entities/User';
 import { UserListDto } from '../../models/dtos/user/user-list-dto';
 import { UserForSearchDto } from '../../models/dtos/user/user-for-search-dto';
 import { UserForRequestDto } from '../../models/dtos/user/user-for-request-dto';
+import { ObjectId } from '../ObjectId';
 
 interface IUserRepository {
 	create(userForCreate: UserForCreate): Promise<UserDoc>;
 	getUserDetails(id: string): Promise<User>;
 	getUserProfile(id: string): Promise<User>;
-	getAll(): Promise<Array<UserListDto>>;
-	getUsersByIds(userIds: mongoose.Schema.Types.ObjectId[]): Promise<Array<User>>;
+	getAll(filter: Partial<User>): Promise<Array<UserListDto>>;
+	getAllByIds(ids: Array<ObjectId>): Promise<Array<User>>;
+	getUsersByIds(userIds: string[]): Promise<Array<User>>;
 	getAllPopulated(): Promise<UserDoc[]>;
 	getById(id: string): Promise<User>;
 	getByEmail(email: string): Promise<User>;

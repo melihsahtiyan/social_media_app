@@ -1,4 +1,4 @@
-import { ObjectId } from '@/types/ObjectId';
+import { ObjectId } from '../../types/ObjectId';
 import { Entity } from './Entity';
 
 export class Comment extends Entity {

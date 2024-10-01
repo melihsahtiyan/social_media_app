@@ -1,3 +1,4 @@
+import "reflect-metadata"
 import { injectable } from 'inversify';
 import { Club } from '../models/entities/Club';
 import { ClubDoc, clubs } from '../models/schemas/club.schema';

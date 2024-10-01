@@ -1,3 +1,4 @@
+import "reflect-metadata"
 import { IPollRepository } from '../types/repositories/IPollRepository';
 import { Schema } from 'mongoose';
 import { PostDoc, posts } from '../models/schemas/post.schema';

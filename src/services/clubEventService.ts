@@ -1,3 +1,4 @@
+import "reflect-metadata"
 import { inject, injectable } from 'inversify';
 import { IClubEventService } from '../types/services/IClubEventService';
 import { ClubEventDetailDto } from '../models/dtos/event/club-event-detail-dto';
@@ -105,7 +106,7 @@ export class ClubEventService implements IClubEventService {
 
 			const organizer: User = await this.userRepository.getById(event.getOrganizerId());
 
-			const attendees: User[] = await this.userRepository.getUsersByIds(event.attendees);
+			const attendees: User[] = await this.userRepository.getUsersByIds(event.attendees.map(attendee => attendee.toString()));
 
 			const eventDetail: ClubEventDetailDto = {
 				title: event.title,

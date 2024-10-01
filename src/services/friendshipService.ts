@@ -1,3 +1,4 @@
+import "reflect-metadata"
 import { Result } from '../types/result/Result';
 import { UserRepository } from '../repositories/user-repository';
 import { IFriendshipService } from '../types/services/IFriendsipService';

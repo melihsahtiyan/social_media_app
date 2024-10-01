@@ -89,6 +89,27 @@ export class UserService implements IUserService {
 			throw err;
 		}
 	}
+	async getUsersByIds(userIds: Array<string>): Promise<DataResult<Array<User>>> {
+		try {
+			const users: User[] = await this.userRepository.getUsersByIds(userIds as string[]);
+
+			const result: DataResult<Array<User>> = {
+				statusCode: 200,
+				message: 'Users fetched successfully',
+				success: true,
+				data: users,
+			};
+
+			return result;
+		} catch (err) {
+			const error: CustomError = new Error(err);
+
+			error.className = 'UserService';
+			error.functionName = 'getUsersByIds';
+
+			throw err;
+		}
+	}
 
 	async viewUserProfile(userId: string, viewerId: string): Promise<DataResult<UserProfileDto | UserDetailDto>> {
 		try {
@@ -116,7 +137,7 @@ export class UserService implements IUserService {
 				return result;
 			}
 
-			const friends: User[] = await this.userRepository.getUsersByIds(user.friends);
+			const friends: User[] = await this.userRepository.getUsersByIds(user.friends.map(friend => friend.toString()));
 
 			const friendDetails: Array<{
 				_id: string;
@@ -132,7 +153,9 @@ export class UserService implements IUserService {
 				};
 			});
 
-			const friendRequests: User[] = await this.userRepository.getUsersByIds(user.friendRequests);
+			const friendRequests: User[] = await this.userRepository.getUsersByIds(
+				user.friendRequests.map(request => request.toString())
+			);
 
 			const friendRequestDetails: Array<{
 				_id: string;
