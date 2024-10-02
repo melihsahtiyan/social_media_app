@@ -16,12 +16,11 @@ export interface IChatService {
 	// Update Operations
 	updateChat(userId: string, chatId: string, chat: ChatForUpdate): Promise<Result>;
 	//Update members
-	addChatMember(chatId: string, memberId: string): Promise<Result>;
-	removeChatMember(chatId: string, memberId: string): Promise<Result>;
+	addChatMember(admin: string, chatId: string, memberId: string): Promise<Result>;
+	removeChatMember(admin: string, chatId: string, memberId: string): Promise<Result>;
 	// Update details
-	setChatAvatar(chatId: string, avatar: Express.Multer.File): Promise<Result>;
-	setDescription(chatId: string, description: string): Promise<Result>;
+	setChatAvatar(admin: string, chatId: string, avatar: Express.Multer.File): Promise<Result>;
 
 	// Delete Operations
-	deleteChat(chatId: string): Promise<Result>;
+	deleteChat(admin: string, chatId: string): Promise<Result>;
 }

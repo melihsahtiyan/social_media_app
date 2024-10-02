@@ -79,4 +79,63 @@ export class ChatController {
 			next(err);
 		}
 	}
+
+	async addChatMember(req: Request, res: Response, next: NextFunction) {
+		try {
+			isValid(req);
+			const admin: string = req.userId;
+			const chatId: string = req.query.id as string;
+			const memberId: string = req.body.memberId;
+
+			const result = await this.chatService.addChatMember(admin, chatId, memberId);
+
+			res.status(result.statusCode).json(result);
+		} catch (err) {
+			next(err);
+		}
+	}
+
+	async removeChatMember(req: Request, res: Response, next: NextFunction) {
+		try {
+			isValid(req);
+			const admin: string = req.userId;
+			const chatId: string = req.query.id as string;
+			const memberId: string = req.body.memberId;
+
+			const result = await this.chatService.removeChatMember(admin, chatId, memberId);
+
+			res.status(result.statusCode).json(result);
+		} catch (err) {
+			next(err);
+		}
+	}
+
+	async setChatAvatar(req: Request, res: Response, next: NextFunction) {
+		try {
+			isValid(req);
+			const admin: string = req.userId;
+			const chatId: string = req.query.id as string;
+			const avatar: Express.Multer.File = req.file;
+
+			const result = await this.chatService.setChatAvatar(admin, chatId, avatar);
+
+			res.status(result.statusCode).json(result);
+		} catch (err) {
+			next(err);
+		}
+	}
+
+	async deleteChat(req: Request, res: Response, next: NextFunction) {
+		try {
+			isValid(req);
+			const admin: string = req.userId;
+			const chatId: string = req.query.id as string;
+
+			const result = await this.chatService.deleteChat(admin, chatId);
+
+			res.status(result.statusCode).json(result);
+		} catch (err) {
+			next(err);
+		}
+	}
 }

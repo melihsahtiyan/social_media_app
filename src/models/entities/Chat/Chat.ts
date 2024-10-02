@@ -78,7 +78,11 @@ export class Chat extends Entity {
 	}
 
 	isMember(member: ObjectId): boolean {
-		return this.members.find(chatMember => chatMember.toString() === member.toString()) ? true : false;;
+		return this.members.find(chatMember => chatMember.toString() === member.toString()) ? true : false;
+	}
+
+	isAdmin(admin: ObjectId): boolean {
+		return this.admins.find(chatAdmin => chatAdmin.toString() === admin.toString()) ? true : false;
 	}
 
 	async pushMessagePartition(messagePartition: ObjectId) {

@@ -19,10 +19,7 @@ describe('ChatRepository', () => {
 		chatRepository = new ChatRepository();
 
 		const chatForCreate: ChatForCreate = {
-			members: [
-				new mongoose.Schema.Types.ObjectId('MockedObjectId1'),
-				new mongoose.Schema.Types.ObjectId('MockedObjectId2'),
-			],
+			members: ['MockedObjectId1', 'MockedObjectId2'],
 			admins: [],
 			isGroup: false,
 			title: null,
@@ -39,10 +36,7 @@ describe('ChatRepository', () => {
 		it('should create a new chat', async () => {
 			// Arrange
 			const chat: ChatForCreate = {
-				members: [
-					new mongoose.Schema.Types.ObjectId('MockedObjectId1'),
-					new mongoose.Schema.Types.ObjectId('MockedObjectId2'),
-				],
+				members: ['MockedObjectId1', 'MockedObjectId2'],
 				admins: [],
 				isGroup: false,
 				title: null,

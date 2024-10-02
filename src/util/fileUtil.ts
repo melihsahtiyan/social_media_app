@@ -5,9 +5,9 @@ import Request from '../types/Request';
 
 const storage = multer.memoryStorage();
 
-const profilePhotoStorage = multer.memoryStorage();
+const singlePhotoStorage = multer.memoryStorage();
 
-const profilePhotoFileFilter = (req: Request, file, cb) => {
+const photoFileFilter = (req: Request, file, cb) => {
 	const imageMimetypes: Array<string> = ['image/png', 'image/jpg', 'image/jpeg', 'image/webp', 'image/heic'];
 
 	if (imageMimetypes.find(mimetype => mimetype === file.mimetype)) {
@@ -17,10 +17,10 @@ const profilePhotoFileFilter = (req: Request, file, cb) => {
 	}
 };
 
-export const fileUpload = multer({
-	storage: profilePhotoStorage,
-	fileFilter: profilePhotoFileFilter,
-}).single('profilePhoto');
+export const profilePhotoUpload = multer({
+	storage: singlePhotoStorage,
+	fileFilter: photoFileFilter,
+});
 
 const fileFilter = (req: Request, file, cb) => {
 	const imageMimetypes = ['image/png', 'image/jpg', 'image/jpeg', 'image/webp', 'image/heic', 'image/gif'];

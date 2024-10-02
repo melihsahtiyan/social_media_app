@@ -4,6 +4,7 @@ import { ChatController } from '../controllers/chatController';
 import Request from '../types/Request';
 import isAuth from '../middleware/is-auth';
 import { body, query } from 'express-validator';
+import { profilePhotoUpload } from '../util/fileUtil';
 
 const controller: ChatController = container.get<ChatController>(ChatController);
 
@@ -52,6 +53,53 @@ function routes(app: express.Express) {
 		async (req: Request, res: Response, next: NextFunction) => {
 			// #swagger.tags = ['Chat']
 			await controller.updateChat(req, res, next);
+		}
+	);
+
+	app.put(
+		'/chat/addMember',
+		isAuth,
+		[
+			query('id').isString().withMessage('Chat ID must be a valid string'),
+			body('memberId').isString().withMessage('Member ID must be a valid string'),
+		],
+		async (req: Request, res: Response, next: NextFunction) => {
+			// #swagger.tags = ['Chat']
+			await controller.addChatMember(req, res, next);
+		}
+	);
+
+	app.put(
+		'/chat/removeMember',
+		isAuth,
+		[
+			query('id').isString().withMessage('Chat ID must be a valid string'),
+			body('memberId').isString().withMessage('Member ID must be a valid string'),
+		],
+		async (req: Request, res: Response, next: NextFunction) => {
+			// #swagger.tags = ['Chat']
+			await controller.removeChatMember(req, res, next);
+		}
+	);
+
+	app.put(
+		'/chat/setAvatar',
+		isAuth,
+		[query('id').isString().withMessage('Chat ID must be a valid string')],
+		profilePhotoUpload.single('avatar'),
+		async (req: Request, res: Response, next: NextFunction) => {
+			// #swagger.tags = ['Chat']
+			await controller.setChatAvatar(req, res, next);
+		}
+	);
+
+	app.delete(
+		'/chat/delete',
+		isAuth,
+		[query('id').isString().withMessage('Chat ID must be a valid string')],
+		async (req: Request, res: Response, next: NextFunction) => {
+			// #swagger.tags = ['Chat']
+			await controller.deleteChat(req, res, next);
 		}
 	);
 }

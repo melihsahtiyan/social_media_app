@@ -145,6 +145,58 @@
         }
       }
     },
+    "/chat/addMember": {
+      "put": {
+        "tags": [
+          "Chat"
+        ],
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/chat/removeMember": {
+      "put": {
+        "tags": [
+          "Chat"
+        ],
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/chat/setAvatar": {
+      "put": {
+        "tags": [
+          "Chat"
+        ],
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/chat/delete": {
+      "delete": {
+        "tags": [
+          "Chat"
+        ],
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
     "/clubEvent/create": {
       "post": {
         "description": "",
