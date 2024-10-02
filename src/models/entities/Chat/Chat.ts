@@ -69,6 +69,18 @@ export class Chat extends Entity {
 		this.updatedAt = updatedAt;
 	}
 
+	async addMember(member: ObjectId) {
+		this.members.push(member);
+	}
+
+	async removeMember(member: ObjectId) {
+		this.members = this.members.filter(m => m !== member);
+	}
+
+	isMember(member: ObjectId): boolean {
+		return this.members.find(chatMember => chatMember.toString() === member.toString()) ? true : false;;
+	}
+
 	async pushMessagePartition(messagePartition: ObjectId) {
 		this.messageChunks.push(messagePartition);
 		throw new Error('Not implemented');
@@ -76,5 +88,15 @@ export class Chat extends Entity {
 
 	async setAvatar(avatar: string) {
 		this.avatar = avatar;
+	}
+
+	async setDetails(description?: string) {
+		this.description = description;
+	}
+
+	async setGroupDetails({ isGroup, admins, title }: { isGroup?: boolean; admins?: ObjectId[]; title?: string }) {
+		this.isGroup = isGroup;
+		this.admins = admins;
+		this.title = title;
 	}
 }

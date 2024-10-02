@@ -11,6 +11,7 @@ import { CustomError } from '../types/error/CustomError';
 import { ChatDetailDto } from '../models/dtos/chat/chat-detail-dto';
 import { UserService } from './userService';
 import { CloudinaryService } from './cloudinaryService';
+import { ChatForUpdate } from '../models/dtos/chat/chat-for-update';
 
 @injectable()
 export class ChatService implements IChatService {
@@ -81,7 +82,9 @@ export class ChatService implements IChatService {
 			const allChats: Chat[] = await this.chatRepository.getAll();
 
 			if (allChats) {
-				return { success: true, message: 'Chats fetched successfully!', data: allChats, statusCode: 201 } as DataResult<Chat[]>;
+				return { success: true, message: 'Chats fetched successfully!', data: allChats, statusCode: 201 } as DataResult<
+					Chat[]
+				>;
 			}
 
 			return { success: false, message: 'No chats found', statusCode: 404 } as DataResult<Chat[]>;
@@ -138,7 +141,7 @@ export class ChatService implements IChatService {
 			throw error;
 		}
 	}
-	async updateChat(userId: string, chatId: string, chat: Chat): Promise<Result> {
+	async updateChat(userId: string, chatId: string, chat: ChatForUpdate): Promise<Result> {
 		try {
 			const user: User = (await this.userService.getUserById(userId)).data;
 
@@ -148,11 +151,14 @@ export class ChatService implements IChatService {
 
 			if (!chatToUpdate) return { success: false, message: 'Chat not found', statusCode: 404 } as Result;
 
-			const isMember: boolean = chatToUpdate.members.includes(user._id);
+			const isMember: boolean = chatToUpdate.isMember(user._id);
 
 			if (!isMember) return { success: false, message: 'You are not a member of this chat', statusCode: 403 } as Result;
 
-			const updatedChat: Chat = await this.chatRepository.update(chat);
+			await chatToUpdate.setGroupDetails({ isGroup: chat.isGroup, title: chat.title });
+			await chatToUpdate.setDetails(chat.description);
+
+			const updatedChat: Chat = await this.chatRepository.update(chatToUpdate);
 
 			if (updatedChat) {
 				return { success: true, message: 'Chat updated successfully', statusCode: 201 } as Result;

@@ -29,11 +29,12 @@ const isAuth = (req: Request, res: Response, next: NextFunction) => {
 		req.userId = decodedToken._id;
 		next();
 	} catch (err) {
-		const error: CustomError = new Error();
+		const error: CustomError = new Error(err);
 		error.statusCode = 500;
 		error.message = err.message || 'Token verification failed';
-		res.status(error.statusCode).json({ error });
-		next(error.message);
+		error.functionName = 'isAuth';
+		res.status(error.statusCode).json({ error: error.message, statusCode: error.statusCode });
+		next({ error: error.message, statusCode: error.statusCode, functionName: error.functionName, name: error.name });
 	}
 };
 

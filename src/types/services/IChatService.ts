@@ -2,6 +2,7 @@ import { Chat } from '../../models/entities/Chat/Chat';
 import { DataResult } from '../result/DataResult';
 import { Result } from '../result/Result';
 import { ChatDetailDto } from '../../models/dtos/chat/chat-detail-dto';
+import { ChatForUpdate } from '../../models/dtos/chat/chat-for-update';
 
 export interface IChatService {
 	// Create Operation
@@ -13,7 +14,7 @@ export interface IChatService {
 	getChatDetails(chatId: string): Promise<DataResult<ChatDetailDto>>;
 
 	// Update Operations
-	updateChat(userId: string, chatId: string, chat: Chat): Promise<Result>;
+	updateChat(userId: string, chatId: string, chat: ChatForUpdate): Promise<Result>;
 	//Update members
 	addChatMember(chatId: string, memberId: string): Promise<Result>;
 	removeChatMember(chatId: string, memberId: string): Promise<Result>;

@@ -92,6 +92,11 @@ const chatSchema = new Schema({
 			return this.isGroup;
 		},
 	},
+	description: {
+		type: String,
+		default: null,
+		required: false,
+	},
 	avatar: {
 		type: String,
 		default: null,
