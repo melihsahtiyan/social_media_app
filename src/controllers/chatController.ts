@@ -37,4 +37,17 @@ export class ChatController {
 			next(err);
 		}
 	}
+
+	async getChatById(req: Request, res: Response, next: NextFunction) {
+		try {
+			isValid(req);
+			const chatId: string = req.query.id as string;
+
+			const result = await this.chatService.getChatById(chatId);
+
+			res.status(result.statusCode).json(result);
+		} catch (err) {
+			next(err);
+		}
+	}
 }
