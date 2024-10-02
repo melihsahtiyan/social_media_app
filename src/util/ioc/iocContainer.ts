@@ -23,6 +23,11 @@ import { ClubEventController } from '../../controllers/clubEventController';
 import { CloudinaryService } from '../../services/cloudinaryService';
 import { FriendshipService } from '../../services/friendshipService';
 import { FriendshipController } from '../../controllers/friendshipController';
+import { ChatRepository } from '../../repositories/chat-repository';
+import { ChatService } from '../../services/chatService';
+import { ChatController } from '../../controllers/chatController';
+import { MessageChunkRepository } from '../../repositories/message-chunk-repository';
+import { MessageRepository } from '../../repositories/message-repository';
 
 const container: Container = new Container();
 
@@ -37,6 +42,14 @@ container.bind<PollController>(PollController).to(PollController).inSingletonSco
 container.bind<UserRepository>(UserRepository).to(UserRepository).inSingletonScope();
 container.bind<UserService>(UserService).to(UserService).inSingletonScope();
 container.bind<UserController>(UserController).to(UserController).inSingletonScope();
+
+container.bind<ChatRepository>(ChatRepository).to(ChatRepository).inSingletonScope();
+container.bind<ChatService>(ChatService).to(ChatService).inSingletonScope();
+container.bind<ChatController>(ChatController).to(ChatController).inSingletonScope();
+
+container.bind<MessageChunkRepository>(MessageChunkRepository).to(MessageChunkRepository).inSingletonScope();
+
+container.bind<MessageRepository>(MessageRepository).to(MessageRepository).inSingletonScope();
 
 container.bind<FriendshipService>(FriendshipService).to(FriendshipService).inSingletonScope();
 container.bind<FriendshipController>(FriendshipController).to(FriendshipController).inSingletonScope();

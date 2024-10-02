@@ -11,9 +11,9 @@ import PostListDto from '../models/dtos/post/post-list';
 import { DataResult } from '../types/result/DataResult';
 import { PostForCreate } from '../models/dtos/post/post-for-create';
 import { PostDetails } from '../models/dtos/post/post-details';
-import { Post } from '../models/entites/Post';
+import { Post } from '../models/entities/Post';
 import { Result } from '../types/result/Result';
-import { User } from '../models/entites/User';
+import { User } from '../models/entities/User';
 
 @injectable()
 export class PostService implements IPostService {

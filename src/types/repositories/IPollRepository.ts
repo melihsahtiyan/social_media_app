@@ -1,7 +1,7 @@
 import { Schema } from "mongoose";
-import { Post } from "../../models/entites/Post";
+import { Post } from "../../models/entities/Post";
 import { PostDoc } from "../../models/schemas/post.schema";
-import { Poll } from "../../models/entites/Poll";
+import { Poll } from "../../models/entities/Poll";
 
 export interface IPollRepository {
   createPoll(poll: Poll): Promise<Post>;

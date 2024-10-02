@@ -1,6 +1,6 @@
 import { Schema } from 'mongoose';
 import { UserListDto } from '../../src/models/dtos/user/user-list-dto';
-import { User } from '../../src/models/entites/User';
+import { User } from '../../src/models/entities/User';
 import { UserRepository } from '../../src/repositories/user-repository';
 import { UserService } from '../../src/services/userService';
 import { UserDoc } from '../../src/models/schemas/user.schema';

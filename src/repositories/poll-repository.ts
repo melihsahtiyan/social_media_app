@@ -1,9 +1,10 @@
+import "reflect-metadata"
 import { IPollRepository } from '../types/repositories/IPollRepository';
 import { Schema } from 'mongoose';
 import { PostDoc, posts } from '../models/schemas/post.schema';
 import { injectable } from 'inversify';
-import { Poll } from '../models/entites/Poll';
-import { Post } from '../models/entites/Post';
+import { Poll } from '../models/entities/Poll';
+import { Post } from '../models/entities/Post';
 import { CustomError } from '../types/error/CustomError';
 
 type ObjectId = Schema.Types.ObjectId;

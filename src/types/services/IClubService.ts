@@ -1,7 +1,7 @@
 import { ClubInputDto } from '../../models/dtos/club/club-input-dto';
 import { DataResult } from '../result/DataResult';
 import { Result } from '../result/Result';
-import { Club } from '../../models/entites/Club';
+import { Club } from '../../models/entities/Club';
 import { ClubForUpdateDto } from '../../models/dtos/club/club-for-update-dto';
 
 export interface IClubService {

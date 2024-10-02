@@ -8,14 +8,18 @@ export const handleError = (err: CustomError | Error, req: Request, res: Respons
 	const customError: CustomError = err;
 	const name: string = customError.name || 'Error';
 	const message: string = process.env.NODE_ENV === 'development' ? customError.message : 'Something went wrong!';
-	const status: number = customError.statusCode || 500;
+	const className: string = customError?.name;
+	const functionName: string = customError?.functionName;
+	const status: number = customError?.statusCode || 500;
 	const isClientError = status >= 400 && status < 500;
 	const date = `${new Date(Date.now())}`;
 
-	console.log('Error Handling Middleware: ', {
+	console.error('Error Handling Middleware: ', {
 		name: name,
 		error: customError,
 		message: message,
+		className: className,
+		functionName: functionName,
 	});
 
 	logger.error({
@@ -29,6 +33,7 @@ export const handleError = (err: CustomError | Error, req: Request, res: Respons
 		query: req.query,
 		user: req.userId ? req.userId : 'Anonymous', // Log user if available
 	});
+	
 	return res.status(status).json({
 		error: {
 			name: customError.name || 'Error',

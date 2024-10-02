@@ -3,10 +3,10 @@ import { UserRepository } from '../../src/repositories/user-repository';
 import { PostRepository } from '../../src/repositories/post-repository';
 import { PostService } from '../../src/services/postService';
 import { PostInputDto } from '../../src/models/dtos/post/post-input-dto';
-import { User } from '../../src/models/entites/User';
+import { User } from '../../src/models/entities/User';
 import { PostDoc } from '../../src/models/schemas/post.schema';
 import { Schema } from 'mongoose';
-import { Post } from '../../src/models/entites/Post';
+import { Post } from '../../src/models/entities/Post';
 import { CustomError } from '../../src/types/error/CustomError';
 
 describe('Post Service', () => {

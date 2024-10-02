@@ -1,5 +1,5 @@
 import { ObjectId } from '../../../types/ObjectId';
-import { Poll } from '../../../models/entites/Poll';
+import { Poll } from '../../entities/Poll';
 
 export interface PostForCreate {
 	creator: ObjectId;

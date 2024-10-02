@@ -5,7 +5,7 @@ import { UserDoc, users } from '../models/schemas/user.schema';
 import { PostForCreate } from '../models/dtos/post/post-for-create';
 import mongoose from 'mongoose';
 import IPostRepository from '../types/repositories/IPostRepository';
-import { Post } from '../models/entites/Post';
+import { Post } from '../models/entities/Post';
 import { Schema } from 'mongoose';
 import { CustomError } from '../types/error/CustomError';
 

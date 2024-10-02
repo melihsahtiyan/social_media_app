@@ -1,3 +1,4 @@
+import "reflect-metadata"
 import { inject, injectable } from 'inversify';
 import { ClubEventService } from '../services/clubEventService';
 import { Response, NextFunction } from 'express';
@@ -5,7 +6,7 @@ import Request from '../types/Request';
 import { DataResult } from '../types/result/DataResult';
 import { ClubEventInputDto } from '../models/dtos/event/club-event-input-dto';
 import { ClubEventDetailDto } from '../models/dtos/event/club-event-detail-dto';
-import { ClubEvent } from '../models/entites/ClubEvent';
+import { ClubEvent } from '../models/entities/ClubEvent';
 
 @injectable()
 export class ClubEventController {

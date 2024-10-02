@@ -7,10 +7,11 @@ import { UserForUpdate } from '../models/dtos/user/user-for-update';
 import jwt from 'jsonwebtoken';
 import IUserRepository from '../types/repositories/IUserRepository';
 import { CustomError } from '../types/error/CustomError';
-import { User } from '../models/entites/User';
+import { User } from '../models/entities/User';
 import { UserListDto } from '../models/dtos/user/user-list-dto';
 import { UserForSearchDto } from '../models/dtos/user/user-for-search-dto';
 import { UserForRequestDto } from '../models/dtos/user/user-for-request-dto';
+import { ObjectId } from '../types/ObjectId';
 
 @injectable()
 export class UserRepository implements IUserRepository {
@@ -36,11 +37,18 @@ export class UserRepository implements IUserRepository {
 		return new User(user.toObject());
 	}
 
-	async getAll(): Promise<Array<UserListDto>> {
+	async getAll(filter?: Partial<User>): Promise<Array<UserListDto>> {
 		return (await users
-			.find()
+			.find(filter)
 			.populate('friends', '_id firstName lastName')
 			.populate('friendRequests', '_id firstName lastName')) as Array<UserListDto>;
+	}
+
+	async getAllByIds(ids: Array<ObjectId>): Promise<Array<User>> {
+		const listedUsers: Array<UserDoc> = await users.find({ $in: { _id: ids } });
+
+		if (listedUsers.length === 0) return [];
+		return listedUsers.map(user => new User(user.toObject()));
 	}
 
 	async getAllPopulated(): Promise<UserDoc[]> {
@@ -51,20 +59,26 @@ export class UserRepository implements IUserRepository {
 			.exec();
 	}
 
-	async getUsersByIds(userIds: mongoose.Schema.Types.ObjectId[]): Promise<Array<User>> {
-		const userList = await users.find({
-			_id: { $in: userIds },
-		});
+	async getUsersByIds(userIds: string[]): Promise<Array<User>> {
+		try {
+			const userList = await users.find({
+				_id: { $in: userIds },
+			});
 
-		const result: Array<User> = userList.map(user => new User(user.toObject()));
-
-		return result;
+			if (userList.length === 0) return [];
+			return userList.map(user => new User(user.toObject()));
+		} catch (err) {
+			const error: CustomError = err;
+			error.className = 'UserRepository';
+			error.functionName = 'getUsersByIds';
+			throw error;
+		}
 	}
 
 	async getById(id: string): Promise<User> {
 		const result: UserDoc = await users.findById(id);
-		const user: User = new User(result.toObject());
-		return user;
+
+		if (result !== null) return new User(result.toObject());
 	}
 
 	async getByEmail(email: string): Promise<User> {

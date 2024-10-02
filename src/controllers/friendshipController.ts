@@ -1,3 +1,4 @@
+import "reflect-metadata"
 import { inject, injectable } from 'inversify';
 import { FriendshipService } from '../services/friendshipService';
 import { NextFunction, Response } from 'express';
@@ -48,7 +49,6 @@ export class FriendshipController {
 
 			return res.status(result.statusCode).json({ result });
 		} catch (err) {
-			console.log(err);
 			next(err);
 		}
 	}

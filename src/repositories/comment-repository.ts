@@ -1,5 +1,6 @@
+import "reflect-metadata"
 import { comments } from '../models/schemas/comment.schema';
-import { Comment } from '../models/entites/Comment';
+import { Comment } from '../models/entities/Comment';
 import { ICommentRepository } from '../types/repositories/ICommentRepository';
 import { injectable } from 'inversify';
 import { posts } from '../models/schemas/post.schema';

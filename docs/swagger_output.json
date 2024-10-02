@@ -80,6 +80,71 @@
         }
       }
     },
+    "/chat/create": {
+      "put": {
+        "tags": [
+          "Chat"
+        ],
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/chat/getAll": {
+      "get": {
+        "tags": [
+          "Chat"
+        ],
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/chat/getById": {
+      "get": {
+        "tags": [
+          "Chat"
+        ],
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/chat/getDetails": {
+      "get": {
+        "tags": [
+          "Chat"
+        ],
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/chat/update": {
+      "put": {
+        "tags": [
+          "Chat"
+        ],
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
     "/clubEvent/create": {
       "post": {
         "description": "",

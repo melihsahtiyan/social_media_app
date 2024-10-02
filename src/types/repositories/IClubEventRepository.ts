@@ -1,5 +1,5 @@
 import { ClubEventForCreate } from '../../models/dtos/event/club-event-for-create';
-import { ClubEvent } from '../../models/entites/ClubEvent';
+import { ClubEvent } from '../../models/entities/ClubEvent';
 
 export interface IClubEventRepository {
 	create(event: ClubEventForCreate): Promise<ClubEvent>;

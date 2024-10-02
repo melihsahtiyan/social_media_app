@@ -1,3 +1,4 @@
+import "reflect-metadata"
 import { inject, injectable } from 'inversify';
 import { ICommentService } from '../types/services/ICommentService';
 import { CommentForCreateDto } from '../models/dtos/comment/comment-for-create';
@@ -7,9 +8,9 @@ import { Result } from '../types/result/Result';
 import { UserRepository } from '../repositories/user-repository';
 import { CommentRepository } from '../repositories/comment-repository';
 import { PostRepository } from '../repositories/post-repository';
-import { Comment } from '../models/entites/Comment';
-import { User } from '../models/entites/User';
-import { Post } from '../models/entites/Post';
+import { Comment } from '../models/entities/Comment';
+import { User } from '../models/entities/User';
+import { Post } from '../models/entities/Post';
 
 @injectable()
 export class CommentService implements ICommentService {

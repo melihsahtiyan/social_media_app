@@ -11,6 +11,7 @@ import clubRoutes from './routes/clubRoutes';
 import postRoutes from './routes/postRoutes';
 import pollRoutes from './routes/pollRoutes';
 import commentRoutes from './routes/commentRoutes';
+import chatRoutes from './routes/chatRoutes';
 import clubEventRoutes from './routes/clubEventRoutes';
 import fileRoute from './routes/fileRoute';
 import swaggerUi from 'swagger-ui-express';
@@ -40,9 +41,10 @@ app.use(cors(corsOptions));
 
 userRoutes(app);
 friendshipRoutes(app);
-commentRoutes(app);
+chatRoutes(app);
 clubRoutes(app);
 clubEventRoutes(app);
+commentRoutes(app);
 postRoutes(app);
 pollRoutes(app);
 authRoutes(app);
@@ -59,7 +61,7 @@ const retryMongoDBConnect = () => {
 			});
 		})
 		.catch(err => {
-			console.error('Failed to connect to MongoDB, retrying...', err);
+			console.error('Failed to connect to MongoDB, retrying...', err.message);
 			setTimeout(retryMongoDBConnect, 5000); // Retry connection every 5 seconds
 		});
 };

@@ -1,4 +1,4 @@
-import { User } from '../../src/models/entites/User';
+import { User } from '../../src/models/entities/User';
 import UserForLogin from '../../src/models/dtos/user/user-for-login';
 import UserForRegister from '../../src/models/dtos/user/user-for-register';
 import { UserRepository } from '../../src/repositories/user-repository';

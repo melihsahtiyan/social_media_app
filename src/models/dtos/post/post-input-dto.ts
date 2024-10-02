@@ -1,4 +1,4 @@
-import { Poll } from '../../../models/entites/Poll';
+import { Poll } from '../../entities/Poll';
 
 interface PostInputDto {
 	caption: string;

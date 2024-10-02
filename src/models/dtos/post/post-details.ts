@@ -1,6 +1,6 @@
 import { ObjectId } from '../../../types/ObjectId';
 import { UserForPost } from '../user/user-for-post';
-import { Poll } from '../../../models/entites/Poll';
+import { Poll } from '../../entities/Poll';
 
 export interface PostDetails {
 	_id: ObjectId;

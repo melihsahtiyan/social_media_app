@@ -1,16 +1,17 @@
+import "reflect-metadata"
 import { inject, injectable } from 'inversify';
 import { IClubEventService } from '../types/services/IClubEventService';
 import { ClubEventDetailDto } from '../models/dtos/event/club-event-detail-dto';
 import { ClubEventInputDto } from '../models/dtos/event/club-event-input-dto';
-import { ClubEvent } from '../models/entites/ClubEvent';
+import { ClubEvent } from '../models/entities/ClubEvent';
 import { DataResult } from '../types/result/DataResult';
 import { ClubEventRepository } from '../repositories/club-event-repository';
 import { ClubRepository } from '../repositories/club-repository';
 import { UserRepository } from '../repositories/user-repository';
-import { Club } from '../models/entites/Club';
+import { Club } from '../models/entities/Club';
 import { CustomError } from '../types/error/CustomError';
 import { ClubEventForCreate } from '../models/dtos/event/club-event-for-create';
-import { User } from '../models/entites/User';
+import { User } from '../models/entities/User';
 import { CloudinaryService } from './cloudinaryService';
 
 @injectable()
@@ -105,7 +106,7 @@ export class ClubEventService implements IClubEventService {
 
 			const organizer: User = await this.userRepository.getById(event.getOrganizerId());
 
-			const attendees: User[] = await this.userRepository.getUsersByIds(event.attendees);
+			const attendees: User[] = await this.userRepository.getUsersByIds(event.attendees.map(attendee => attendee.toString()));
 
 			const eventDetail: ClubEventDetailDto = {
 				title: event.title,

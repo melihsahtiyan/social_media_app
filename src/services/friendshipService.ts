@@ -1,8 +1,9 @@
+import "reflect-metadata"
 import { Result } from '../types/result/Result';
 import { UserRepository } from '../repositories/user-repository';
 import { IFriendshipService } from '../types/services/IFriendsipService';
 import { inject, injectable } from 'inversify';
-import { User } from '../models/entites/User';
+import { User } from '../models/entities/User';
 import { CustomError } from '../types/error/CustomError';
 import { UserDoc } from '../models/schemas/user.schema';
 import { UserForRequestDto } from '../models/dtos/user/user-for-request-dto';

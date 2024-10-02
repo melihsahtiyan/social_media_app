@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { Comment } from '../entites/Comment';
+import { Comment } from '../entities/Comment';
 
 export type CommentDoc = mongoose.Document & Comment;
 

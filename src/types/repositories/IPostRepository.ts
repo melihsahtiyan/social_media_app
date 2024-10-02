@@ -1,7 +1,7 @@
 import { Schema } from 'mongoose';
 import { PostForCreate } from '../../models/dtos/post/post-for-create';
 import { PostDoc } from '../../models/schemas/post.schema';
-import { Post } from '../../models/entites/Post';
+import { Post } from '../../models/entities/Post';
 
 interface IPostRepository {
 	createPost(post: PostForCreate): Promise<PostDoc>;
