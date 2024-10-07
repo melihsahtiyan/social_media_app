@@ -25,11 +25,13 @@ export class PostRepository implements IPostRepository {
 			university: university,
 		});
 
-		return await posts
+		const fetchedPosts: PostDoc[] = await posts
 			.find({ creator: { $in: usersFromUniversity.map(user => user._id) } })
 			.populate('creator', 'firstName lastName profilePhotoUrl')
 			.populate('likes', 'firstName lastName profilePhotoUrl')
 			.sort({ createdAt: 1 });
+
+		return fetchedPosts.map(post => new Post(post.toObject()));
 	}
 
 	async getAllPopulatedPosts(pages?: number): Promise<PostDoc[]> {
