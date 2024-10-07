@@ -1,4 +1,3 @@
-import mongoose from 'mongoose';
 import UserForCreate from '../../models/dtos/user/user-for-create';
 import { UserForUpdate } from '../../models/dtos/user/user-for-update';
 import { UserDoc } from '../../models/schemas/user.schema';
@@ -19,7 +18,7 @@ interface IUserRepository {
 	getById(id: string): Promise<User>;
 	getByEmail(email: string): Promise<User>;
 	getUsersByIdsForDetails(
-		ids: Array<mongoose.Schema.Types.ObjectId>,
+		ids: Array<ObjectId>,
 		detailedUser: string
 	): Promise<Array<UserForSearchDto>>;
 	searchByName(name: string): Promise<Array<User>>;
@@ -31,11 +30,11 @@ interface IUserRepository {
 	delete(id: string): Promise<UserDoc>;
 
 	deleteFriendRequest(
-		userToFollowId: mongoose.Schema.Types.ObjectId,
-		followerId: mongoose.Schema.Types.ObjectId
+		userToFollowId: ObjectId,
+		followerId: ObjectId
 	): Promise<UserDoc>;
-	acceptFriendRequest(userToFollow: UserDoc, followerUser: UserDoc): Promise<UserDoc>;
-	rejectFriendRequest(userToFollow: UserDoc, followerUser: UserDoc): Promise<UserDoc>;
+	acceptFriendRequest(receiverUserId: ObjectId, senderUserId: ObjectId): Promise<UserDoc>;
+	rejectFriendRequest(receiverUserId: ObjectId, senderUserId: ObjectId): Promise<UserDoc>;
 	removeFriend(userToUnfollowId: string, followerId: string): Promise<UserDoc>;
 	generateVerificationToken(email: string, emailType: string): Promise<string>;
 }

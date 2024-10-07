@@ -4,7 +4,7 @@ import { Message } from "../../models/entities/Chat/Message";
 export interface IMessageRepository {
     create(messageForCreate: MessageForCreate): Promise<Message>;
     getById(messageId: string): Promise<Message>;
-    getAll(): Promise<Array<Message>>;
+    getAll(filter: Partial<Message>): Promise<Array<Message>>;
     update(message: Message): Promise<Message>;
     delete(messageId: string): Promise<boolean>;
 }

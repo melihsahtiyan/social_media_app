@@ -15,9 +15,9 @@ const chatSchema = new Schema({
 			message: 'Chat must have at least 2 members',
 		},
 	},
-	messagePartitions: {
+	chunks: {
 		type: Array<Schema.Types.ObjectId>,
-		ref: 'MessagePartition',
+		ref: 'MessageChunk',
 		default: [],
 	},
 	sharedMedias: [{ type: String, default: [] }],

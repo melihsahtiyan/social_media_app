@@ -1,4 +1,4 @@
-import "reflect-metadata"
+import 'reflect-metadata';
 import { inject, injectable } from 'inversify';
 import { FriendshipService } from '../services/friendshipService';
 import { NextFunction, Response } from 'express';
@@ -22,12 +22,6 @@ export class FriendshipController {
 
 			const result: DataResult<Array<UserForRequestDto>> = await this.friendshipService.getAllFriendRequests(userId);
 
-			if (result.success)
-				return res.status(200).json({
-					message: result.message,
-					data: result.data,
-				});
-
 			return res.status(result.statusCode).json({ result });
 		} catch (err) {
 			next(err);
@@ -41,11 +35,6 @@ export class FriendshipController {
 			const followingUser: string = req.userId;
 
 			const result: Result = await this.friendshipService.sendFriendRequest(userToFollow, followingUser);
-
-			if (result.success)
-				return res.status(200).json({
-					message: result.message,
-				});
 
 			return res.status(result.statusCode).json({ result });
 		} catch (err) {
@@ -62,11 +51,6 @@ export class FriendshipController {
 
 			const result: Result = await this.friendshipService.handleFriendRequest(receiverUserId, senderUserId, response);
 
-			if (result.success)
-				return res.status(200).json({
-					message: result.message,
-				});
-
 			return res.status(result.statusCode).json({ result });
 		} catch (err) {
 			console.log(err);
@@ -78,7 +62,7 @@ export class FriendshipController {
 		try {
 			isValid(req);
 			const userId: string = req.userId;
-			const friendId: string = req.params.friendId;
+			const friendId: string = req.query.userId as string;
 
 			const result: Result = await this.friendshipService.unfriend(userId, friendId);
 

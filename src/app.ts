@@ -8,6 +8,7 @@ import authRoutes from './routes/authRoutes';
 import userRoutes from './routes/userRoutes';
 import friendshipRoutes from './routes/friendshipRoutes';
 import clubRoutes from './routes/clubRoutes';
+import messageRoutes from './routes/messageRoutes';
 import postRoutes from './routes/postRoutes';
 import pollRoutes from './routes/pollRoutes';
 import commentRoutes from './routes/commentRoutes';
@@ -18,6 +19,7 @@ import swaggerUi from 'swagger-ui-express';
 import swaggerFile from './../docs/swagger_output.json';
 import dotenv from 'dotenv';
 import cors from 'cors';
+import logger from './util/loggingHandler';
 
 dotenv.config();
 
@@ -37,6 +39,7 @@ const corsOptions = {
 	methods: 'GET, POST, PUT, PATCH, DELETE',
 	allowedHeaders: 'Content-Type, Authorization',
 };
+app.use(handleError);
 app.use(cors(corsOptions));
 
 userRoutes(app);
@@ -45,6 +48,7 @@ chatRoutes(app);
 clubRoutes(app);
 clubEventRoutes(app);
 commentRoutes(app);
+messageRoutes(app);
 postRoutes(app);
 pollRoutes(app);
 authRoutes(app);
@@ -54,9 +58,8 @@ const retryMongoDBConnect = () => {
 	mongoose
 		.connect(process.env.MONGO_URL)
 		.then(() => {
-			app.listen({ port: 8080 }, () => {
+			app.listen({ port: process.env.PORT || 8080 }, () => {
 				console.log('Server running, MongoDB connected');
-				app.use(handleError);
 				app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerFile));
 			});
 		})
@@ -67,3 +70,15 @@ const retryMongoDBConnect = () => {
 };
 
 retryMongoDBConnect();
+
+process.on('uncaughtException', (error: Error) => {
+	console.error('Uncaught Exception:', error);
+	logger.error('Uncaught Exception:', error);
+	process.exit(1);
+});
+
+process.on('unhandledRejection', (reason: unknown, promise: Promise<unknown>) => {
+	console.error('Unhandled Rejection:', reason);
+	logger.error('Unhandled Rejection:', reason);
+	process.exit(1);
+});

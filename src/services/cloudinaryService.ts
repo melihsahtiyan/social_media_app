@@ -3,6 +3,8 @@ import { v2 as cloudinary, UploadApiResponse } from 'cloudinary';
 import { ICloudinaryService } from '../types/services/ICloudinaryService';
 import { injectable } from 'inversify';
 import { CustomError } from '../types/error/CustomError';
+import dotenv from 'dotenv';
+dotenv.config();
 
 @injectable()
 export class CloudinaryService implements ICloudinaryService {

@@ -8,6 +8,8 @@ export const isValid = (req: Request) => {
 		// 422 is validation error
 		const firstError = errors.array()[0]?.msg || 'Validation Error';
 		const error: CustomError = new CustomError(firstError, 422, errors.array());
+		error.className = 'ValidationHandler';
+		error.functionName = 'isValid';
 		throw error;
 	}
 };

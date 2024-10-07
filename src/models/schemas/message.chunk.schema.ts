@@ -10,6 +10,11 @@ export const messageChunkSchema: Schema = new Schema({
 			ref: 'Message',
 		},
 	],
+	chat: {
+		type: Schema.Types.ObjectId,
+		ref: 'Chat',
+		required: true,
+	},
 	maxMessageCount: {
 		type: Number,
 		default: 50,
@@ -27,21 +32,22 @@ export const messageChunkSchema: Schema = new Schema({
 	},
 	previousPartition: {
 		type: Schema.Types.ObjectId,
-		ref: 'MessagePartition',
-		default: function (this: MessageChunkDoc) {
+		ref: 'MessageChunk',
+		reqired: function (this: MessageChunkDoc): boolean {
 			return this.isFull;
 		},
 	},
 	nextPartition: {
 		type: Schema.Types.ObjectId,
-		ref: 'MessagePartition',
-		required: null,
+		ref: 'MessageChunk',
 	},
 	createdAt: {
 		type: Date,
+		default: Date.now(),
 	},
 	updatedAt: {
 		type: Date,
+		default: null,
 	},
 });
 

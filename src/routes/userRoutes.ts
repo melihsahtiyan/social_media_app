@@ -1,6 +1,6 @@
 import { Express, NextFunction, Response } from 'express';
-import { param } from 'express-validator';
-import { fileUpload } from '../util/fileUtil';
+import { query } from 'express-validator';
+import { profilePhotoUpload } from '../util/fileUtil';
 import isAuth from '../middleware/is-auth';
 import { UserController } from '../controllers/userController';
 import container from '../util/ioc/iocContainer';
@@ -21,8 +21,8 @@ function routes(app: Express) {
 	});
 
 	app.get(
-		'/user/viewUserProfile/userId=:userId',
-		[param('userId').isAlphanumeric().not().isEmpty()],
+		'/user/viewUserProfile',
+		[query('userId').isString().not().isEmpty()],
 		isAuth,
 		logRequest,
 		async (req: Request, res: Response, next: NextFunction) => {
@@ -32,8 +32,8 @@ function routes(app: Express) {
 	);
 
 	app.get(
-		'/user/searchByName/name=:name',
-		[param('name').isString().not().isEmpty().withMessage('Name is required')],
+		'/user/searchByName',
+		[query('name').isString().not().isEmpty().withMessage('Name is required')],
 		isAuth,
 		logRequest,
 		async (req: Request, res: Response, next: NextFunction) => {
@@ -47,15 +47,20 @@ function routes(app: Express) {
 		await controller.getUserByToken(req, res, next);
 	});
 
-	app.put('/user/updateProfile', fileUpload, isAuth, async (req: Request, res: Response, next: NextFunction) => {
-		// #swagger.tags = ['User']
-		// #swagger.deprecated = true
-		await controller.updateProfile(req, res, next);
-	});
+	app.put(
+		'/user/updateProfile',
+		profilePhotoUpload.single('profilePhoto'),
+		isAuth,
+		async (req: Request, res: Response, next: NextFunction) => {
+			// #swagger.tags = ['User']
+			// #swagger.deprecated = true
+			await controller.updateProfile(req, res, next);
+		}
+	);
 
 	app.put(
 		'/user/changeProfilePhoto',
-		fileUpload,
+		profilePhotoUpload.single('profilePhoto'),
 		isAuth,
 		logRequest,
 		async (req: Request, res: Response, next: NextFunction) => {

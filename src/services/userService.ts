@@ -4,15 +4,15 @@ import IUserService from '../types/services/IUserService';
 import { UserRepository } from '../repositories/user-repository';
 import { CloudinaryService } from './cloudinaryService';
 import { CustomError } from '../types/error/CustomError';
-import { UserForUpdate } from '../models/dtos/user/user-for-update';
 import { Result } from '../types/result/Result';
 import { DataResult } from '../types/result/DataResult';
+import { User } from '../models/entities/User';
+import { UserDoc } from '../models/schemas/user.schema';
+import { UserForUpdate } from '../models/dtos/user/user-for-update';
 import { UserDetailDto } from '../models/dtos/user/user-detail-dto';
 import { UserListDto } from '../models/dtos/user/user-list-dto';
 import { UserForSearchDto } from '../models/dtos/user/user-for-search-dto';
 import { UserProfileDto } from '../models/dtos/user/user-profile-dto';
-import { User } from '../models/entities/User';
-import { UserDoc } from '../models/schemas/user.schema';
 
 @injectable()
 export class UserService implements IUserService {
@@ -237,13 +237,6 @@ export class UserService implements IUserService {
 					profilePhotoUrl: user.profilePhotoUrl,
 					isFriend: viewer.isFriend(user._id),
 				};
-
-				console.log(user.getFullName());
-				if (user.getFullName() === 'Burak Tırman') {
-					console.log('User: ', user._id);
-					console.log('Viewers friends: ', viewer.friends);
-					console.log(viewer.isFriend(user._id));
-				}
 
 				usersByName.push(userForSearchDto);
 			});

@@ -199,7 +199,9 @@ export class UserRepository implements IUserRepository {
 		}
 	}
 
-	async acceptFriendRequest(receiverUser: UserDoc, senderUser: UserDoc): Promise<UserDoc> {
+	async acceptFriendRequest(receiverUserId: ObjectId, senderUserId: ObjectId): Promise<UserDoc> {
+		const receiverUser: UserDoc = await users.findById(receiverUserId);
+		const senderUser: UserDoc = await users.findById(senderUserId);
 		if (receiverUser.friendRequests.includes(senderUser._id)) {
 			await this.deleteFriendRequest(receiverUser._id, senderUser._id);
 
@@ -213,13 +215,13 @@ export class UserRepository implements IUserRepository {
 		return await senderUser.save();
 	}
 
-	async rejectFriendRequest(userToAdd: UserDoc, requestedUser: UserDoc): Promise<UserDoc> {
-		if (userToAdd.friendRequests.includes(requestedUser._id)) {
-			this.deleteFriendRequest(userToAdd._id, requestedUser._id);
-		}
+	async rejectFriendRequest(receiverUserId: ObjectId, senderUserId: ObjectId): Promise<UserDoc> {
+		const receiverUser: UserDoc = await users.findById(receiverUserId);
+		const senderUser: UserDoc = await users.findById(senderUserId);
 
-		await userToAdd.save();
-		return await requestedUser.save();
+		await this.deleteFriendRequest(receiverUser._id, senderUser._id);
+
+		return receiverUser.save();
 	}
 
 	async removeFriend(userToRemoveId: string, userId: string): Promise<UserDoc> {

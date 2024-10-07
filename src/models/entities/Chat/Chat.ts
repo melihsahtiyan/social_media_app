@@ -6,7 +6,7 @@ export class Chat extends Entity {
 	members: ObjectId[];
 
 	// Creating new chunks
-	messageChunks: ObjectId[];
+	chunks: ObjectId[];
 
 	// Adding or removing media, post, event
 	sharedMedias: string[];
@@ -37,7 +37,7 @@ export class Chat extends Entity {
 	constructor({
 		_id,
 		members,
-		messagePartitions,
+		messageChunks,
 		sharedMedias,
 		sharedPosts,
 		sharedEvents,
@@ -54,7 +54,7 @@ export class Chat extends Entity {
 		super();
 		this._id = _id;
 		this.members = members;
-		this.messageChunks = messagePartitions;
+		this.chunks = messageChunks || [];
 		this.sharedMedias = sharedMedias;
 		this.sharedPosts = sharedPosts;
 		this.sharedEvents = sharedEvents;
@@ -78,12 +78,15 @@ export class Chat extends Entity {
 	}
 
 	isMember(member: ObjectId): boolean {
-		return this.members.find(chatMember => chatMember.toString() === member.toString()) ? true : false;;
+		return this.members.find(chatMember => chatMember.toString() === member.toString()) ? true : false;
 	}
 
-	async pushMessagePartition(messagePartition: ObjectId) {
-		this.messageChunks.push(messagePartition);
-		throw new Error('Not implemented');
+	isAdmin(admin: ObjectId): boolean {
+		return this.admins.find(chatAdmin => chatAdmin.toString() === admin.toString()) ? true : false;
+	}
+
+	addChunk(messageChunk: ObjectId) {
+		this.chunks?.unshift(messageChunk);
 	}
 
 	async setAvatar(avatar: string) {

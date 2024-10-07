@@ -3,7 +3,7 @@ import { ObjectId } from "../../../types/ObjectId";
 
 export type MessageForCreate = {
 	chatId: ObjectId;
-	partitionId: ObjectId;
+	chunkId: ObjectId;
 	creator: ObjectId;
 	content: string;
 	type: MessageTypes;

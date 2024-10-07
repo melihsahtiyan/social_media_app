@@ -25,9 +25,7 @@ export class UserController {
 	async viewUserProfile(req: Request, res: Response, next: NextFunction) {
 		try {
 			isValid(req);
-			const userId: string = req.params.userId;
-
-			isAuth(req, res, next);
+			const userId: string = req.query.userId as string;
 
 			const viewerId: string = req.userId;
 
@@ -35,12 +33,6 @@ export class UserController {
 				userId,
 				viewerId
 			);
-
-			if (result.success)
-				return res.status(200).json({
-					message: result.message,
-					data: result.data,
-				});
 
 			return res.status(result.statusCode).json({ result });
 		} catch (err) {
@@ -63,7 +55,8 @@ export class UserController {
 		} catch (err) {
 			next(err);
 		}
-	}async getAllUsers(req: Request, res: Response, next: NextFunction) {
+	}
+	async getAllUsers(req: Request, res: Response, next: NextFunction) {
 		try {
 			const result: DataResult<Array<UserListDto>> = await this.userService.getAllUsers();
 
@@ -98,7 +91,7 @@ export class UserController {
 	async searchByName(req: Request, res: Response, next: NextFunction) {
 		try {
 			isValid(req);
-			const name: string = req.params.name;
+			const name: string = req.query.name as string;
 			const userId: string = req.userId;
 
 			const result: DataResult<Array<UserForSearchDto>> = await this.userService.searchByName(name, userId);

@@ -3,7 +3,7 @@ import Request from '../types/Request';
 import { ClubController } from '../controllers/clubController';
 import container from '../util/ioc/iocContainer';
 import { logRequest } from '../util/loggingHandler';
-import { fileUpload } from '../util/fileUtil';
+import { profilePhotoUpload } from '../util/fileUtil';
 import isAuth from '../middleware/is-auth';
 import { body, param } from 'express-validator';
 
@@ -27,7 +27,7 @@ function routes(app: Express) {
 	app.post(
 		'/club/create',
 		logRequest,
-		fileUpload,
+		profilePhotoUpload.single('profilePhoto'),
 		[body('name').not().isEmpty().isString().isLength({ min: 3 }), body('status').isBoolean()],
 		isAuth,
 		async (req: Request, res: Response, next: NextFunction) => {
@@ -54,7 +54,7 @@ function routes(app: Express) {
 		'/club/id=:id/logo',
 		logRequest,
 		[param('id').isMongoId().withMessage('Invalid club id!')],
-		fileUpload,
+		profilePhotoUpload.single('profilePhoto'),
 		isAuth,
 		async (req: Request, res: Response, next: NextFunction) => {
 			await controller.updateClubLogo(req, res, next);
@@ -65,7 +65,7 @@ function routes(app: Express) {
 		'/club/id=:id/banner',
 		logRequest,
 		[param('id').isMongoId().withMessage('Invalid club id!')],
-		fileUpload,
+		profilePhotoUpload.single('profilePhoto'),
 		isAuth,
 		async (req: Request, res: Response, next: NextFunction) => {
 			await controller.updateClubBanner(req, res, next);

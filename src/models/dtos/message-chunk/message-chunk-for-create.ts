@@ -1,5 +1,4 @@
-import { ObjectId } from '../../../types/ObjectId';
-
-export interface MessageChunkForCreate {
-	chatId: ObjectId;
-}
+export type MessageChunkForCreate = {
+	chat: string;
+	nextPartition?: string;
+};

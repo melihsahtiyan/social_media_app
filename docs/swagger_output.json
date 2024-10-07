@@ -145,6 +145,58 @@
         }
       }
     },
+    "/chat/addMember": {
+      "put": {
+        "tags": [
+          "Chat"
+        ],
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/chat/removeMember": {
+      "put": {
+        "tags": [
+          "Chat"
+        ],
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/chat/setAvatar": {
+      "put": {
+        "tags": [
+          "Chat"
+        ],
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/chat/delete": {
+      "delete": {
+        "tags": [
+          "Chat"
+        ],
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
     "/clubEvent/create": {
       "post": {
         "description": "",
@@ -726,20 +778,12 @@
         }
       }
     },
-    "/user/viewUserProfile/{userId=userId}": {
+    "/user/viewUserProfile": {
       "get": {
         "tags": [
           "User"
         ],
         "description": "",
-        "parameters": [
-          {
-            "name": "userId=userId",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          }
-        ],
         "responses": {
           "default": {
             "description": ""
@@ -747,20 +791,12 @@
         }
       }
     },
-    "/user/searchByName/{name=name}": {
+    "/user/searchByName": {
       "get": {
         "tags": [
           "User"
         ],
         "description": "",
-        "parameters": [
-          {
-            "name": "name=name",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          }
-        ],
         "responses": {
           "default": {
             "description": ""

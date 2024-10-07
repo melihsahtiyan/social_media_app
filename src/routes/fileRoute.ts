@@ -17,6 +17,21 @@ function routes(app: Express) {
 		res.setHeader('Content-Disposition', 'attachment: filename="' + filename + '"');
 		file.pipe(res);
 	});
+
+	app.get('/logs/exceptions', (req: Request, res: Response) => {
+		const logs = fs.readFileSync('./logs/exceptions.log', 'utf8');
+		res.json(logs);
+	});
+
+	app.get('/logs/combined', (req: Request, res: Response) => {
+		const logs = fs.readFileSync('./logs/combined.log', 'utf8');
+		res.json(logs);
+	});
+
+	app.get('/logs/errors', (req: Request, res: Response) => {
+		const logs = fs.readFileSync('./logs/errors.log', 'utf8');
+		res.json(logs);
+	});
 }
 
 export default routes;

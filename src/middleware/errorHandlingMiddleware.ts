@@ -22,7 +22,14 @@ export const handleError = (err: CustomError | Error, req: Request, res: Respons
 		functionName: functionName,
 	});
 
-	logger.error({
+	const errorDetails = process.env.NODE_ENV === 'development' 
+		? {
+			stack: customError.stack,
+			// Diğer hata detayları buraya eklenebilir
+		  }
+		: {};
+
+	console.error(logger.error({
 		method: req.method,
 		url: req.url,
 		status,
@@ -31,8 +38,9 @@ export const handleError = (err: CustomError | Error, req: Request, res: Respons
 		headers: req.headers,
 		params: req.params,
 		query: req.query,
-		user: req.userId ? req.userId : 'Anonymous', // Log user if available
-	});
+		user: req.userId ? req.userId : 'Anonymous',
+		errorDetails: errorDetails
+	}));
 	
 	return res.status(status).json({
 		error: {
