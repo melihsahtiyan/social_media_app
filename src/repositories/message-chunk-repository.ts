@@ -22,12 +22,27 @@ export class MessageChunkRepository implements IMessageChunkRepository {
 
 		return chunks.map(messageChunk => new MessageChunk(messageChunk.toObject()));
 	}
+	async getAllByChatId(chatId: string): Promise<Array<MessageChunk>> {
+		const chunks = await messageChunks.find({ chat: chatId });
+
+		return chunks.map(messageChunk => new MessageChunk(messageChunk.toObject()));
+	}
 	async update(messageChunk: MessageChunk): Promise<MessageChunk> {
 		const updatedChunk = await messageChunks.findByIdAndUpdate(messageChunk._id, messageChunk, {
 			new: true,
 		});
 
 		return new MessageChunk(updatedChunk.toObject());
+	}
+	async pushMessageToChunk(chunkId: string, messageId: string): Promise<boolean> {
+		const chunk = await messageChunks.findByIdAndUpdate(chunkId, { $push: { messages: messageId } }, { new: true });
+
+		return !!chunk;
+	}
+	async dropMessageFromChunk(chunkId: string, messageId: string): Promise<boolean> {
+		const chunk = await messageChunks.findByIdAndUpdate(chunkId, { $pull: { messages: messageId } }, { new: true });
+
+		return !!chunk;
 	}
 	async delete(chunkId: string): Promise<boolean> {
 		const deletedChunk = await messageChunks.findByIdAndDelete(chunkId);

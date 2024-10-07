@@ -9,7 +9,7 @@ import { profilePhotoUpload } from '../util/fileUtil';
 const controller: ChatController = container.get<ChatController>(ChatController);
 
 function routes(app: express.Express) {
-	app.put('/chat/create', isAuth, async (req: Request, res: Response, next: NextFunction) => {
+	app.post('/chat/create', isAuth, async (req: Request, res: Response, next: NextFunction) => {
 		// #swagger.tags = ['Chat']
 		await controller.createChat(req, res, next);
 	});
@@ -26,6 +26,15 @@ function routes(app: express.Express) {
 		async (req: Request, res: Response, next: NextFunction) => {
 			// #swagger.tags = ['Chat']
 			await controller.getChatById(req, res, next);
+		}
+	);
+
+	app.get(
+		'/chat/getAllByUserId',
+		isAuth,
+		async (req: Request, res: Response, next: NextFunction) => {
+			// #swagger.tags = ['Chat']
+			await controller.getAllChatsByUserId(req, res, next);
 		}
 	);
 

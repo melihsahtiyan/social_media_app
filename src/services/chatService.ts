@@ -1,16 +1,17 @@
 import 'reflect-metadata';
-import { IChatService } from '../types/services/IChatService';
 import { inject, injectable } from 'inversify';
+import IChatService from '../types/services/IChatService';
 import { ChatRepository } from '../repositories/chat-repository';
-import { Chat } from '../models/entities/Chat/Chat';
-import { DataResult } from '../types/result/DataResult';
-import { Result } from '../types/result/Result';
-import { ChatForCreate } from '../models/dtos/chat/chat-for-create';
-import { User } from '../models/entities/User';
-import { CustomError } from '../types/error/CustomError';
-import { ChatDetailDto } from '../models/dtos/chat/chat-detail-dto';
 import { UserService } from './userService';
 import { CloudinaryService } from './cloudinaryService';
+import { Result } from '../types/result/Result';
+import { DataResult } from '../types/result/DataResult';
+import { Chat } from '../models/entities/Chat/Chat';
+import { User } from '../models/entities/User';
+import { ChatForCreate } from '../models/dtos/chat/chat-for-create';
+import { CustomError } from '../types/error/CustomError';
+import { ObjectId } from '../types/ObjectId';
+import { ChatDetailDto } from '../models/dtos/chat/chat-detail-dto';
 import { ChatForUpdate } from '../models/dtos/chat/chat-for-update';
 
 @injectable()
@@ -111,7 +112,23 @@ export class ChatService implements IChatService {
 			throw error;
 		}
 	}
+	async getAllChatsByUserId(userId: string): Promise<DataResult<Chat[]>> {
+		try {
+			const user: User = (await this.userService.getUserById(userId)).data;
+			const allChats: Chat[] = await this.chatRepository.getAllByUserId(user._id.toString());
 
+			if (allChats) {
+				return { success: true, data: allChats, statusCode: 201 } as DataResult<Chat[]>;
+			}
+
+			return { success: false, message: 'No chats found', statusCode: 404 } as DataResult<Chat[]>;
+		} catch (err) {
+			const error: CustomError = new Error(err);
+			error.className = err?.className || 'ChatService';
+			error.functionName = err?.functionName || 'getAllChatsByUserId';
+			throw error;
+		}
+	}
 	async getChatDetails(chatId: string): Promise<DataResult<ChatDetailDto>> {
 		try {
 			const chat: Chat = await this.chatRepository.getById(chatId);
@@ -151,9 +168,8 @@ export class ChatService implements IChatService {
 
 			if (!chatToUpdate) return { success: false, message: 'Chat not found', statusCode: 404 } as Result;
 
-			const isMember: boolean = chatToUpdate.isMember(user._id);
-
-			if (!isMember) return { success: false, message: 'You are not a member of this chat', statusCode: 403 } as Result;
+			if (!chatToUpdate.isMember(user._id))
+				return { success: false, message: 'You are not a member of this chat', statusCode: 403 } as Result;
 
 			await chatToUpdate.setGroupDetails({ isGroup: chat.isGroup, title: chat.title });
 			await chatToUpdate.setDetails(chat.description);
@@ -165,6 +181,25 @@ export class ChatService implements IChatService {
 			}
 
 			return { success: false, message: 'Chat update failed', statusCode: 500 } as Result;
+		} catch (err) {
+			const error: CustomError = new Error(err);
+			error.className = err.className || 'ChatService';
+			error.functionName = err.functionName || 'createChat';
+			throw error;
+		}
+	}
+	async pushChunkToChat(chatId: string, chunkId: ObjectId): Promise<Result> {
+		try {
+			const chat: Chat = await this.chatRepository.getById(chatId);
+
+			if (!chat) return { success: false, message: 'Chat not found', statusCode: 404 } as Result;
+
+			const updatedChat: Chat = await this.chatRepository.addChunk(chat._id, chunkId);
+
+			if (updatedChat)
+				return { success: true, message: 'Chunk pushed to chat successfully', statusCode: 201 } as Result;
+
+			return { success: false, message: 'Chunk push to chat failed', statusCode: 500 } as Result;
 		} catch (err) {
 			const error: CustomError = new Error(err);
 			error.className = err.className || 'ChatService';

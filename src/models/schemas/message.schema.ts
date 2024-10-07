@@ -10,9 +10,9 @@ export const messageSchema = new Schema({
 		ref: 'Chat',
 		required: true,
 	},
-	partitionId: {
+	chunkId: {
 		type: Schema.Types.ObjectId,
-		ref: 'MessagePartition',
+		ref: 'MessageChunk',
 		required: true,
 	},
 	creator: {

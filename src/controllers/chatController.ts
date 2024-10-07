@@ -52,6 +52,19 @@ export class ChatController {
 		}
 	}
 
+	async getAllChatsByUserId(req: Request, res: Response, next: NextFunction) {
+		try {
+			isValid(req);
+			const userId: string = req.userId;
+
+			const result = await this.chatService.getAllChatsByUserId(userId);
+
+			res.status(result.statusCode).json(result);
+		} catch (err) {
+			next(err);
+		}
+	}
+
 	async getChatDetails(req: Request, res: Response, next: NextFunction) {
 		try {
 			isValid(req);

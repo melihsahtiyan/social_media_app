@@ -4,7 +4,7 @@ import { MessageStatus, MessageTypes } from '../enums/messageEnums';
 
 export class Message extends Entity {
 	chatId: ObjectId;
-	partitionId: ObjectId;
+	chunkId: ObjectId;
 	creator: ObjectId;
 	content: string;
 	type: MessageTypes;
@@ -19,7 +19,7 @@ export class Message extends Entity {
 	constructor({
 		_id,
 		chatId,
-		partitionId,
+		chunkId,
 		creator,
 		content,
 		type,
@@ -35,7 +35,7 @@ export class Message extends Entity {
 		super();
 		this._id = _id;
 		this.chatId = chatId;
-		this.partitionId = partitionId;
+		this.chunkId = chunkId;
 		this.creator = creator;
 		this.content = content;
 		this.type = type;

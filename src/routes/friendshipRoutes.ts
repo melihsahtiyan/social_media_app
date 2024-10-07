@@ -4,7 +4,7 @@ import { FriendshipController } from '../controllers/friendshipController';
 import isAuth from '../middleware/is-auth';
 import container from '../util/ioc/iocContainer';
 import { logRequest } from '../util/loggingHandler';
-import { body } from 'express-validator';
+import { body, query } from 'express-validator';
 
 const controller: FriendshipController = container.get<FriendshipController>(FriendshipController);
 
@@ -59,7 +59,7 @@ function routes(app: Express) {
 
 	app.put(
 		'/user/unfriend',
-		[body('userId').isAlphanumeric().not().isEmpty()],
+		[query('userId').isString().not().isEmpty()],
 		isAuth,
 		logRequest,
 		async (req: Request, res: Response, next: NextFunction) => {

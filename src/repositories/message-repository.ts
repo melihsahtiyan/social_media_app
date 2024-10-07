@@ -17,8 +17,8 @@ export class MessageRepository implements IMessageRepository {
 
 		return new Message(messageDoc.toObject());
 	}
-	async getAll(): Promise<Array<Message>> {
-		const allMessages: Array<MessageDoc> = await messages.find();
+	async getAll(filter: Partial<Message>): Promise<Array<Message>> {
+		const allMessages: Array<MessageDoc> = await messages.find(filter);
 
 		return allMessages.map(message => new Message(message.toObject()));
 	}

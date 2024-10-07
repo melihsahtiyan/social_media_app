@@ -1,20 +1,22 @@
+import { MessageForCreate } from '../../models/dtos/message/message-for-create';
 import { Message } from '../../models/entities/Chat/Message';
-import { ObjectId } from '../ObjectId';
+import { DataResult } from '../result/DataResult';
+import { Result } from '../result/Result';
 
 export interface IMessageService {
 	// Create Operation
-	createMessage(messageToCreate: string): Promise<ObjectId>;
+	createMessage(userId: string, messageToCreate: MessageForCreate, chatId: string): Promise<Result>;
 
 	// Read Operations
-	getMessage(messageId: string): Promise<Message>;
-	getAllMessagesByChatId(chatId: string): Promise<Array<Message>>;
-
+	getMessage(messageId: string): Promise<DataResult<Message>>;
+	getAllMessagesByChatId(chatId: string): Promise<DataResult<Array<Message>>>;
+	getAllMessagesByChunkId(chunkId: string): Promise<DataResult<Array<Message>>>;
 	// Update Operations
-	updateMessage(message: string): Promise<Message>;
-	pushMessageToChunk(messageId: string, chunkId: string): Promise<Message>;
-	dropMessageFromChunk(messageId: string, chunkId: string): Promise<Message>;
+	updateMessage(message: string): Promise<Result>;
+	pushMessageToChunk(messageId: string, chunkId: string): Promise<Result>;
+	dropMessageFromChunk(messageId: string, chunkId: string): Promise<Result>;
 
 	// Delete Operations
-	deleteMessage(messageId: string): Promise<boolean>;
-	deleteAllMessagesByChatId(chatId: string): Promise<boolean>;
+	deleteMessage(messageId: string): Promise<Result>;
+	deleteAllMessagesByChatId(chatId: string): Promise<Result>;
 }

@@ -3,6 +3,7 @@ import { Entity } from '../Entity';
 
 export class MessageChunk extends Entity {
 	messages: ObjectId[];
+	chat: ObjectId;
 	maxMessageCount: number = 50;
 	messageCount: number; // string messages counts 1 and media messages counts 10 and post or event messages counts 10
 	partitionIndex: number;
