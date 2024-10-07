@@ -60,6 +60,8 @@ const retryMongoDBConnect = () => {
 		.then(() => {
 			app.listen({ port: process.env.PORT || 8080 }, () => {
 				console.log('Server running, MongoDB connected');
+				const memoryUsage = process.memoryUsage();
+				console.log(`Heap Total: ${memoryUsage.heapTotal} - Heap Used: ${memoryUsage.heapUsed}`);
 				app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerFile));
 			});
 		})
