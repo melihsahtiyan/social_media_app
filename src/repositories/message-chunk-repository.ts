@@ -19,16 +19,19 @@ export class MessageChunkRepository extends RepositoryBase<MessageChunk> impleme
 	async getById(chunkId: string): Promise<MessageChunk> {
 		const foundChunk = await this.model.findById(chunkId);
 
+		if (!foundChunk) return null;
 		return new MessageChunk(foundChunk.toObject());
 	}
 	async getAll(): Promise<Array<MessageChunk>> {
 		const chunks = await this.model.find();
 
+		if (!chunks) return [];
 		return chunks.map(messageChunk => new MessageChunk(messageChunk.toObject()));
 	}
 	async getAllByChatId(chatId: string): Promise<Array<MessageChunk>> {
 		const chunks = await this.model.find({ chat: chatId });
 
+		if (!chunks) return [];
 		return chunks.map(messageChunk => new MessageChunk(messageChunk.toObject()));
 	}
 	async pushMessageToChunk(chunkId: string, messageId: string): Promise<boolean> {

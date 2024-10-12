@@ -20,9 +20,19 @@ export class MessageController {
 			const message: MessageForCreate = req.body;
 			const media: Express.Multer.File = req?.file;
 			const userId = req.userId;
-			
-			if ((message.type === MessageTypes.TEXT && !message.content) || (message.type === MessageTypes.MEDIA && !media))
+
+			console.log(message);
+
+			console.log(media);
+
+			if (
+				// If message type is text and content is not provided
+				(message.type === MessageTypes.TEXT && !message.content) ||
+				// If message type is media and media is not provided
+				(message.type === MessageTypes.MEDIA && !media)
+			) {
 				return res.status(422).json({ success: false, message: 'Content or media is required', statusCode: 422 });
+			}
 
 			const result = await this.messageService.createMessage(userId, message, message.chatId.toString(), media);
 

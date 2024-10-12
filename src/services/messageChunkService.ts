@@ -119,12 +119,12 @@ export class MessageChunkService implements IMessageChunkService {
 			if (!chunk)
 				return { success: false, message: 'Chunk not found', statusCode: 404, data: null } as DataResult<MessageChunk>;
 
-			const isAdded: boolean = chunk.addMessage(message);
+			const isAdded: boolean = await chunk.addMessage(message);
 
 			if (!isAdded)
 				return { success: false, message: 'Chunk is full', statusCode: 400, data: null } as DataResult<MessageChunk>;
 
-			const success: boolean = await this.messageChunkRepository.update(chunk._id.toString(), chunk);
+			const success: boolean = await this.messageChunkRepository.update(chunkId, chunk);
 
 			return {
 				success: success,

@@ -36,7 +36,7 @@ export class MessageChunk extends Entity {
 		this.updatedAt = updatedAt;
 	}
 
-	addMessage(message: Message): boolean {
+	async addMessage(message: Message): Promise<boolean> {
 		if (!this.isFull) {
 			this.messages.push(message._id);
 			switch (message.type) {

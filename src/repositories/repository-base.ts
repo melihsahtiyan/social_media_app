@@ -19,11 +19,15 @@ export class RepositoryBase<T extends Entity> implements IRepositoryBase<T> {
 
 	async getById(id: string): Promise<T | null> {
 		const entity = await this.model.findById(id);
+
+		if (!entity) return null;
 		return entity ? (entity.toObject() as T) : null;
 	}
 
 	async getAll(filter?: Partial<T>): Promise<T[]> {
 		const entities = await this.model.find(filter);
+
+		if (!entities) return [];
 		return entities.map(entity => entity.toObject() as T);
 	}
 
