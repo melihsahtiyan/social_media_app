@@ -58,7 +58,7 @@ export class MessageService implements IMessageService {
 
 			// Check if chunk exists
 			const chunk: MessageChunk = (await this.messageChunkService.getAllChunksByChatId(chatId)).data[0];
-			console.log(`Chunks: ${JSON.stringify(chunk)}`);
+			
 			// If chunk does not exist, create a new chunk
 			if (!chunk) {
 				const createdChunk: MessageChunk = (
@@ -81,7 +81,7 @@ export class MessageService implements IMessageService {
 				).data;
 
 				if (!createdChunk) return { success: false, message: 'Chunk not found', statusCode: 404 } as Result;
-				console.log(`Created chunk: ${JSON.stringify(createdChunk)}`);
+				
 				messageToCreate.chunkId = createdChunk._id;
 			} else {
 				messageToCreate.chunkId = chunk._id;
@@ -131,8 +131,7 @@ export class MessageService implements IMessageService {
 	async getAllMessagesByChatId(chatId: string): Promise<DataResult<Array<Message>>> {
 		try {
 			const chat: Chat = (await this.chatService.getChatById(chatId)).data;
-			console.log(`chat: ${chat}`);
-			console.log(`chatId: ${chatId}`);
+			
 			if (!chat)
 				return { success: false, message: 'Chat not found', statusCode: 404, data: null } as DataResult<Array<Message>>;
 

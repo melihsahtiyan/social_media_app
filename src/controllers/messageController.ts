@@ -20,7 +20,7 @@ export class MessageController {
 			const message: MessageForCreate = req.body;
 			const media: Express.Multer.File = req?.file;
 			const userId = req.userId;
-			console.log(`message.type: ${message.type}, media: ${media}`);
+			
 			if ((message.type === MessageTypes.TEXT && !message.content) || (message.type === MessageTypes.MEDIA && !media))
 				return res.status(422).json({ success: false, message: 'Content or media is required', statusCode: 422 });
 
