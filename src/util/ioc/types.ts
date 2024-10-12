@@ -1,45 +1,47 @@
 const TYPES = {
-  PostRepository: Symbol("PostRepository"),
-  PostService: Symbol("PostService"),
+  IPostRepository: Symbol("IPostRepository"),
+  IPostService: Symbol("IPostService"),
   PostController: Symbol("PostController"),
 
-  UserRepository: Symbol("UserRepository"),
-  UserService: Symbol("UserService"),
+  IUserRepository: Symbol("IUserRepository"),
+  IUserService: Symbol("IUserService"),
   UserController: Symbol("UserController"),
 
-  AuthService: Symbol("AuthService"),
+  IAuthService: Symbol("IAuthService"),
   AuthController: Symbol("AuthController"),
 
-  FriendshipRepository: Symbol("FriendshipRepository"),
-  FriendshipService: Symbol("FriendshipService"),
+  IFriendshipRepository: Symbol("IFriendshipRepository"),
+  IFriendshipService: Symbol("IFriendshipService"),
   FriendshipController: Symbol("FriendshipController"),
 
-  ClubRepository: Symbol("ClubRepository"),
-  ClubService: Symbol("ClubService"),
+  IClubRepository: Symbol("IClubRepository"),
+  IClubService: Symbol("IClubService"),
   ClubController: Symbol("ClubController"),
 
-  CommentRepository: Symbol("CommentRepository"),
-  CommentService: Symbol("CommentService"),
+  ICommentRepository: Symbol("ICommentRepository"),
+  ICommentService: Symbol("ICommentService"),
   CommentController: Symbol("CommentController"),
 
-  ChatRepository: Symbol("ChatRepository"),
-  ChatService: Symbol("ChatService"),
+  IChatRepository: Symbol("IChatRepository"),
+  IChatService: Symbol("IChatService"),
   ChatController: Symbol("ChatController"),
 
-  PollRepository: Symbol("PollRepository"),
-  PollService: Symbol("PollService"),
+  IPollRepository: Symbol("IPollRepository"),
+  IPollService: Symbol("IPollService"),
   PollController: Symbol("PollController"),
 
-  ClubEventRepository: Symbol("ClubEventRepository"),
-  ClubEventService: Symbol("ClubEventService"),
+  IClubEventRepository: Symbol("IClubEventRepository"),
+  IClubEventService: Symbol("IClubEventService"),
   ClubEventController: Symbol("ClubEventController"),
 
-  MessageChunkRepository: Symbol("MessageChunkRepository"),
-  MessageChunkService: Symbol("MessageChunkService"),
+  IMessageChunkRepository: Symbol("IMessageChunkRepository"),
+  IMessageChunkService: Symbol("IMessageChunkService"),
 
-  MessageRepository: Symbol("MessageRepository"),
+  IMessageRepository: Symbol("IMessageRepository"),
+  IMessageService: Symbol("IMessageService"),
+  MessageController: Symbol("MessageController"),
 
-  CloudinaryService: Symbol("CloudinaryService"),
+  ICloudinaryService: Symbol("ICloudinaryService"),
 };
 
 export default TYPES;

@@ -1,25 +1,26 @@
 import "reflect-metadata"
 import { inject, injectable } from 'inversify';
-import { ClubRepository } from '../repositories/club-repository';
 import { ClubInputDto } from '../models/dtos/club/club-input-dto';
 import { Club } from '../models/entities/Club';
 import { User } from '../models/entities/User';
-import { UserRepository } from '../repositories/user-repository';
 import { IClubService } from '../types/services/IClubService';
 import { DataResult } from '../types/result/DataResult';
 import { Result } from '../types/result/Result';
 import { ClubForUpdateDto } from '../models/dtos/club/club-for-update-dto';
 import { clearImage } from '../util/fileUtil';
 import { CustomError } from '../types/error/CustomError';
+import { IClubRepository } from "../types/repositories/IClubRepository";
+import IUserRepository from "../types/repositories/IUserRepository";
+import TYPES from "../util/ioc/types";
 
 @injectable()
 export class ClubService implements IClubService {
-	protected clubRepository: ClubRepository;
-	protected userRepository: UserRepository;
+	protected clubRepository: IClubRepository;
+	protected userRepository: IUserRepository;
 
 	constructor(
-		@inject(ClubRepository) clubRepository: ClubRepository,
-		@inject(UserRepository) userRepository: UserRepository
+		@inject(TYPES.IClubRepository) clubRepository: IClubRepository,
+		@inject(TYPES.IUserRepository) userRepository: IUserRepository
 	) {
 		this.clubRepository = clubRepository;
 		this.userRepository = userRepository;
@@ -181,7 +182,7 @@ export class ClubService implements IClubService {
 				return result;
 			}
 
-			const updatedClub = await this.clubRepository.updateClub(id, club);
+			const updatedClub = await this.clubRepository.update(id, club);
 
 			const result: DataResult<Club> = {
 				message: 'Club updated!',

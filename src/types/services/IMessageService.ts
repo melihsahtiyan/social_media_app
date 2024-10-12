@@ -5,7 +5,7 @@ import { Result } from '../result/Result';
 
 export interface IMessageService {
 	// Create Operation
-	createMessage(userId: string, messageToCreate: MessageForCreate, chatId: string): Promise<Result>;
+	createMessage(userId: string, messageToCreate: MessageForCreate, chatId: string, media?: Express.Multer.File): Promise<Result>;
 
 	// Read Operations
 	getMessage(messageId: string): Promise<DataResult<Message>>;

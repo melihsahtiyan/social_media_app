@@ -5,27 +5,28 @@ import { ClubEventDetailDto } from '../models/dtos/event/club-event-detail-dto';
 import { ClubEventInputDto } from '../models/dtos/event/club-event-input-dto';
 import { ClubEvent } from '../models/entities/ClubEvent';
 import { DataResult } from '../types/result/DataResult';
-import { ClubEventRepository } from '../repositories/club-event-repository';
-import { ClubRepository } from '../repositories/club-repository';
-import { UserRepository } from '../repositories/user-repository';
 import { Club } from '../models/entities/Club';
 import { CustomError } from '../types/error/CustomError';
 import { ClubEventForCreate } from '../models/dtos/event/club-event-for-create';
 import { User } from '../models/entities/User';
-import { CloudinaryService } from './cloudinaryService';
+import { ICloudinaryService } from '../types/services/ICloudinaryService';
+import TYPES from '../util/ioc/types';
+import { IClubEventRepository } from "../types/repositories/IClubEventRepository";
+import { IClubRepository } from "../types/repositories/IClubRepository";
+import IUserRepository from "../types/repositories/IUserRepository";
 
 @injectable()
 export class ClubEventService implements IClubEventService {
-	private readonly clubEventRepository: ClubEventRepository;
-	private readonly clubRepository: ClubRepository;
-	private readonly userRepository: UserRepository;
-	private readonly cloudinaryService: CloudinaryService;
+	private readonly clubEventRepository: IClubEventRepository;
+	private readonly clubRepository: IClubRepository;
+	private readonly userRepository: IUserRepository;
+	private readonly cloudinaryService: ICloudinaryService;
 
 	constructor(
-		@inject(ClubEventRepository) clubEventRepository: ClubEventRepository,
-		@inject(ClubRepository) clubRepository: ClubRepository,
-		@inject(UserRepository) userRepository: UserRepository,
-		@inject(CloudinaryService) cloudinaryService: CloudinaryService
+		@inject(TYPES.IClubEventRepository) clubEventRepository: IClubEventRepository,
+		@inject(TYPES.IClubRepository) clubRepository: IClubRepository,
+		@inject(TYPES.IUserRepository) userRepository: IUserRepository,
+		@inject(TYPES.ICloudinaryService) cloudinaryService: ICloudinaryService
 	) {
 		this.clubEventRepository = clubEventRepository;
 		this.clubRepository = clubRepository;

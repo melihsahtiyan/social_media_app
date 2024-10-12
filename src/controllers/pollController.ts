@@ -2,16 +2,17 @@ import "reflect-metadata"
 import { NextFunction, Response } from 'express';
 import Request from '../types/Request';
 import { inject, injectable } from 'inversify';
-import { PollService } from '../services/pollService';
 import { PollInputDto } from '../models/dtos/post/poll/poll-input-dto';
 import { isValid } from '../util/validationHandler';
 import { VoteInputDto } from '../models/dtos/post/poll/vote-input-dto';
+import { IPollService } from "../types/services/IPollService";
+import TYPES from "../util/ioc/types";
 
 @injectable()
 export class PollController {
-	private _pollService: PollService;
+	private _pollService: IPollService;
 
-	constructor(@inject(PollService) pollService: PollService) {
+	constructor(@inject(TYPES.IPollService) pollService: IPollService) {
 		this._pollService = pollService;
 	}
 

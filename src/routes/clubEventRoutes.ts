@@ -5,16 +5,17 @@ import Request from '../types/Request';
 import { logRequest } from '../util/loggingHandler';
 import isAuth from '../middleware/is-auth';
 import { body, param } from 'express-validator';
-import { eventMediaUpload } from '../util/fileUtil';
+import { singleMediaUpload } from '../util/fileUtil';
+import TYPES from '../util/ioc/types';
 
-const controller: ClubEventController = container.get<ClubEventController>(ClubEventController);
+const controller: ClubEventController = container.get<ClubEventController>(TYPES.ClubEventController);
 
 function routes(app: Express) {
 	app.post(
 		'/clubEvent/create',
 		logRequest,
 		isAuth,
-		eventMediaUpload,
+		singleMediaUpload.single('media'),
 		[
 			body('title').not().isEmpty().isString().isLength({ min: 3 }).withMessage('Invalid title'),
 			body('description').not().isEmpty().isString().isLength({ min: 5 }).withMessage('Invalid description'),

@@ -7,7 +7,7 @@
 		"test:verbose": "jest --verbose",
 		"test:watch": "jest --watchAll",
 		"test:coverage": "jest --coverage",
-		"start": "node --max-old-space-size=4096 --trace-gc --inspect -r ts-node/register src/app.ts",
+		"start": "node --max-old-space-size=4096 -r ts-node/register src/app.ts",
 		"build": "tsc --outDir dist",
 		"dev": "nodemon --watch src --ext ts --exec ts-node src/app.ts"
 	},

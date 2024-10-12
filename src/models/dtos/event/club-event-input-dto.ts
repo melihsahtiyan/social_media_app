@@ -1,4 +1,6 @@
-export interface ClubEventInputDto {
+import { Dto } from '../Dto';
+
+export interface ClubEventInputDto extends Dto {
 	title: string;
 	description: string;
 	location: string;

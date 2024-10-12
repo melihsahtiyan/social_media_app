@@ -1,6 +1,7 @@
+import { Dto } from '../Dto';
 import { ObjectId } from '../../../types/ObjectId';
 
-export interface UserListDto {
+export interface UserListDto extends Dto {
 	firstName: string;
 	lastName: string;
 	birthDate: Date;

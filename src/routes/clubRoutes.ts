@@ -6,8 +6,9 @@ import { logRequest } from '../util/loggingHandler';
 import { profilePhotoUpload } from '../util/fileUtil';
 import isAuth from '../middleware/is-auth';
 import { body, param } from 'express-validator';
+import TYPES from '../util/ioc/types';
 
-const controller: ClubController = container.get<ClubController>(ClubController);
+const controller: ClubController = container.get<ClubController>(TYPES.ClubController);
 
 function routes(app: Express) {
 	app.get('/club/getAllClubs', logRequest, isAuth, async (req: Request, res: Response, next: NextFunction) => {

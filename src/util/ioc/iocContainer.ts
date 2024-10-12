@@ -31,50 +31,71 @@ import { MessageChunkService } from '../../services/messageChunkService';
 import { MessageRepository } from '../../repositories/message-repository';
 import { MessageController } from '../../controllers/messageController';
 import { MessageService } from '../../services/messageService';
+import { IChatRepository } from '../../types/repositories/IChatRepository';
+import IChatService from '../../types/services/IChatService';
+import TYPES from './types';
+import IAuthService from '../../types/services/IAuthService';
+import { IClubEventService } from '../../types/services/IClubEventService';
+import { IClubEventRepository } from '../../types/repositories/IClubEventRepository';
+import { ICommentService } from '../../types/services/ICommentService';
+import { ICommentRepository } from '../../types/repositories/ICommentRepository';
+import { IClubService } from '../../types/services/IClubService';
+import { IClubRepository } from '../../types/repositories/IClubRepository';
+import { IFriendshipService } from '../../types/services/IFriendsipService';
+import { IMessageService } from '../../types/services/IMessageService';
+import { IMessageRepository } from '../../types/repositories/IMessageRepository';
+import { IMessageChunkService } from '../../types/services/IMessageChunkService';
+import { IMessageChunkRepository } from '../../types/repositories/IMessageChunkRepository';
+import IUserService from '../../types/services/IUserService';
+import IUserRepository from '../../types/repositories/IUserRepository';
+import { IPollService } from '../../types/services/IPollService';
+import { IPollRepository } from '../../types/repositories/IPollRepository';
+import IPostService from '../../types/services/IPostService';
+import IPostRepository from '../../types/repositories/IPostRepository';
 
 const container: Container = new Container();
 
-container.bind<PostRepository>(PostRepository).to(PostRepository).inSingletonScope();
-container.bind<PostService>(PostService).to(PostService).inSingletonScope();
-container.bind<PostController>(PostController).to(PostController).inSingletonScope();
+container.bind<IPostRepository>(TYPES.IPostRepository).to(PostRepository).inSingletonScope();
+container.bind<IPostService>(TYPES.IPostService).to(PostService).inSingletonScope();
+container.bind<PostController>(TYPES.PostController).to(PostController).inSingletonScope();
 
-container.bind<PollRepository>(PollRepository).to(PollRepository).inSingletonScope();
-container.bind<PollService>(PollService).to(PollService).inSingletonScope();
-container.bind<PollController>(PollController).to(PollController).inSingletonScope();
+container.bind<IPollRepository>(TYPES.IPollRepository).to(PollRepository).inSingletonScope();
+container.bind<IPollService>(TYPES.IPollService).to(PollService).inSingletonScope();
+container.bind<PollController>(TYPES.PollController).to(PollController).inSingletonScope();
 
-container.bind<UserRepository>(UserRepository).to(UserRepository).inSingletonScope();
-container.bind<UserService>(UserService).to(UserService).inSingletonScope();
-container.bind<UserController>(UserController).to(UserController).inSingletonScope();
+container.bind<IUserRepository>(TYPES.IUserRepository).to(UserRepository).inSingletonScope();
+container.bind<IUserService>(TYPES.IUserService).to(UserService).inSingletonScope();
+container.bind<UserController>(TYPES.UserController).to(UserController).inSingletonScope();
 
-container.bind<ChatRepository>(ChatRepository).to(ChatRepository).inSingletonScope();
-container.bind<ChatService>(ChatService).to(ChatService).inSingletonScope();
-container.bind<ChatController>(ChatController).to(ChatController).inSingletonScope();
+container.bind<IChatRepository>(TYPES.IChatRepository).to(ChatRepository).inSingletonScope();
+container.bind<IChatService>(TYPES.IChatService).to(ChatService).inSingletonScope();
+container.bind<ChatController>(TYPES.ChatController).to(ChatController).inSingletonScope();
 
-container.bind<MessageChunkRepository>(MessageChunkRepository).to(MessageChunkRepository).inSingletonScope();
-container.bind<MessageChunkService>(MessageChunkService).to(MessageChunkService).inSingletonScope();
+container.bind<IMessageChunkRepository>(TYPES.IMessageChunkRepository).to(MessageChunkRepository).inSingletonScope();
+container.bind<IMessageChunkService>(TYPES.IMessageChunkService).to(MessageChunkService).inSingletonScope();
 
-container.bind<MessageRepository>(MessageRepository).to(MessageRepository).inSingletonScope();
-container.bind<MessageService>(MessageService).to(MessageService).inSingletonScope();
-container.bind<MessageController>(MessageController).to(MessageController).inSingletonScope();
+container.bind<IMessageRepository>(TYPES.IMessageRepository).to(MessageRepository).inSingletonScope();
+container.bind<IMessageService>(TYPES.IMessageService).to(MessageService).inSingletonScope();
+container.bind<MessageController>(TYPES.MessageController).to(MessageController).inSingletonScope();
 
-container.bind<FriendshipService>(FriendshipService).to(FriendshipService).inSingletonScope();
-container.bind<FriendshipController>(FriendshipController).to(FriendshipController).inSingletonScope();
+container.bind<IFriendshipService>(TYPES.IFriendshipService).to(FriendshipService).inSingletonScope();
+container.bind<FriendshipController>(TYPES.FriendshipController).to(FriendshipController).inSingletonScope();
 
-container.bind<ClubRepository>(ClubRepository).to(ClubRepository).inSingletonScope();
-container.bind<ClubService>(ClubService).to(ClubService).inSingletonScope();
-container.bind<ClubController>(ClubController).to(ClubController).inSingletonScope();
+container.bind<IClubRepository>(TYPES.IClubRepository).to(ClubRepository).inSingletonScope();
+container.bind<IClubService>(TYPES.IClubService).to(ClubService).inSingletonScope();
+container.bind<ClubController>(TYPES.ClubController).to(ClubController).inSingletonScope();
 
-container.bind<CommentRepository>(CommentRepository).to(CommentRepository).inSingletonScope();
-container.bind<CommentService>(CommentService).to(CommentService).inSingletonScope();
-container.bind<CommentController>(CommentController).to(CommentController).inSingletonScope();
+container.bind<ICommentRepository>(TYPES.ICommentRepository).to(CommentRepository).inSingletonScope();
+container.bind<ICommentService>(TYPES.ICommentService).to(CommentService).inSingletonScope();
+container.bind<CommentController>(TYPES.CommentController).to(CommentController).inSingletonScope();
 
-container.bind<ClubEventRepository>(ClubEventRepository).to(ClubEventRepository).inSingletonScope();
-container.bind<ClubEventService>(ClubEventService).to(ClubEventService).inSingletonScope();
-container.bind<ClubEventController>(ClubEventController).to(ClubEventController).inSingletonScope();
+container.bind<IClubEventRepository>(TYPES.IClubEventRepository).to(ClubEventRepository).inSingletonScope();
+container.bind<IClubEventService>(TYPES.IClubEventService).to(ClubEventService).inSingletonScope();
+container.bind<ClubEventController>(TYPES.ClubEventController).to(ClubEventController).inSingletonScope();
 
-container.bind<AuthService>(AuthService).to(AuthService).inSingletonScope();
-container.bind<AuthController>(AuthController).to(AuthController).inSingletonScope();
+container.bind<IAuthService>(TYPES.IAuthService).to(AuthService).inSingletonScope();
+container.bind<AuthController>(TYPES.AuthController).to(AuthController).inSingletonScope();
 
-container.bind<CloudinaryService>(CloudinaryService).to(CloudinaryService).inSingletonScope();
+container.bind<CloudinaryService>(TYPES.ICloudinaryService).to(CloudinaryService).inSingletonScope();
 
 export default container;

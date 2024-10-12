@@ -6,21 +6,19 @@ import { User } from '../models/entities/User';
 import { CustomError } from '../types/error/CustomError';
 import { UserForRequestDto } from '../models/dtos/user/user-for-request-dto';
 import { DataResult } from '../types/result/DataResult';
-import { UserService } from './userService';
-import { UserRepository } from '../repositories/user-repository';
+import IUserRepository from "../types/repositories/IUserRepository";
+import TYPES from "../util/ioc/types";
 
 @injectable()
 export class FriendshipService implements IFriendshipService {
-	private readonly userService: UserService;
-	private readonly userRepository: UserRepository;
-	constructor(@inject(UserService) userService: UserService, @inject(UserRepository) userRepository: UserRepository) {
-		this.userService = userService;
+	private readonly userRepository: IUserRepository;
+	constructor(@inject(TYPES.IUserRepository) userRepository: IUserRepository) {
 		this.userRepository = userRepository;
 	}
 	async areFriends(userId: string, friendId: string): Promise<Result> {
 		try {
-			const user: User = (await this.userService.getUserById(userId)).data;
-			const friend: User = (await this.userService.getUserById(friendId)).data;
+			const user: User = await this.userRepository.getById(userId);
+			const friend: User = await this.userRepository.getById(friendId);
 
 			if (!user || !friend) {
 				return { statusCode: 404, message: 'User not found!', success: false };
@@ -42,8 +40,8 @@ export class FriendshipService implements IFriendshipService {
 	}
 	async areFromSameUniversity(userId: string, otherUserId: string): Promise<Result> {
 		try {
-			const user: User = (await this.userService.getUserById(userId)).data;
-			const otherUser: User = (await this.userService.getUserById(otherUserId)).data;
+			const user: User = await this.userRepository.getById(userId);
+			const otherUser: User = await this.userRepository.getById(otherUserId);
 
 			if (!user || !otherUser) {
 				return { statusCode: 404, message: 'User not found!', success: false };
@@ -68,7 +66,7 @@ export class FriendshipService implements IFriendshipService {
 
 	async getAllFriendRequests(userId: string): Promise<DataResult<UserForRequestDto[]>> {
 		try {
-			const user: User = (await this.userService.getUserById(userId)).data;
+			const user: User = await this.userRepository.getById(userId);
 
 			if (!user) {
 				const result: DataResult<UserForRequestDto[]> = {
@@ -108,7 +106,7 @@ export class FriendshipService implements IFriendshipService {
 				return errorResult;
 			}
 
-			const followingUser: User = (await this.userService.getUserById(followingUserId)).data;
+			const followingUser: User = await this.userRepository.getById(followingUserId);
 
 			if (!followingUser) {
 				const result: Result = {
@@ -120,7 +118,7 @@ export class FriendshipService implements IFriendshipService {
 				return result;
 			}
 
-			const userToFollow: User = (await this.userService.getUserById(userToFollowId)).data;
+			const userToFollow: User = await this.userRepository.getById(userToFollowId);
 
 			if (!userToFollow) {
 				const result: Result = {
@@ -175,7 +173,7 @@ export class FriendshipService implements IFriendshipService {
 
 	async handleFriendRequest(receiverUserId: string, senderUserId: string, response: boolean): Promise<Result> {
 		try {
-			const receiverUser: User = (await this.userService.getUserById(receiverUserId)).data;
+			const receiverUser: User = await this.userRepository.getById(receiverUserId);
 
 			if (!receiverUser) {
 				const result: Result = {
@@ -186,7 +184,7 @@ export class FriendshipService implements IFriendshipService {
 				return result;
 			}
 
-			const senderUser: User = (await this.userService.getUserById(senderUserId)).data;
+			const senderUser: User = await this.userRepository.getById(senderUserId);
 
 			// Check 1: if the user to follow exists
 			if (!senderUser) {
@@ -250,8 +248,8 @@ export class FriendshipService implements IFriendshipService {
 	}
 	async unfriend(followingUserId: string, userToUnfollowId: string): Promise<Result> {
 		try {
-			const followingUser: User = (await this.userService.getUserById(followingUserId)).data;
-			const userToUnfollow: User = (await this.userService.getUserById(userToUnfollowId)).data;
+			const followingUser: User = await this.userRepository.getById(followingUserId);
+			const userToUnfollow: User = await this.userRepository.getById(userToUnfollowId);
 
 			// Check 1: if the user exists
 			if (!followingUser || !userToUnfollow) {

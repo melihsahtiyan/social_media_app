@@ -1,10 +1,6 @@
-import "reflect-metadata"
+import 'reflect-metadata';
 import { inject, injectable } from 'inversify';
-import { PollRepository } from '../repositories/poll-repository';
 import { IPollService } from '../types/services/IPollService';
-import { PostDoc } from '../models/schemas/post.schema';
-import { PostRepository } from '../repositories/post-repository';
-import { UserRepository } from '../repositories/user-repository';
 import { DataResult } from '../types/result/DataResult';
 import { PollInputDto } from '../models/dtos/post/poll/poll-input-dto';
 import { PostForCreate } from '../models/dtos/post/post-for-create';
@@ -14,19 +10,24 @@ import { VoteInputDto } from '../models/dtos/post/poll/vote-input-dto';
 import { User } from '../models/entities/User';
 import { Post } from '../models/entities/Post';
 import { Schema } from 'mongoose';
-import { CloudinaryService } from './cloudinaryService';
+import { IPollRepository } from '../types/repositories/IPollRepository';
+import IPostRepository from '../types/repositories/IPostRepository';
+import IUserRepository from '../types/repositories/IUserRepository';
+import { ICloudinaryService } from '../types/services/ICloudinaryService';
+import TYPES from '../util/ioc/types';
+import { Result } from '../types/result/Result';
 
 @injectable()
 export class PollService implements IPollService {
-	private pollRepository: PollRepository;
-	private postRepository: PostRepository;
-	private userRepository: UserRepository;
-	private readonly cloudinaryService: CloudinaryService;
+	private pollRepository: IPollRepository;
+	private postRepository: IPostRepository;
+	private userRepository: IUserRepository;
+	private readonly cloudinaryService: ICloudinaryService;
 	constructor(
-		@inject(PollRepository) pollRepository: PollRepository,
-		@inject(PostRepository) postRepository: PostRepository,
-		@inject(UserRepository) userRepository: UserRepository,
-		@inject(CloudinaryService) cloudinaryService: CloudinaryService
+		@inject(TYPES.IPollRepository) pollRepository: IPollRepository,
+		@inject(TYPES.IPostRepository) postRepository: IPostRepository,
+		@inject(TYPES.IUserRepository) userRepository: IUserRepository,
+		@inject(TYPES.ICloudinaryService) cloudinaryService: ICloudinaryService
 	) {
 		this.pollRepository = pollRepository;
 		this.postRepository = postRepository;
@@ -185,7 +186,7 @@ export class PollService implements IPollService {
 					};
 					return result;
 				} else {
-					await this.pollRepository.votePoll(post._id, voter._id, voteInput.option);
+					await this.pollRepository.vote(post._id, voter._id, voteInput.option);
 					const result: DataResult<VoteInputDto> = {
 						statusCode: 200,
 						message: 'Vote changed successfully!',
@@ -196,7 +197,7 @@ export class PollService implements IPollService {
 				}
 			}
 
-			await this.pollRepository.votePoll(post._id, voter._id, voteInput.option);
+			await this.pollRepository.vote(post._id, voter._id, voteInput.option);
 
 			const result: DataResult<VoteInputDto> = {
 				statusCode: 200,
@@ -211,29 +212,27 @@ export class PollService implements IPollService {
 			throw error;
 		}
 	}
-	async deleteVote(pollId: string, userId: string): Promise<DataResult<Poll>> {
+	async deleteVote(pollId: string, userId: string): Promise<Result> {
 		try {
 			const post: Post = await this.postRepository.getById(pollId);
 			const user: User = await this.userRepository.getById(userId);
 
 			const vote = post.poll.findVote(user._id);
 			if (!vote) {
-				const result: DataResult<Poll> = {
+				const result: DataResult<boolean> = {
 					statusCode: 400,
 					message: 'You have not voted this poll!',
 					success: false,
-					data: null,
 				};
 				return result;
 			}
 
-			const deletedPost: PostDoc = await this.pollRepository.deleteVote(post._id, user._id, vote.optionName);
+			const isDeleted: boolean = await this.pollRepository.deleteVote(post._id, user._id, vote.optionName);
 
-			const result: DataResult<Poll> = {
-				statusCode: 200,
-				message: 'Vote deleted successfully!',
-				success: true,
-				data: deletedPost.poll,
+			const result: Result = {
+				statusCode: isDeleted ? 200 : 400,
+				message: isDeleted ? 'Vote deleted successfully!' : 'Vote deletion failed!',
+				success: isDeleted,
 			};
 			return result;
 		} catch (err) {

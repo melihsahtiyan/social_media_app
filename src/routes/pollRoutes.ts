@@ -1,13 +1,14 @@
 import { NextFunction, Response, Express } from 'express';
 import Request from '../types/Request';
-import { mediaUpload } from '../util/fileUtil';
+import { mediaArrayUpload } from '../util/fileUtil';
 import isAuth from '../middleware/is-auth';
 import { logRequest } from '../util/loggingHandler';
 import container from '../util/ioc/iocContainer';
 import { body } from 'express-validator';
 import { PollController } from '../controllers/pollController';
+import TYPES from '../util/ioc/types';
 
-const controller: PollController = container.get<PollController>(PollController);
+const controller: PollController = container.get<PollController>(TYPES.PollController);
 
 function routes(app: Express) {
 	app.post(
@@ -20,7 +21,7 @@ function routes(app: Express) {
 			body('expiresAt').not().isEmpty().withMessage('Expiry date is required')
 		],
 		logRequest,
-		mediaUpload,
+		mediaArrayUpload.array('medias'),
 		isAuth,
 		async (req: Request, res: Response, next: NextFunction) => {
 			await controller.createPoll(req, res, next);

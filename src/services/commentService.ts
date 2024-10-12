@@ -5,22 +5,23 @@ import { CommentForCreateDto } from '../models/dtos/comment/comment-for-create';
 import { CommentInputDto } from '../models/dtos/comment/comment-input-dto';
 import { DataResult } from '../types/result/DataResult';
 import { Result } from '../types/result/Result';
-import { UserRepository } from '../repositories/user-repository';
-import { CommentRepository } from '../repositories/comment-repository';
-import { PostRepository } from '../repositories/post-repository';
 import { Comment } from '../models/entities/Comment';
 import { User } from '../models/entities/User';
 import { Post } from '../models/entities/Post';
+import { ICommentRepository } from "../types/repositories/ICommentRepository";
+import IUserRepository from "../types/repositories/IUserRepository";
+import IPostRepository from "../types/repositories/IPostRepository";
+import TYPES from "../util/ioc/types";
 
 @injectable()
 export class CommentService implements ICommentService {
-	private commentRepository: CommentRepository;
-	private userRepository: UserRepository;
-	private postRepository: PostRepository;
+	private commentRepository: ICommentRepository;
+	private userRepository: IUserRepository;
+	private postRepository: IPostRepository;
 	constructor(
-		@inject(CommentRepository) commentRepository: CommentRepository,
-		@inject(UserRepository) userRepository: UserRepository,
-		@inject(PostRepository) postRepository: PostRepository
+		@inject(TYPES.ICommentRepository) commentRepository: ICommentRepository,
+		@inject(TYPES.IUserRepository) userRepository: IUserRepository,
+		@inject(TYPES.IPostRepository) postRepository: IPostRepository
 	) {
 		this.commentRepository = commentRepository;
 		this.userRepository = userRepository;

@@ -1,6 +1,5 @@
 import 'reflect-metadata';
 import { inject, injectable } from 'inversify';
-import { ClubService } from '../services/clubService';
 import Request from '../types/Request';
 import { NextFunction, Response } from 'express';
 import { ClubInputDto } from '../models/dtos/club/club-input-dto';
@@ -9,11 +8,13 @@ import { Result } from '../types/result/Result';
 import { DataResult } from '../types/result/DataResult';
 import { Club } from '../models/entities/Club';
 import { ClubForUpdateDto } from '../models/dtos/club/club-for-update-dto';
+import { IClubService } from '../types/services/IClubService';
+import TYPES from '../util/ioc/types';
 
 @injectable()
 export class ClubController {
-	private clubService: ClubService;
-	constructor(@inject(ClubService) clubService: ClubService) {
+	private clubService: IClubService;
+	constructor(@inject(TYPES.IClubService) clubService: IClubService) {
 		this.clubService = clubService;
 	}
 

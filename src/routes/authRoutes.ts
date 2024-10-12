@@ -4,8 +4,9 @@ import { body } from 'express-validator';
 import { AuthController } from '../controllers/authController';
 import container from '../util/ioc/iocContainer';
 import { authRequestLogger } from '../util/loggingHandler';
+import TYPES from '../util/ioc/types';
 
-const controller: AuthController = container.get<AuthController>(AuthController);
+const controller: AuthController = container.get<AuthController>(TYPES.AuthController);
 
 function routes(app: express.Express) {
 	app.put(

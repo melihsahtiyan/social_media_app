@@ -1,7 +1,8 @@
 import { ObjectId } from '../../../types/ObjectId';
 import { Poll } from '../../entities/Poll';
+import { Dto } from '../Dto';
 
-interface PostListDto {
+export default interface PostListDto extends Dto {
 	_id: ObjectId;
 	creator: ObjectId;
 	content: { caption: string; mediaUrls: string[] };
@@ -13,4 +14,4 @@ interface PostListDto {
 	isLiked: boolean;
 }
 
-export default PostListDto;
+

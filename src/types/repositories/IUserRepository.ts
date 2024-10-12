@@ -17,10 +17,7 @@ interface IUserRepository {
 	getAllPopulated(): Promise<UserDoc[]>;
 	getById(id: string): Promise<User>;
 	getByEmail(email: string): Promise<User>;
-	getUsersByIdsForDetails(
-		ids: Array<ObjectId>,
-		detailedUser: string
-	): Promise<Array<UserForSearchDto>>;
+	getUsersByIdsForDetails(ids: Array<ObjectId>, detailedUser: string): Promise<Array<UserForSearchDto>>;
 	searchByName(name: string): Promise<Array<User>>;
 	getAllFriendRequests(id: string): Promise<Array<UserForRequestDto>>;
 	update(id: string, user: UserForUpdate): Promise<UserDoc>;
@@ -29,10 +26,8 @@ interface IUserRepository {
 	deleteProfilePhoto(id: string): Promise<UserDoc>;
 	delete(id: string): Promise<UserDoc>;
 
-	deleteFriendRequest(
-		userToFollowId: ObjectId,
-		followerId: ObjectId
-	): Promise<UserDoc>;
+	deleteFriendRequest(userToFollowId: ObjectId, followerId: ObjectId): Promise<UserDoc>;
+	sendFriendRequest(userToFollowId: ObjectId, followingUserId: ObjectId): Promise<UserDoc>;
 	acceptFriendRequest(receiverUserId: ObjectId, senderUserId: ObjectId): Promise<UserDoc>;
 	rejectFriendRequest(receiverUserId: ObjectId, senderUserId: ObjectId): Promise<UserDoc>;
 	removeFriend(userToUnfollowId: string, followerId: string): Promise<UserDoc>;

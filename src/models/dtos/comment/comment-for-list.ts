@@ -1,7 +1,8 @@
 import { ObjectId } from '../../../types/ObjectId';
 import { UserForSearchDto } from '../user/user-for-search-dto';
+import { Dto } from '../Dto';
 
-export interface CommentForListDto {
+export interface CommentForListDto extends Dto {
 	_id: ObjectId;
 	creator: {
 		_id: ObjectId;

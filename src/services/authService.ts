@@ -3,7 +3,6 @@ import { inject, injectable } from 'inversify';
 import UserForRegister from '../models/dtos/user/user-for-register';
 import { CustomError } from '../types/error/CustomError';
 import UserForLogin from '../models/dtos/user/user-for-login';
-import { UserRepository } from '../repositories/user-repository';
 import UserForCreate from '../models/dtos/user/user-for-create';
 import { Result } from '../types/result/Result';
 import { DataResult } from '../types/result/DataResult';
@@ -12,11 +11,13 @@ import { User } from '../models/entities/User';
 import jwt from 'jsonwebtoken';
 import nodemailer, { Transporter } from 'nodemailer';
 import { UserLoginResponse } from '../models/dtos/user/user-login-response';
+import IUserRepository from '../types/repositories/IUserRepository';
+import TYPES from '../util/ioc/types';
 
 @injectable()
 export class AuthService implements IAuthService {
-	private readonly _userRepository: UserRepository;
-	constructor(@inject(UserRepository) userRepository: UserRepository) {
+	private readonly _userRepository: IUserRepository;
+	constructor(@inject(TYPES.IUserRepository) userRepository: IUserRepository) {
 		this._userRepository = userRepository;
 	}
 	async register(userToRegister: UserForRegister): Promise<Result> {

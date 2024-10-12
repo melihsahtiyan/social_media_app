@@ -37,7 +37,7 @@ export class Chat extends Entity {
 	constructor({
 		_id,
 		members,
-		messageChunks,
+		chunks,
 		sharedMedias,
 		sharedPosts,
 		sharedEvents,
@@ -54,7 +54,7 @@ export class Chat extends Entity {
 		super();
 		this._id = _id;
 		this.members = members;
-		this.chunks = messageChunks || [];
+		this.chunks = chunks;
 		this.sharedMedias = sharedMedias;
 		this.sharedPosts = sharedPosts;
 		this.sharedEvents = sharedEvents;

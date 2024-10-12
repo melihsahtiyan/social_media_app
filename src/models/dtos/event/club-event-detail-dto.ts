@@ -1,7 +1,7 @@
+import { Dto } from '../Dto';
 import { ObjectId } from '../../../types/ObjectId';
 
-
-export interface ClubEventDetailDto {
+export interface ClubEventDetailDto extends Dto {
 	title: string;
 	description: string;
 	image: string;

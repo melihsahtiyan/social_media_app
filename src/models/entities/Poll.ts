@@ -1,7 +1,8 @@
 import { ObjectId } from '../../types/ObjectId';
+import { Entity } from './Entity';
 
 
-export class Poll {
+export class Poll extends Entity {
 	question: string;
 	options: Array<{ optionName: string; votes: ObjectId[] }>;
 	totalVotes: number;
@@ -12,6 +13,7 @@ export class Poll {
 		totalVotes: number,
 		expiresAt: Date
 	) {
+		super();
 		this.question = question;
 		this.options = options;
 		this.totalVotes = totalVotes;
