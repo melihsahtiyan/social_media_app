@@ -17,11 +17,6 @@ const photoFileFilter = (req: Request, file, cb) => {
 	}
 };
 
-export const profilePhotoUpload = multer({
-	storage: singlePhotoStorage,
-	fileFilter: photoFileFilter,
-});
-
 const fileFilter = (req: Request, file, cb) => {
 	const imageMimetypes = ['image/png', 'image/jpg', 'image/jpeg', 'image/webp', 'image/heic', 'image/gif'];
 
@@ -37,15 +32,19 @@ const fileFilter = (req: Request, file, cb) => {
 	}
 };
 
-export const mediaUpload = multer({
+export const profilePhotoUpload = multer({
+	storage: singlePhotoStorage,
+	fileFilter: photoFileFilter,
+});
+export const mediaArrayUpload = multer({
 	storage: storage,
 	fileFilter: fileFilter,
-}).array('medias');
+});
 
-export const eventMediaUpload = multer({
+export const singleMediaUpload = multer({
 	storage: storage,
 	fileFilter: fileFilter,
-}).single('media');
+});
 
 export const clearImage = (filePath: string) => {
 	filePath = path.join(__dirname, '../..', filePath);

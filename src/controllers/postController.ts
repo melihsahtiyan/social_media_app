@@ -1,6 +1,5 @@
 import 'reflect-metadata';
 import { inject, injectable } from 'inversify';
-import { PostService } from '../services/postService';
 import Request from '../types/Request';
 import { NextFunction, Response } from 'express';
 import { isValid } from '../util/validationHandler';
@@ -10,12 +9,14 @@ import { PostDoc } from '../models/schemas/post.schema';
 import PostListDto from '../models/dtos/post/post-list';
 import { PostDetails } from '../models/dtos/post/post-details';
 import { Result } from '../types/result/Result';
+import IPostService from '../types/services/IPostService';
+import TYPES from '../util/ioc/types';
 
 @injectable()
 export class PostController {
-	private _postService: PostService;
+	private _postService: IPostService;
 
-	constructor(@inject(PostService) postService: PostService) {
+	constructor(@inject(TYPES.IPostService) postService: IPostService) {
 		this._postService = postService;
 	}
 

@@ -1,7 +1,8 @@
 import { ObjectId } from '../../../types/ObjectId';
+import { Dto } from '../Dto';
 
-export type ChatDetailDto = {
-    _id: ObjectId;
+export interface ChatDetailDto extends Dto {
+	_id: ObjectId;
 	isGroup: boolean;
 	admins?: Array<{
 		_id: ObjectId;

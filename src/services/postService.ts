@@ -1,9 +1,6 @@
 import 'reflect-metadata';
 import { inject, injectable } from 'inversify';
 import IPostService from '../types/services/IPostService';
-import { PostRepository } from '../repositories/post-repository';
-import { CloudinaryService } from './cloudinaryService';
-import { UserRepository } from '../repositories/user-repository';
 import { CustomError } from '../types/error/CustomError';
 import { PostDoc } from '../models/schemas/post.schema';
 import { PostInputDto } from '../models/dtos/post/post-input-dto';
@@ -14,16 +11,20 @@ import { PostDetails } from '../models/dtos/post/post-details';
 import { Post } from '../models/entities/Post';
 import { Result } from '../types/result/Result';
 import { User } from '../models/entities/User';
+import IPostRepository from '../types/repositories/IPostRepository';
+import IUserRepository from '../types/repositories/IUserRepository';
+import { ICloudinaryService } from '../types/services/ICloudinaryService';
+import TYPES from '../util/ioc/types';
 
 @injectable()
 export class PostService implements IPostService {
-	private postRepository: PostRepository;
-	private userRepository: UserRepository;
-	private cloudinaryService: CloudinaryService;
+	private postRepository: IPostRepository;
+	private userRepository: IUserRepository;
+	private cloudinaryService: ICloudinaryService;
 	constructor(
-		@inject(PostRepository) postRepository: PostRepository,
-		@inject(UserRepository) userRepository: UserRepository,
-		@inject(CloudinaryService) cloudinaryService: CloudinaryService
+		@inject(TYPES.IPostRepository) postRepository: IPostRepository,
+		@inject(TYPES.IUserRepository) userRepository: IUserRepository,
+		@inject(TYPES.ICloudinaryService) cloudinaryService: ICloudinaryService
 	) {
 		this.postRepository = postRepository;
 		this.userRepository = userRepository;

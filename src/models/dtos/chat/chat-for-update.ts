@@ -1,4 +1,6 @@
-export interface ChatForUpdate {
+import { Dto } from '../Dto';
+
+export interface ChatForUpdate extends Dto {
 	// Details
 	description?: string;
 

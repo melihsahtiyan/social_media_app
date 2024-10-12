@@ -1,28 +1,37 @@
-import "reflect-metadata"
+import 'reflect-metadata';
 import { IPollRepository } from '../types/repositories/IPollRepository';
-import { Schema } from 'mongoose';
-import { PostDoc, posts } from '../models/schemas/post.schema';
-import { injectable } from 'inversify';
+import { injectable, unmanaged } from 'inversify';
 import { Poll } from '../models/entities/Poll';
-import { Post } from '../models/entities/Post';
 import { CustomError } from '../types/error/CustomError';
-
-type ObjectId = Schema.Types.ObjectId;
-
+import { ObjectId } from '../types/ObjectId';
+import { RepositoryBase } from './repository-base';
+import { Model } from 'mongoose';
+import { polls } from '../models/schemas/poll.schema';
 @injectable()
-export class PollRepository implements IPollRepository {
-	constructor() {}
-
-	async createPoll(poll: Poll): Promise<Post> {
-		return await posts.create(poll);
+export class PollRepository extends RepositoryBase<Poll> implements IPollRepository {
+	constructor(@unmanaged() model: Model<Poll> = polls) {
+		super(model);
 	}
-	async votePoll(pollId: ObjectId, userId: ObjectId, option: string): Promise<PostDoc> {
-		const post = await posts.findById(pollId);
+
+	override async create(poll: Poll): Promise<boolean> {
+		try {
+			const createdPoll = await this.model.create(poll);
+			return !!createdPoll;
+		} catch (error) {
+			const customError: CustomError = new Error(error.message);
+			customError.statusCode = 500;
+			customError.className = 'PollRepository';
+			customError.functionName = 'create';
+			throw customError;
+		}
+	}
+	async vote(pollId: ObjectId, userId: ObjectId, option: string): Promise<boolean> {
+		const post = await this.model.findById(pollId);
 		if (!post) throw new CustomError('Poll not found', 404);
 
 		const currentVersion = post.__v;
 
-		const updatedPost = await posts.findOneAndUpdate(
+		const updatedPost = await this.model.findOneAndUpdate(
 			{ _id: pollId, __v: currentVersion },
 			{
 				$inc: { 'poll.totalVotes': 1, __v: 1 },
@@ -38,17 +47,17 @@ export class PollRepository implements IPollRepository {
 			throw new CustomError('Version conflict, please retry', 409);
 		}
 
-		return updatedPost;
+		return !!updatedPost;
 	}
 
 	//TODO: Check this method after testing
-	async deleteVote(pollId: ObjectId, userId: ObjectId, option: string): Promise<PostDoc> {
-		const post = await posts.findById(pollId);
+	async deleteVote(pollId: ObjectId, userId: ObjectId, option: string): Promise<boolean> {
+		const post = await this.model.findById(pollId);
 		if (!post) throw new CustomError('Poll not found', 404);
 
 		const currentVersion = post.__v;
 
-		const updatedPost = await posts.findOneAndUpdate(
+		const updatedPost = await this.model.findOneAndUpdate(
 			{ _id: pollId, __v: currentVersion },
 			{
 				$inc: { 'poll.totalVotes': -1, __v: 1 },
@@ -64,9 +73,6 @@ export class PollRepository implements IPollRepository {
 			throw new CustomError('Version conflict, please retry', 409);
 		}
 
-		return updatedPost;
-	}
-	async deletePoll(pollId: ObjectId): Promise<PostDoc> {
-		return await posts.findByIdAndDelete(pollId);
+		return !!updatedPost;
 	}
 }

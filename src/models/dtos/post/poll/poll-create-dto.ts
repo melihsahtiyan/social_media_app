@@ -1,6 +1,7 @@
 import { ObjectId } from '../../../../types/ObjectId';
+import { Dto } from '../../Dto';
 
-export type PollCreate = {
+export interface PollCreateDto extends Dto {
 	creator: ObjectId;
 	caption: string;
 	question: string;

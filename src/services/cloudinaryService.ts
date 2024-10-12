@@ -25,16 +25,26 @@ export class CloudinaryService implements ICloudinaryService {
 		switch (type) {
 			case 'profilePhoto':
 				if (!imageExtensions.includes(extension)) {
-					const error: CustomError = new Error('Invalid file type! Profile photo must be an image.');
-					error.statusCode = 422;
+					const error: CustomError = new CustomError(
+						'Invalid file type! Profile photo must be an image.',
+						422,
+						null,
+						'CloudinaryService',
+						'handleUpload'
+					);
 					throw error;
 				}
 				folder = 'profilePhotos/';
 				break;
 			case 'avatar':
 				if (!imageExtensions.includes(extension)) {
-					const error: CustomError = new Error('Invalid file type! Profile photo must be an image.');
-					error.statusCode = 422;
+					const error: CustomError = new CustomError(
+						'Invalid file type! Profile photo must be an image.',
+						422,
+						null,
+						'CloudinaryService',
+						'handleUpload'
+					);
 					throw error;
 				}
 				folder = 'avatars/';
@@ -45,14 +55,37 @@ export class CloudinaryService implements ICloudinaryService {
 				} else if (imageExtensions.includes(extension)) {
 					folder = 'media/images/';
 				} else {
-					const error: CustomError = new Error('Invalid file type!');
-					error.statusCode = 422;
+					const error: CustomError = new CustomError(
+						'Invalid file type!',
+						422,
+						null,
+						'CloudinaryService',
+						'handleUpload'
+					);
+					throw error;
+				}
+				break;
+			case 'messages':
+				folder = 'messages/';
+				if (!imageExtensions.includes(extension) && !videoExtensions.includes(extension)) {
+					const error: CustomError = new CustomError(
+						'Invalid file type!',
+						422,
+						null,
+						'CloudinaryService',
+						'handleUpload'
+					);
 					throw error;
 				}
 				break;
 			default: {
-				const error: CustomError = new Error('Invalid file type!');
-				error.statusCode = 422;
+				const error: CustomError = new CustomError(
+					'Invalid file type!',
+					422,
+					null,
+					'CloudinaryService',
+					'handleUpload'
+				);
 				throw error;
 			}
 		}

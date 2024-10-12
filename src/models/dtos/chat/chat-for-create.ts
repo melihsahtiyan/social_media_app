@@ -1,6 +1,6 @@
 import { ObjectId } from '../../../types/ObjectId';
-
-export interface ChatForCreate {
+import { Dto } from '../Dto';
+export interface ChatForCreate extends Dto {
 	members: string[];
 
 	// Group chat

@@ -1,8 +1,6 @@
 import 'reflect-metadata';
 import { inject, injectable } from 'inversify';
 import IUserService from '../types/services/IUserService';
-import { UserRepository } from '../repositories/user-repository';
-import { CloudinaryService } from './cloudinaryService';
 import { CustomError } from '../types/error/CustomError';
 import { Result } from '../types/result/Result';
 import { DataResult } from '../types/result/DataResult';
@@ -13,21 +11,24 @@ import { UserDetailDto } from '../models/dtos/user/user-detail-dto';
 import { UserListDto } from '../models/dtos/user/user-list-dto';
 import { UserForSearchDto } from '../models/dtos/user/user-for-search-dto';
 import { UserProfileDto } from '../models/dtos/user/user-profile-dto';
+import IUserRepository from '../types/repositories/IUserRepository';
+import { ICloudinaryService } from '../types/services/ICloudinaryService';
+import TYPES from '../util/ioc/types';
 
 @injectable()
 export class UserService implements IUserService {
-	private readonly userRepository: UserRepository;
-	private readonly cloudinaryService: CloudinaryService;
+	private readonly userRepository: IUserRepository;
+	private readonly cloudinaryService: ICloudinaryService;
 	constructor(
-		@inject(UserRepository) userRepository: UserRepository,
-		@inject(CloudinaryService) cloudinaryService: CloudinaryService
+		@inject(TYPES.IUserRepository) userRepository: IUserRepository,
+		@inject(TYPES.ICloudinaryService) cloudinaryService: ICloudinaryService
 	) {
 		this.userRepository = userRepository;
 		this.cloudinaryService = cloudinaryService;
 	}
 	async getAllUsers(): Promise<DataResult<Array<UserListDto>>> {
 		try {
-			const users: Array<UserListDto> = await this.userRepository.getAll();
+			const users: Array<UserListDto> = await this.userRepository.getAll({});
 			const result: DataResult<Array<UserListDto>> = {
 				statusCode: 200,
 				message: 'Users fetched successfully',

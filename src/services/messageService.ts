@@ -1,6 +1,5 @@
 import 'reflect-metadata';
 import { inject, injectable } from 'inversify';
-import { MessageRepository } from '../repositories/message-repository';
 import { IMessageService } from '../types/services/IMessageService';
 import { Message } from '../models/entities/Chat/Message';
 import { CustomError } from '../types/error/CustomError';
@@ -8,31 +7,42 @@ import { MessageForCreate } from '../models/dtos/message/message-for-create';
 import { Result } from '../types/result/Result';
 import { DataResult } from '../types/result/DataResult';
 import { User } from '../models/entities/User';
-import { UserService } from './userService';
-import { ChatService } from './chatService';
 import { Chat } from '../models/entities/Chat/Chat';
-import { MessageChunkService } from './messageChunkService';
 import { MessageChunk } from '../models/entities/Chat/MessageChunk';
-import { ObjectId } from '../types/ObjectId';
+import IChatService from '../types/services/IChatService';
+import TYPES from '../util/ioc/types';
+import { IMessageRepository } from '../types/repositories/IMessageRepository';
+import IUserService from '../types/services/IUserService';
+import { IMessageChunkService } from '../types/services/IMessageChunkService';
+import { ICloudinaryService } from '../types/services/ICloudinaryService';
+import { MessageTypes } from '../models/entities/enums/messageEnums';
 
 @injectable()
 export class MessageService implements IMessageService {
-	private readonly messageRepository: MessageRepository;
-	private readonly userService: UserService;
-	private readonly chatService: ChatService;
-	private readonly messageChunkService: MessageChunkService;
+	private readonly messageRepository: IMessageRepository;
+	private readonly userService: IUserService;
+	private readonly chatService: IChatService;
+	private readonly messageChunkService: IMessageChunkService;
+	private readonly cloudinaryService: ICloudinaryService;
 	constructor(
-		@inject(MessageRepository) messageRepository: MessageRepository,
-		@inject(UserService) userService: UserService,
-		@inject(ChatService) chatService: ChatService,
-		@inject(MessageChunkService) messageChunkService: MessageChunkService
+		@inject(TYPES.IMessageRepository) messageRepository: IMessageRepository,
+		@inject(TYPES.IUserService) userService: IUserService,
+		@inject(TYPES.IChatService) chatService: IChatService,
+		@inject(TYPES.IMessageChunkService) messageChunkService: IMessageChunkService,
+		@inject(TYPES.ICloudinaryService) cloudinaryService: ICloudinaryService
 	) {
 		this.messageRepository = messageRepository;
 		this.userService = userService;
 		this.chatService = chatService;
 		this.messageChunkService = messageChunkService;
+		this.cloudinaryService = cloudinaryService;
 	}
-	async createMessage(userId: string, messageToCreate: MessageForCreate, chatId: string): Promise<Result> {
+	async createMessage(
+		userId: string,
+		messageToCreate: MessageForCreate,
+		chatId: string,
+		media?: Express.Multer.File
+	): Promise<Result> {
 		try {
 			// Check if user exists
 			const user: User = (await this.userService.getUserById(userId)).data;
@@ -47,32 +57,55 @@ export class MessageService implements IMessageService {
 			messageToCreate.chatId = chat._id;
 
 			// Check if chunk exists
-			const chunk: MessageChunk = (await this.messageChunkService.getAllChunksByChatId(chat._id.toString())).data[0];
+			const chunk: MessageChunk = (await this.messageChunkService.getAllChunksByChatId(chatId)).data[0];
+			
 			// If chunk does not exist, create a new chunk
 			if (!chunk) {
-				const createdChunk: DataResult<MessageChunk> = await this.messageChunkService.createChunk({
-					chat: chat._id.toString(),
-					nextPartition: null,
-				});
-				if (!createdChunk.success) return { success: false, message: 'Chunk not found', statusCode: 404 } as Result;
-				messageToCreate.chunkId = createdChunk.data._id;
+				const createdChunk: MessageChunk = (
+					await this.messageChunkService.createChunk({
+						chat: chat._id.toString(),
+						nextChunk: null,
+					})
+				).data;
+
+				if (!createdChunk) return { success: false, message: 'Chunk not found', statusCode: 404 } as Result;
+				messageToCreate.chunkId = createdChunk._id;
+			}
+			// If chunk is full, create a new chunk
+			else if (chunk.isFull) {
+				const createdChunk: MessageChunk = (
+					await this.messageChunkService.createChunk({
+						chat: chat._id.toString(),
+						nextChunk: chunk._id.toString(),
+					})
+				).data;
+
+				if (!createdChunk) return { success: false, message: 'Chunk not found', statusCode: 404 } as Result;
+				
+				messageToCreate.chunkId = createdChunk._id;
 			} else {
 				messageToCreate.chunkId = chunk._id;
 			}
+
+			// Check the message type and upload media to cloudinary
+			if (messageToCreate.type === MessageTypes.MEDIA || media) {
+				const uploadedMedia = await this.cloudinaryService.handleUpload(media, 'messages');
+				messageToCreate.content = uploadedMedia;
+				messageToCreate.type = MessageTypes.MEDIA;
+			}
+
 			const createdMessage = await this.messageRepository.create(messageToCreate);
 
-			const createdMessageChunk: DataResult<MessageChunk> = (
-				await this.messageChunkService.pushMessageToChunk(
-					messageToCreate.chunkId.toString(),
-					createdMessage._id.toString()
-				)
+			const pushedMessageChunk: DataResult<MessageChunk> = await this.messageChunkService.pushMessageToChunk(
+				messageToCreate.chunkId.toString(),
+				createdMessage
 			);
 
 			return {
-				success: createdMessageChunk.success,
-				message: createdMessageChunk.success ? 'Message created!' : 'Message creation failed!',
-				statusCode: createdMessageChunk.success ? 200 : 404,
-				data: createdMessageChunk.success ? createdMessage._id : null,
+				success: pushedMessageChunk.success,
+				message: pushedMessageChunk.success ? 'Message created!' : 'Message creation failed!',
+				statusCode: pushedMessageChunk.success ? 200 : 404,
+				data: pushedMessageChunk.success ? createdMessage._id : null,
 			} as Result;
 		} catch (err) {
 			const error: CustomError = new CustomError(err.message, err.status);
@@ -98,6 +131,7 @@ export class MessageService implements IMessageService {
 	async getAllMessagesByChatId(chatId: string): Promise<DataResult<Array<Message>>> {
 		try {
 			const chat: Chat = (await this.chatService.getChatById(chatId)).data;
+			
 			if (!chat)
 				return { success: false, message: 'Chat not found', statusCode: 404, data: null } as DataResult<Array<Message>>;
 
@@ -117,8 +151,26 @@ export class MessageService implements IMessageService {
 			throw error;
 		}
 	}
-	getAllMessagesByChunkId(chunkId: string): Promise<DataResult<Array<Message>>> {
-		throw new Error('Method not implemented.');
+	async getAllMessagesByChunkId(chunkId: string): Promise<DataResult<Array<Message>>> {
+		try {
+			const chunk: MessageChunk = (await this.messageChunkService.getChunk(chunkId)).data;
+
+			if (!chunk)
+				return { success: false, message: 'Chunk not found', statusCode: 404, data: null } as DataResult<
+					Array<Message>
+				>;
+
+			const messages: Array<Message> = await this.messageRepository.getAll({ chunkId: chunk._id });
+
+			return { success: true, message: 'Messages found!', statusCode: 200, data: messages } as DataResult<
+				Array<Message>
+			>;
+		} catch (err) {
+			const error: CustomError = new CustomError(err.message, err.status);
+			error.className = err?.className ?? 'MessageService';
+			error.functionName = err?.functionName ?? 'getAllMessagesByChunkId';
+			throw error;
+		}
 	}
 	updateMessage(message: string): Promise<Result> {
 		throw new Error('Method not implemented.');

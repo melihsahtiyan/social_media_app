@@ -6,8 +6,9 @@ import { UserController } from '../controllers/userController';
 import container from '../util/ioc/iocContainer';
 import Request from '../types/Request';
 import { logRequest } from '../util/loggingHandler';
+import TYPES from '../util/ioc/types';
 
-const controller: UserController = container.get<UserController>(UserController);
+const controller: UserController = container.get<UserController>(TYPES.UserController);
 
 function routes(app: Express) {
 	app.get('/user/getAllUsers', logRequest, async (req: Request, res: Response, next: NextFunction) => {

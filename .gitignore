@@ -4,6 +4,7 @@
 .env
 /media
 todo-codes.ts
+.clinic
 ```
 combined.log
 error.log

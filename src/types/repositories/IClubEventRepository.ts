@@ -1,4 +1,5 @@
 import { ClubEventForCreate } from '../../models/dtos/event/club-event-for-create';
+import { ClubEventForUpdate } from '../../models/dtos/event/club-event-for-update';
 import { ClubEvent } from '../../models/entities/ClubEvent';
 
 export interface IClubEventRepository {
@@ -8,6 +9,6 @@ export interface IClubEventRepository {
 	getAll(): Promise<Array<ClubEvent>>;
 	getFutureEventsByUserId(userId: string): Promise<Array<ClubEvent>>;
 	getFutureEventsByUserIdAndIsPublic(userId: string): Promise<Array<ClubEvent>>;
-	update(id: string, event: ClubEvent): Promise<ClubEvent>;
+	update(id: string, event: ClubEventForUpdate): Promise<ClubEvent>;
 	delete(id: string): Promise<boolean>;
 }

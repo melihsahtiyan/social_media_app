@@ -1,9 +1,7 @@
 import express, { Express } from 'express';
 import mongoose from 'mongoose';
 import bodyParser from 'body-parser';
-import path from 'path';
 import { handleError } from './middleware/errorHandlingMiddleware';
-import fs from 'fs';
 import authRoutes from './routes/authRoutes';
 import userRoutes from './routes/userRoutes';
 import friendshipRoutes from './routes/friendshipRoutes';
@@ -15,23 +13,14 @@ import commentRoutes from './routes/commentRoutes';
 import chatRoutes from './routes/chatRoutes';
 import clubEventRoutes from './routes/clubEventRoutes';
 import fileRoute from './routes/fileRoute';
-import swaggerUi from 'swagger-ui-express';
-import swaggerFile from './../docs/swagger_output.json';
 import dotenv from 'dotenv';
 import cors from 'cors';
-import logger from './util/loggingHandler';
 
 dotenv.config();
-
-fs.mkdirSync(path.join(__dirname, '../media/images'), { recursive: true });
-fs.mkdirSync(path.join(__dirname, '../media/videos'), { recursive: true });
-fs.mkdirSync(path.join(__dirname, '../media/profilePhotos'), { recursive: true });
 
 const app: Express = express();
 
 app.use(bodyParser.json());
-
-app.use('/media', express.static(path.join(__dirname, '/media')));
 
 const corsOptions = {
 	//TODO: Change origin to your domain
@@ -39,6 +28,7 @@ const corsOptions = {
 	methods: 'GET, POST, PUT, PATCH, DELETE',
 	allowedHeaders: 'Content-Type, Authorization',
 };
+
 app.use(handleError);
 app.use(cors(corsOptions));
 
@@ -54,31 +44,15 @@ pollRoutes(app);
 authRoutes(app);
 fileRoute(app);
 
-const retryMongoDBConnect = () => {
+app.listen({ port: process.env.PORT || 8080 }, () => {
 	mongoose
 		.connect(process.env.MONGO_URL)
 		.then(() => {
-			app.listen({ port: process.env.PORT || 8080 }, () => {
-				console.log('Server running, MongoDB connected');
-				app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerFile));
-			});
+			console.log('Server running, MongoDB connected');
 		})
 		.catch(err => {
 			console.error('Failed to connect to MongoDB, retrying...', err.message);
-			setTimeout(retryMongoDBConnect, 5000); // Retry connection every 5 seconds
 		});
-};
-
-retryMongoDBConnect();
-
-process.on('uncaughtException', (error: Error) => {
-	console.error('Uncaught Exception:', error);
-	logger.error('Uncaught Exception:', error);
-	process.exit(1);
-});
-
-process.on('unhandledRejection', (reason: unknown, promise: Promise<unknown>) => {
-	console.error('Unhandled Rejection:', reason);
-	logger.error('Unhandled Rejection:', reason);
-	process.exit(1);
+	const memoryUsage = process.memoryUsage();
+	console.log(`Heap Total: ${memoryUsage.heapTotal} - Heap Used: ${memoryUsage.heapUsed}`);
 });

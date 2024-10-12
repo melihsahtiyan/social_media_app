@@ -1,4 +1,5 @@
 import { MessageChunkForCreate } from '../../models/dtos/message-chunk/message-chunk-for-create';
+import { Message } from '../../models/entities/Chat/Message';
 import { MessageChunk } from '../../models/entities/Chat/MessageChunk';
 import { DataResult } from '../result/DataResult';
 
@@ -13,8 +14,8 @@ export interface IMessageChunkService {
 
 	// Update Operations
 	// updateChunk(chunk: string): Promise<Result>;
-	pushMessageToChunk(chunkId: string, messageId: string): Promise<DataResult<MessageChunk>>;
-	dropMessageFromChunk(chunkId: string, messageId: string): Promise<DataResult<MessageChunk>>;
+	pushMessageToChunk(chunkId: string, message: Message): Promise<DataResult<MessageChunk>>;
+	dropMessageFromChunk(chunkId: string, message: Message): Promise<DataResult<MessageChunk>>;
 
 	// // Delete Operations
 	// deleteChunk(chunkId: string): Promise<Result>;

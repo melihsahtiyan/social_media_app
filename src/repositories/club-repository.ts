@@ -35,7 +35,7 @@ export class ClubRepository implements IClubRepository {
 	async getClubByOrganizerId(organizerId: string): Promise<ClubDoc> {
 		return await clubs.findOne({ organizers: organizerId });
 	}
-	public async updateClub(id: string, club: ClubForUpdateDto): Promise<Club> {
+	public async update(id: string, club: ClubForUpdateDto): Promise<Club> {
 		const updatedClub: ClubDoc = await clubs.findByIdAndUpdate(
 			id,
 			{ ...club, updatedAt: new Date(Date.now()) },

@@ -1,6 +1,7 @@
 import { ObjectId } from '../../../../types/ObjectId';
+import { Dto } from '../../Dto';
 
-export type PollDetails = {
+export interface PollDetailsDto extends Dto {
 	_id: ObjectId;
 	creator: ObjectId;
 	options: { optionName: Array<string>; totalVotes: number }[];

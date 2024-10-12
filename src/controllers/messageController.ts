@@ -1,36 +1,54 @@
 import 'reflect-metadata';
 import { injectable, inject } from 'inversify';
-import { MessageService } from '../services/messageService';
 import { Response, NextFunction } from 'express';
 import Request from '../types/Request';
+import { IMessageService } from '../types/services/IMessageService';
+import TYPES from '../util/ioc/types';
+import { MessageForCreate } from '../models/dtos/message/message-for-create';
+import { MessageTypes } from '../models/entities/enums/messageEnums';
 
 @injectable()
 export class MessageController {
-	private readonly messageService: MessageService;
+	private readonly messageService: IMessageService;
 
-	constructor(@inject(MessageService) messageService: MessageService) {
+	constructor(@inject(TYPES.IMessageService) messageService: IMessageService) {
 		this.messageService = messageService;
 	}
 
-    async createMessage(req: Request, res: Response, next: NextFunction) {
-        try {
-            const message = req.body;
-            const userId = req.userId;
+	async createMessage(req: Request, res: Response, next: NextFunction) {
+		try {
+			const message: MessageForCreate = req.body;
+			const media: Express.Multer.File = req?.file;
+			const userId = req.userId;
+			
+			if ((message.type === MessageTypes.TEXT && !message.content) || (message.type === MessageTypes.MEDIA && !media))
+				return res.status(422).json({ success: false, message: 'Content or media is required', statusCode: 422 });
 
-            const result = await this.messageService.createMessage(userId, message, message.chatId);
+			const result = await this.messageService.createMessage(userId, message, message.chatId.toString(), media);
 
-            return res.status(result.statusCode).json(result);
-        } catch (error) {
-            next(error);
-        }
-    }
+			return res.status(result.statusCode).json(result);
+		} catch (error) {
+			next(error);
+		}
+	}
 
 	async getAllMessagesByChatId(req: Request, res: Response, next: NextFunction) {
 		try {
-			const chatId = req.params.chatId;
+			const chatId = req.query.chatId as string;
 			const messages = await this.messageService.getAllMessagesByChatId(chatId);
-			
-            return res.json(messages);
+
+			return res.status(messages.statusCode).json(messages);
+		} catch (error) {
+			next(error);
+		}
+	}
+
+	async getAllMessagesByChunkId(req: Request, res: Response, next: NextFunction) {
+		try {
+			const chunkId = req.query.chunkId as string;
+			const messages = await this.messageService.getAllMessagesByChunkId(chunkId);
+
+			return res.status(messages.statusCode).json(messages);
 		} catch (error) {
 			next(error);
 		}

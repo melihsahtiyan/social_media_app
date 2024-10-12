@@ -1,21 +1,10 @@
-import { Schema } from "mongoose";
-import { Post } from "../../models/entities/Post";
-import { PostDoc } from "../../models/schemas/post.schema";
-import { Poll } from "../../models/entities/Poll";
+import { Poll } from '../../models/entities/Poll';
+import { ObjectId } from '../ObjectId';
+import { IRepositoryBase } from './IRepositoryBase';
 
-export interface IPollRepository {
-  createPoll(poll: Poll): Promise<Post>;
-  votePoll(
-    pollId: Schema.Types.ObjectId,
-    userId: Schema.Types.ObjectId,
-    option: string
-  ): Promise<PostDoc>;
-
-  deleteVote(
-    pollId: Schema.Types.ObjectId,
-    userId: Schema.Types.ObjectId,
-    option: string
-  ): Promise<PostDoc>;
-
-  deletePoll(pollId: Schema.Types.ObjectId): Promise<PostDoc>;
+export interface IPollRepository extends IRepositoryBase<Poll> {
+	create(poll: Poll): Promise<boolean>;
+	vote(pollId: ObjectId, userId: ObjectId, option: string): Promise<boolean>;
+	deleteVote(pollId: ObjectId, userId: ObjectId, option: string): Promise<boolean>;
+	delete(id: string): Promise<boolean>;
 }

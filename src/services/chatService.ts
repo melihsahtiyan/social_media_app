@@ -1,9 +1,6 @@
 import 'reflect-metadata';
 import { inject, injectable } from 'inversify';
 import IChatService from '../types/services/IChatService';
-import { ChatRepository } from '../repositories/chat-repository';
-import { UserService } from './userService';
-import { CloudinaryService } from './cloudinaryService';
 import { Result } from '../types/result/Result';
 import { DataResult } from '../types/result/DataResult';
 import { Chat } from '../models/entities/Chat/Chat';
@@ -13,17 +10,21 @@ import { CustomError } from '../types/error/CustomError';
 import { ObjectId } from '../types/ObjectId';
 import { ChatDetailDto } from '../models/dtos/chat/chat-detail-dto';
 import { ChatForUpdate } from '../models/dtos/chat/chat-for-update';
+import { IChatRepository } from '../types/repositories/IChatRepository';
+import TYPES from '../util/ioc/types';
+import { ICloudinaryService } from '../types/services/ICloudinaryService';
+import IUserService from '../types/services/IUserService';
 
 @injectable()
 export class ChatService implements IChatService {
-	private chatRepository: ChatRepository;
-	private userService: UserService;
-	private cloudinaryService: CloudinaryService;
+	private chatRepository: IChatRepository;
+	private userService: IUserService;
+	private cloudinaryService: ICloudinaryService;
 
 	constructor(
-		@inject(ChatRepository) chatRepository: ChatRepository,
-		@inject(UserService) userService: UserService,
-		@inject(CloudinaryService) cloudinaryService: CloudinaryService
+		@inject(TYPES.IChatRepository) chatRepository: IChatRepository,
+		@inject(TYPES.IUserService) userService: IUserService,
+		@inject(TYPES.ICloudinaryService) cloudinaryService: ICloudinaryService
 	) {
 		this.chatRepository = chatRepository;
 		this.userService = userService;
@@ -64,13 +65,13 @@ export class ChatService implements IChatService {
 				title: null,
 			};
 
-			const createdChat: Chat = await this.chatRepository.create(chatForCreate);
+			const createdChat: boolean = await this.chatRepository.create(chatForCreate);
 
-			if (createdChat) {
-				return { success: true, message: 'Chat created successfully', statusCode: 200 } as Result;
-			}
-
-			return { success: false, message: 'Chat creation failed', statusCode: 500 } as Result;
+			return {
+				success: createdChat,
+				message: createdChat ? 'Chat created successfully' : 'Chat creation failed',
+				statusCode: createdChat ? 201 : 500,
+			} as Result;
 		} catch (err) {
 			const error: CustomError = new Error(err);
 			error.className = err.className || 'ChatService';
@@ -80,7 +81,7 @@ export class ChatService implements IChatService {
 	}
 	async getAllChats(): Promise<DataResult<Chat[]>> {
 		try {
-			const allChats: Chat[] = await this.chatRepository.getAll();
+			const allChats: Chat[] = await this.chatRepository.getAll({});
 
 			if (allChats) {
 				return { success: true, message: 'Chats fetched successfully!', data: allChats, statusCode: 201 } as DataResult<
@@ -174,13 +175,13 @@ export class ChatService implements IChatService {
 			await chatToUpdate.setGroupDetails({ isGroup: chat.isGroup, title: chat.title });
 			await chatToUpdate.setDetails(chat.description);
 
-			const updatedChat: Chat = await this.chatRepository.update(chatToUpdate);
+			const isUpdated: boolean = await this.chatRepository.update(chatToUpdate._id.toString(), chatToUpdate);
 
-			if (updatedChat) {
-				return { success: true, message: 'Chat updated successfully', statusCode: 201 } as Result;
-			}
-
-			return { success: false, message: 'Chat update failed', statusCode: 500 } as Result;
+			return {
+				success: isUpdated,
+				message: isUpdated ? 'Chat updated successfully' : 'Chat update failed',
+				statusCode: isUpdated ? 200 : 500,
+			} as Result;
 		} catch (err) {
 			const error: CustomError = new Error(err);
 			error.className = err.className || 'ChatService';
@@ -290,13 +291,13 @@ export class ChatService implements IChatService {
 			if (!chat.avatar) return { success: false, message: 'Avatar upload failed', statusCode: 500 } as Result;
 
 			// Update chat
-			const updatedChat: Chat = await this.chatRepository.update(chat);
+			const isUpdated: boolean = await this.chatRepository.update(chat._id.toString(), chat);
 
-			if (updatedChat) {
-				return { success: true, message: 'Avatar set successfully', statusCode: 200 } as Result;
-			}
-
-			return { success: false, message: 'Avatar setting failed', statusCode: 500 } as Result;
+			return {
+				success: isUpdated,
+				message: isUpdated ? 'Avatar setting successful' : 'Avatar setting failed',
+				statusCode: isUpdated ? 200 : 500,
+			} as Result;
 		} catch (err) {
 			const error: CustomError = new Error(err);
 			error.className = err.className || 'ChatService';
@@ -325,11 +326,11 @@ export class ChatService implements IChatService {
 
 			const deletedChat: boolean = await this.chatRepository.delete(chatId);
 
-			if (deletedChat) {
-				return { success: true, message: 'Chat deleted successfully', statusCode: 201 } as Result;
-			}
-
-			return { success: false, message: 'Chat deletion failed', statusCode: 500 } as Result;
+			return {
+				success: deletedChat,
+				message: deletedChat ? 'Chat deleted successfully' : 'Chat deletion failed',
+				statusCode: deletedChat ? 200 : 500,
+			} as Result;
 		} catch (err) {
 			const error: CustomError = new Error(err);
 			error.className = err.className || 'ChatService';

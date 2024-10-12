@@ -5,8 +5,9 @@ import container from '../util/ioc/iocContainer';
 import isAuth from '../middleware/is-auth';
 import { body, param } from 'express-validator';
 import { logRequest } from '../util/loggingHandler';
+import TYPES from '../util/ioc/types';
 
-const controller: CommentController = container.get<CommentController>(CommentController);
+const controller: CommentController = container.get<CommentController>(TYPES.CommentController);
 
 function routes(app: Express) {
 	app.post(

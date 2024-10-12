@@ -1,6 +1,7 @@
+import { Dto } from '../Dto';
 import { ObjectId } from '../../../types/ObjectId';
 
-export interface EventListDto {
+export interface EventListDto extends Dto {
 	title: string;
 	description: string;
 	image: string;

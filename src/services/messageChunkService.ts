@@ -3,20 +3,22 @@ import { inject, injectable } from 'inversify';
 import { Result } from '../types/result/Result';
 import { DataResult } from '../types/result/DataResult';
 import { CustomError } from '../types/error/CustomError';
-import { ChatService } from './chatService';
 import { Chat } from '../models/entities/Chat/Chat';
 import { IMessageChunkService } from '../types/services/IMessageChunkService';
-import { MessageChunkRepository } from '../repositories/message-chunk-repository';
 import { MessageChunk } from '../models/entities/Chat/MessageChunk';
 import { MessageChunkForCreate } from '../models/dtos/message-chunk/message-chunk-for-create';
+import IChatService from '../types/services/IChatService';
+import TYPES from '../util/ioc/types';
+import { IMessageChunkRepository } from '../types/repositories/IMessageChunkRepository';
+import { Message } from '../models/entities/Chat/Message';
 
 @injectable()
 export class MessageChunkService implements IMessageChunkService {
-	private readonly messageChunkRepository: MessageChunkRepository;
-	private readonly chatService: ChatService;
+	private readonly messageChunkRepository: IMessageChunkRepository;
+	private readonly chatService: IChatService;
 	constructor(
-		@inject(MessageChunkRepository) messageChunkRepository: MessageChunkRepository,
-		@inject(ChatService) chatService: ChatService
+		@inject(TYPES.IMessageChunkRepository) messageChunkRepository: IMessageChunkRepository,
+		@inject(TYPES.IChatService) chatService: IChatService
 	) {
 		this.messageChunkRepository = messageChunkRepository;
 		this.chatService = chatService;
@@ -26,7 +28,16 @@ export class MessageChunkService implements IMessageChunkService {
 			const chat: Chat = (await this.chatService.getChatById(chunkToCreate.chat)).data;
 			if (!chat) return { success: false, message: 'Chat not found', statusCode: 404 } as Result;
 
-			const createdChunk: MessageChunk = await this.messageChunkRepository.create(chunkToCreate);
+			const oldChunk: MessageChunk = (await this.messageChunkRepository.getAllByChatId(chunkToCreate.chat))[0];
+
+			if (oldChunk) chunkToCreate.nextChunk = oldChunk._id.toString();
+
+			const createdChunk: MessageChunk = await this.messageChunkRepository.createChunk(chunkToCreate);
+
+			if (oldChunk) {
+				oldChunk.previousChunk = createdChunk._id;
+				await this.messageChunkRepository.update(oldChunk._id.toString(), oldChunk);
+			}
 
 			const success: boolean = (await this.chatService.pushChunkToChat(chat._id.toString(), createdChunk._id)).success;
 
@@ -63,9 +74,13 @@ export class MessageChunkService implements IMessageChunkService {
 			throw error;
 		}
 	}
-	getAllChunks(): Promise<DataResult<Array<MessageChunk>>> {
+	async getAllChunks(): Promise<DataResult<Array<MessageChunk>>> {
 		try {
-			throw new Error('Method not implemented.');
+			const chunks: Array<MessageChunk> = await this.messageChunkRepository.getAll({});
+
+			return { success: true, message: 'Chunks found!', statusCode: 200, data: chunks } as DataResult<
+				Array<MessageChunk>
+			>;
 		} catch (err) {
 			const error: CustomError = new CustomError(err);
 			error.className = err?.className || 'MessageChunkService';
@@ -98,13 +113,18 @@ export class MessageChunkService implements IMessageChunkService {
 	// 	throw new Error('Method not implemented.');
 	// }
 
-	async pushMessageToChunk(chunkId: string, messageId: string): Promise<DataResult<MessageChunk>> {
+	async pushMessageToChunk(chunkId: string, message: Message): Promise<DataResult<MessageChunk>> {
 		try {
 			const chunk: MessageChunk = await this.messageChunkRepository.getById(chunkId);
 			if (!chunk)
 				return { success: false, message: 'Chunk not found', statusCode: 404, data: null } as DataResult<MessageChunk>;
 
-			const success: boolean = await this.messageChunkRepository.pushMessageToChunk(chunkId, messageId);
+			const isAdded: boolean = chunk.addMessage(message);
+
+			if (!isAdded)
+				return { success: false, message: 'Chunk is full', statusCode: 400, data: null } as DataResult<MessageChunk>;
+
+			const success: boolean = await this.messageChunkRepository.update(chunk._id.toString(), chunk);
 
 			return {
 				success: success,
@@ -120,13 +140,23 @@ export class MessageChunkService implements IMessageChunkService {
 			throw error;
 		}
 	}
-	async dropMessageFromChunk(chunkId: string, messageId: string): Promise<DataResult<MessageChunk>> {
+	async dropMessageFromChunk(chunkId: string, message: Message): Promise<DataResult<MessageChunk>> {
 		try {
 			const chunk: MessageChunk = await this.messageChunkRepository.getById(chunkId);
 			if (!chunk)
 				return { success: false, message: 'Chunk not found', statusCode: 404, data: null } as DataResult<MessageChunk>;
 
-			const success: boolean = await this.messageChunkRepository.dropMessageFromChunk(chunkId, messageId);
+			const isDropped: boolean = chunk.dropMessage(message);
+
+			if (!isDropped)
+				return {
+					success: false,
+					message: 'Message not found in chunk',
+					statusCode: 404,
+					data: null,
+				} as DataResult<MessageChunk>;
+
+			const success: boolean = await this.messageChunkRepository.update(chunkId, chunk);
 
 			return {
 				success: success,

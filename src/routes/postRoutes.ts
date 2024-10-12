@@ -1,13 +1,14 @@
 import { NextFunction, Response, Express } from 'express';
 import Request from '../types/Request';
-import { mediaUpload } from '../util/fileUtil';
+import { mediaArrayUpload } from '../util/fileUtil';
 import isAuth from '../middleware/is-auth';
 import { logRequest } from '../util/loggingHandler';
 import { PostController } from '../controllers/postController';
 import container from '../util/ioc/iocContainer';
 import { param } from 'express-validator';
+import TYPES from '../util/ioc/types';
 
-const controller: PostController = container.get<PostController>(PostController);
+const controller: PostController = container.get<PostController>(TYPES.PostController);
 
 function routes(app: Express) {
 
@@ -24,7 +25,7 @@ function routes(app: Express) {
 	 * 		application/json:
 	 * 			schema:
 	 */
-	app.post('/post/create', logRequest, mediaUpload, isAuth, async (req: Request, res: Response, next: NextFunction) => {
+	app.post('/post/create', logRequest, mediaArrayUpload.array('medias'), isAuth, async (req: Request, res: Response, next: NextFunction) => {
 		await controller.createPost(req, res, next);
 	});
 

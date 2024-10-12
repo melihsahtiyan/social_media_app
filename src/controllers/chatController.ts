@@ -1,17 +1,18 @@
 import 'reflect-metadata';
-import { ChatService } from '../services/chatService';
 import { NextFunction, Response } from 'express';
 import Request from '../types/Request';
 import { inject, injectable } from 'inversify';
 import { isValid } from '../util/validationHandler';
 import { Result } from '../types/result/Result';
 import { ChatForUpdate } from '../models/dtos/chat/chat-for-update';
+import IChatService from '../types/services/IChatService';
+import TYPES from '../util/ioc/types';
 
 @injectable()
 export class ChatController {
-	private chatService: ChatService;
+	private chatService: IChatService;
 
-	constructor(@inject(ChatService) chatService: ChatService) {
+	constructor(@inject(TYPES.IChatService) chatService: IChatService) {
 		this.chatService = chatService;
 	}
 

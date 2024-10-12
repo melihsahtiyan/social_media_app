@@ -1,7 +1,7 @@
 import { Poll } from '../../entities/Poll';
+import { Dto } from '../Dto';
 
-interface PostInputDto {
+export interface PostInputDto extends Dto {
 	caption: string;
 	poll?: Poll;
 }
-export { PostInputDto };

@@ -1,4 +1,6 @@
-export interface ClubEventForUpdate {
+import { Dto } from '../Dto';
+
+export interface ClubEventForUpdate extends Dto {
 	description: string;
 	image: string;
 	location: string;

@@ -1,7 +1,8 @@
 import { MessageTypes } from "../../../models/entities/enums/messageEnums";
 import { ObjectId } from "../../../types/ObjectId";
+import { Dto } from "../Dto";
 
-export type MessageForCreate = {
+export interface MessageForCreate extends Dto {
 	chatId: ObjectId;
 	chunkId: ObjectId;
 	creator: ObjectId;

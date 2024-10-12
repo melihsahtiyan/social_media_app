@@ -5,8 +5,9 @@ import Request from '../types/Request';
 import isAuth from '../middleware/is-auth';
 import { body, query } from 'express-validator';
 import { profilePhotoUpload } from '../util/fileUtil';
+import TYPES from '../util/ioc/types';
 
-const controller: ChatController = container.get<ChatController>(ChatController);
+const controller: ChatController = container.get<ChatController>(TYPES.ChatController);
 
 function routes(app: express.Express) {
 	app.post('/chat/create', isAuth, async (req: Request, res: Response, next: NextFunction) => {

@@ -23,9 +23,6 @@ export const messageChunkSchema: Schema = new Schema({
 		type: Number,
 		default: 0,
 	},
-	partitionIndex: {
-		type: Number,
-	},
 	isFull: {
 		type: Boolean,
 		default: false,

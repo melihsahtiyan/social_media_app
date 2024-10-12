@@ -1,4 +1,6 @@
-interface UserForRegister {
+import { Dto } from '../Dto';
+
+export default interface UserForRegister extends Dto {
 	firstName: string;
 	lastName: string;
 	birthDate: Date;
@@ -6,4 +8,3 @@ interface UserForRegister {
 	password: string;
 }
 
-export default UserForRegister;

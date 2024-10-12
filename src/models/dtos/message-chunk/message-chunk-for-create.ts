@@ -1,4 +1,6 @@
-export type MessageChunkForCreate = {
+import { Dto } from '../Dto';
+
+export interface MessageChunkForCreate extends Dto {
 	chat: string;
-	nextPartition?: string;
+	nextChunk?: string;
 };

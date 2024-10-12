@@ -1,8 +1,9 @@
 import { ObjectId } from '../../../types/ObjectId';
 import { UserForPost } from '../user/user-for-post';
 import { Poll } from '../../entities/Poll';
+import { Dto } from '../Dto';
 
-export interface PostDetails {
+export interface PostDetails extends Dto {
 	_id: ObjectId;
 	creator: UserForPost;
 	content: {
