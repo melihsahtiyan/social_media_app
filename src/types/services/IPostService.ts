@@ -9,12 +9,12 @@ interface IPostService {
   createPost(
     postInput: PostInputDto,
     userId: string,
-    files?: Express.Multer.File[]
-  ): Promise<DataResult<PostInputDto>>;
-  getAllPosts(): Promise<DataResult<Array<PostDoc>>>;
-  getAllFriendsPosts(userId: string): Promise<DataResult<Array<PostListDto>>>;
-  getAllUniversityPosts(userId: string): Promise<DataResult<Array<PostListDto>>>;
-  getPostDetails(
+		files?: Express.Multer.File[]
+	): Promise<Result>;
+	getAllPosts(): Promise<DataResult<Array<PostDoc>>>;
+	getAllFriendsPosts(userId: string): Promise<DataResult<Array<PostListDto>>>;
+	getAllUniversityPosts(userId: string): Promise<DataResult<Array<PostListDto>>>;
+	getPostDetails(
     postId: string,
     userId: string
   ): Promise<DataResult<PostDetails>>;

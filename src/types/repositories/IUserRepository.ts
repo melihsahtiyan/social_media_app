@@ -6,12 +6,11 @@ import { UserListDto } from '../../models/dtos/user/user-list-dto';
 import { UserForSearchDto } from '../../models/dtos/user/user-for-search-dto';
 import { UserForRequestDto } from '../../models/dtos/user/user-for-request-dto';
 import { ObjectId } from '../ObjectId';
+import { IRepositoryBase } from './IRepositoryBase';
 
-interface IUserRepository {
-	create(userForCreate: UserForCreate): Promise<UserDoc>;
+interface IUserRepository extends IRepositoryBase<User> {
 	getUserDetails(id: string): Promise<User>;
 	getUserProfile(id: string): Promise<User>;
-	getAll(filter: Partial<User>): Promise<Array<UserListDto>>;
 	getAllByIds(ids: Array<ObjectId>): Promise<Array<User>>;
 	getUsersByIds(userIds: string[]): Promise<Array<User>>;
 	getAllPopulated(): Promise<UserDoc[]>;
@@ -20,12 +19,11 @@ interface IUserRepository {
 	getUsersByIdsForDetails(ids: Array<ObjectId>, detailedUser: string): Promise<Array<UserForSearchDto>>;
 	searchByName(name: string): Promise<Array<User>>;
 	getAllFriendRequests(id: string): Promise<Array<UserForRequestDto>>;
-	update(id: string, user: UserForUpdate): Promise<UserDoc>;
 	updateStatus(id: string, { studentVerification, emailVerification }): Promise<UserDoc>;
 	updateprofilePhoto(id: string, profilePhotoUrl: string): Promise<UserDoc>;
 	deleteProfilePhoto(id: string): Promise<UserDoc>;
-	delete(id: string): Promise<UserDoc>;
 
+	// Friend Requests
 	deleteFriendRequest(userToFollowId: ObjectId, followerId: ObjectId): Promise<UserDoc>;
 	sendFriendRequest(userToFollowId: ObjectId, followingUserId: ObjectId): Promise<UserDoc>;
 	acceptFriendRequest(receiverUserId: ObjectId, senderUserId: ObjectId): Promise<UserDoc>;

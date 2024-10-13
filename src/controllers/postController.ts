@@ -83,7 +83,7 @@ export class PostController {
 
 			return res.status(result.statusCode).json({ result });
 		} catch (err) {
-			console.log(err);
+			console.error(err);
 			next(err);
 		}
 	}

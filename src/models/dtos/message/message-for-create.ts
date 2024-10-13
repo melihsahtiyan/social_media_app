@@ -1,4 +1,4 @@
-import { MessageTypes } from "../../../models/entities/enums/messageEnums";
+import { MessageStatus, MessageTypes } from "../../../models/entities/enums/messageEnums";
 import { ObjectId } from "../../../types/ObjectId";
 import { Dto } from "../Dto";
 
@@ -11,4 +11,5 @@ export interface MessageForCreate extends Dto {
 	replyTo?: ObjectId;
 	isForwarded: boolean;
 	mention?: ObjectId[];
+	statuses: { status: MessageStatus; userId: ObjectId }[];
 };

@@ -196,7 +196,7 @@ export class AuthService implements IAuthService {
 			await transporter.sendMail(mailOptions);
 			return true;
 		} catch (error) {
-			console.log('Error sending verification email:', error);
+			console.error('Error sending verification email:', error);
 			return false;
 		}
 	}

@@ -14,6 +14,7 @@ import { UserProfileDto } from '../models/dtos/user/user-profile-dto';
 import { UserDoc } from '../models/schemas/user.schema';
 import TYPES from '../util/ioc/types';
 import IUserService from '../types/services/IUserService';
+import { User } from '../models/entities/User';
 
 @injectable()
 export class UserController {
@@ -59,7 +60,7 @@ export class UserController {
 	}
 	async getAllUsers(req: Request, res: Response, next: NextFunction) {
 		try {
-			const result: DataResult<Array<UserListDto>> = await this.userService.getAllUsers();
+			const result: DataResult<Array<User>> = await this.userService.getAllUsers();
 
 			if (result.success)
 				return res.status(200).json({
@@ -69,7 +70,7 @@ export class UserController {
 
 			return res.status(result.statusCode).json({ result });
 		} catch (err) {
-			// console.log(err);
+			console.error(err);
 			next(err);
 		}
 	}

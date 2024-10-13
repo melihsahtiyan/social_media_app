@@ -54,7 +54,7 @@ export class FriendshipController {
 
 			return res.status(result.statusCode).json({ result });
 		} catch (err) {
-			console.log(err);
+			console.error(err);
 			next(err);
 		}
 	}
@@ -69,7 +69,7 @@ export class FriendshipController {
 
 			return res.status(result.statusCode).json({ result });
 		} catch (err) {
-			console.log(err);
+			console.error(err);
 			next(err);
 		}
 	}

@@ -1,55 +1,35 @@
-import "reflect-metadata"
+import 'reflect-metadata';
 import { comments } from '../models/schemas/comment.schema';
 import { Comment } from '../models/entities/Comment';
 import { ICommentRepository } from '../types/repositories/ICommentRepository';
 import { injectable } from 'inversify';
-import { posts } from '../models/schemas/post.schema';
+import { RepositoryBase } from './repository-base';
 
 @injectable()
-export class CommentRepository implements ICommentRepository {
-	constructor() {}
-
-	async create(comment: Comment): Promise<Comment> {
-		const commentForCreate = await comments.create(comment);
-		await posts.findByIdAndUpdate(comment.post, { $push: { comments: commentForCreate._id } }, { new: true });
-
-		return comment;
+export class CommentRepository extends RepositoryBase<Comment> implements ICommentRepository {
+	constructor() {
+		super(comments, Comment);
 	}
 
 	// TODO: Decide if the reply should be added to the database or not
-	async reply(commentId: string, reply: Comment): Promise<Comment> {
-		const comment = await comments.findById(commentId);
-		const createdReply = await comments.create(reply);
+	async reply(commentId: string, reply: Comment): Promise<boolean> {
+		const comment = await this.model.findById(commentId);
+		const createdReply = await this.model.create(reply);
 
 		comment.replies.push(createdReply._id);
 
-		return await comment.save();
-	}
+		const savedComment: Comment = await comment.save();
 
-	async getById(id: string): Promise<Comment> {
-		const comment = await comments.findById(id);
-		const result = new Comment(comment);
-
-		return result;
+		return !!savedComment;
 	}
 
 	async getCommentsByPostId(postId: string): Promise<Array<Comment>> {
-		const postComments: Array<Comment> = await comments
+		const postComments: Array<Comment> = await this.model
 			.find({ post: postId })
 			.populate('creator', '_id firstName lastName profilePhotoUrl')
 			.populate('likes', '_id firstName lastName profilePhotoUrl')
 			.populate('replies', '_id content creator likes createdAt');
 
 		return postComments;
-	}
-
-	async delete(id: string): Promise<boolean> {
-		const deletedComment = await comments.findByIdAndDelete(id);
-
-		return !!deletedComment;
-	}
-
-	async update(id: string, content: string): Promise<boolean> {
-		return await comments.findByIdAndUpdate(id, { content }, { new: true });
 	}
 }

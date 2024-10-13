@@ -75,7 +75,12 @@ export class PollService implements IPollService {
 				};
 			});
 
-			const pollToCreate: Poll = new Poll(poll.question, options, 0, poll.expiresAt);
+			const pollToCreate: Poll = new Poll({
+				question: poll.question,
+				options,
+				totalVotes: 0,
+				expiresAt: poll.expiresAt,
+			});
 
 			const sourceUrls: string[] = [];
 
@@ -119,7 +124,7 @@ export class PollService implements IPollService {
 				poll: pollToCreate,
 			};
 
-			await this.postRepository.createPost(postToCreate);
+			await this.postRepository.create(postToCreate);
 
 			const result: DataResult<PollInputDto> = {
 				statusCode: 201,

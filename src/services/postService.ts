@@ -31,20 +31,14 @@ export class PostService implements IPostService {
 		this.cloudinaryService = cloudinaryService;
 	}
 
-	async createPost(
-		postInput: PostInputDto,
-		userId: string,
-		files?: Express.Multer.File[]
-	): Promise<DataResult<PostInputDto>> {
+	async createPost(postInput: PostInputDto, userId: string, files?: Express.Multer.File[]): Promise<Result> {
 		try {
 			if ((!files || files.length === 0) && (!postInput.caption || postInput.caption === '')) {
-				const result: DataResult<PostInputDto> = {
+				return {
 					statusCode: 422,
 					message: 'Please provide media or caption!',
 					success: false,
-					data: null,
 				};
-				return result;
 			}
 
 			const user: User = await this.userRepository.getById(userId);
@@ -52,16 +46,11 @@ export class PostService implements IPostService {
 			let sourceUrls: string[] = [];
 
 			if (files) {
-				if (files.length > 10) {
-					const result: DataResult<PostInputDto> = {
-						statusCode: 422,
-						message: 'You can upload up to 10 media files!',
-						success: false,
-						data: null,
-					};
-					return result;
-				}
+				// Check if the number of files is greater than 10
+				if (files.length > 10)
+					return { statusCode: 422, message: 'You can upload up to 10 media files!', success: false };
 
+				// If the files valid, upload them to cloudinary
 				if (files.length > 0) {
 					sourceUrls = await Promise.all(
 						files.map(async file => {
@@ -81,16 +70,13 @@ export class PostService implements IPostService {
 				poll: postInput.poll || null,
 			};
 
-			await this.postRepository.createPost(postForCreate);
+			const isPostCreated: boolean = await this.postRepository.create(postForCreate);
 
-			const result: DataResult<PostInputDto> = {
-				statusCode: 201,
-				message: 'Post created!',
-				success: true,
-				data: postInput,
+			return {
+				statusCode: isPostCreated ? 201 : 500,
+				message: isPostCreated ? 'Post created!' : 'Post creation failed!',
+				success: isPostCreated,
 			};
-
-			return result;
 		} catch (err) {
 			const error: CustomError = new Error(err);
 			error.statusCode = err?.statusCode || 500;
@@ -445,7 +431,7 @@ export class PostService implements IPostService {
 				}
 			}
 
-			const isDeleted: boolean = await this.postRepository.deletePost(post._id);
+			const isDeleted: boolean = await this.postRepository.delete(id);
 
 			if (!isDeleted) {
 				const result: Result = {

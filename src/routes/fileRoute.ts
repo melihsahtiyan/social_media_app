@@ -8,10 +8,10 @@ import * as fs from 'fs';
 
 function routes(app: Express) {
 	app.post('/download-media', isAuth, (req: Request, res: Response) => {
-		console.log('----------------------------------------------------');
-		console.log('fileController.download: started');
+		console.info('----------------------------------------------------');
+		console.info('fileController.download: started');
 		const mediaUrl = req.body.mediaUrl;
-		console.log('mediaUrl: ', mediaUrl);
+		console.info('mediaUrl: ', mediaUrl);
 		const file = fs.createReadStream(mediaUrl);
 		const filename = new Date().toISOString();
 		res.setHeader('Content-Disposition', 'attachment: filename="' + filename + '"');

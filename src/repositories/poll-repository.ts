@@ -1,16 +1,17 @@
 import 'reflect-metadata';
 import { IPollRepository } from '../types/repositories/IPollRepository';
-import { injectable, unmanaged } from 'inversify';
+import { injectable } from 'inversify';
 import { Poll } from '../models/entities/Poll';
 import { CustomError } from '../types/error/CustomError';
 import { ObjectId } from '../types/ObjectId';
 import { RepositoryBase } from './repository-base';
-import { Model } from 'mongoose';
 import { polls } from '../models/schemas/poll.schema';
+
+
 @injectable()
 export class PollRepository extends RepositoryBase<Poll> implements IPollRepository {
-	constructor(@unmanaged() model: Model<Poll> = polls) {
-		super(model);
+	constructor() {
+		super(polls, Poll);
 	}
 
 	override async create(poll: Poll): Promise<boolean> {

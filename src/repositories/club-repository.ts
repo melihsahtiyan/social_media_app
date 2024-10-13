@@ -1,20 +1,21 @@
-import "reflect-metadata"
+import 'reflect-metadata';
 import { injectable } from 'inversify';
 import { Club } from '../models/entities/Club';
 import { ClubDoc, clubs } from '../models/schemas/club.schema';
 import { IClubRepository } from '../types/repositories/IClubRepository';
-import { ClubForUpdateDto } from '../models/dtos/club/club-for-update-dto';
+import { RepositoryBase } from './repository-base';
 
-@injectable() /* TODO extends BaseRepository<Club>  */
-export class ClubRepository implements IClubRepository {
+@injectable()
+export class ClubRepository extends RepositoryBase<Club> implements IClubRepository {
+	constructor() {
+		super(clubs, Club);
+	}
 	public async createClub(club: Club): Promise<Club> {
-		const createdClub: ClubDoc = await clubs.create({ ...club });
+		const createdClub: ClubDoc = await this.model.create({ ...club });
 
 		return new Club(createdClub.toObject());
 	}
-	public async getById(id: string): Promise<Club> {
-		return await clubs.findById(id);
-	}
+
 	public async getClubById(id: string): Promise<Club> {
 		return await clubs
 			.findById(id)
@@ -35,16 +36,7 @@ export class ClubRepository implements IClubRepository {
 	async getClubByOrganizerId(organizerId: string): Promise<ClubDoc> {
 		return await clubs.findOne({ organizers: organizerId });
 	}
-	public async update(id: string, club: ClubForUpdateDto): Promise<Club> {
-		const updatedClub: ClubDoc = await clubs.findByIdAndUpdate(
-			id,
-			{ ...club, updatedAt: new Date(Date.now()) },
-			{ new: true }
-		);
-
-		return new Club(updatedClub.toObject());
-	}
-	public async updateClubImage(id: string, logo?: string, banner?: string): Promise<Club> {
+	public async updateClubImage(id: string, logo?: string, banner?: string): Promise<boolean> {
 		const club: Club = await clubs.findById(id);
 
 		const updatedClub: ClubDoc = await clubs.findByIdAndUpdate(
@@ -57,21 +49,16 @@ export class ClubRepository implements IClubRepository {
 			{ new: true }
 		);
 
-		return new Club(updatedClub.toObject());
+		return !!updatedClub;
 	}
 
-	public async updateClubPresident(id: string, updatedPresidentId: string): Promise<Club> {
+	public async updateClubPresident(id: string, updatedPresidentId: string): Promise<boolean> {
 		const updatedClub: ClubDoc = await clubs.findByIdAndUpdate(
 			id,
 			{ president: updatedPresidentId, updatedAt: new Date(Date.now()) },
 			{ new: true }
 		);
 
-		return new Club(updatedClub.toObject());
-	}
-	public async deleteClub(id: string): Promise<boolean> {
-		const isDeleted: boolean = await clubs.findByIdAndDelete(id);
-
-		return isDeleted;
+		return !!updatedClub;
 	}
 }

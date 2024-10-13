@@ -1,4 +1,4 @@
-import "reflect-metadata"
+import 'reflect-metadata';
 import { inject, injectable } from 'inversify';
 import { ICommentService } from '../types/services/ICommentService';
 import { CommentForCreateDto } from '../models/dtos/comment/comment-for-create';
@@ -8,10 +8,10 @@ import { Result } from '../types/result/Result';
 import { Comment } from '../models/entities/Comment';
 import { User } from '../models/entities/User';
 import { Post } from '../models/entities/Post';
-import { ICommentRepository } from "../types/repositories/ICommentRepository";
-import IUserRepository from "../types/repositories/IUserRepository";
-import IPostRepository from "../types/repositories/IPostRepository";
-import TYPES from "../util/ioc/types";
+import { ICommentRepository } from '../types/repositories/ICommentRepository';
+import IUserRepository from '../types/repositories/IUserRepository';
+import IPostRepository from '../types/repositories/IPostRepository';
+import TYPES from '../util/ioc/types';
 
 @injectable()
 export class CommentService implements ICommentService {
@@ -27,19 +27,11 @@ export class CommentService implements ICommentService {
 		this.userRepository = userRepository;
 		this.postRepository = postRepository;
 	}
-	async create(commentInput: CommentInputDto, userId: string): Promise<DataResult<Comment>> {
+	async create(commentInput: CommentInputDto, userId: string): Promise<Result> {
 		try {
 			const creator: User = await this.userRepository.getById(userId);
 
-			if (!creator) {
-				const result: DataResult<Comment> = {
-					success: false,
-					message: 'User not found',
-					data: null,
-					statusCode: 404,
-				};
-				return result;
-			}
+			if (!creator) return { success: false, message: 'User not found', statusCode: 404 };
 
 			const comment: Comment = new Comment({
 				content: commentInput.content,
@@ -52,51 +44,26 @@ export class CommentService implements ICommentService {
 
 			await this.postRepository.getById(comment.getPostId());
 
-			const createdComment: Comment = await this.commentRepository.create(comment);
+			const isCreated: boolean = await this.commentRepository.create(comment);
 
-			const result: DataResult<Comment> = {
-				success: true,
-				message: 'Comment created successfully',
-				data: createdComment,
-				statusCode: 201,
+			return {
+				success: isCreated,
+				message: isCreated ? 'Comment created successfully' : 'Comment creation failed',
+				statusCode: isCreated ? 201 : 500,
 			};
-
-			return result;
 		} catch (error) {
 			console.error(error);
 			throw error;
 		}
 	}
 
-	async reply(
-		commentId: string,
-		replyInput: CommentInputDto,
-		userId: string
-	): Promise<DataResult<CommentForCreateDto>> {
+	async reply(commentId: string, replyInput: CommentInputDto, userId: string): Promise<Result> {
 		try {
 			const creator: User = await this.userRepository.getById(userId);
-
-			if (!creator) {
-				const result: DataResult<CommentForCreateDto> = {
-					success: false,
-					message: 'User not found',
-					data: null,
-					statusCode: 404,
-				};
-				return result;
-			}
+			if (!creator) return { success: false, message: 'User not found', statusCode: 404 };
 
 			const repliedComment: Comment = await this.commentRepository.getById(commentId);
-
-			if (!repliedComment) {
-				const result: DataResult<CommentForCreateDto> = {
-					success: false,
-					message: 'Comment not found',
-					data: null,
-					statusCode: 404,
-				};
-				return result;
-			}
+			if (!repliedComment) return { success: false, message: 'Comment not found', statusCode: 404 };
 
 			const reply: Comment = new Comment({
 				content: replyInput.content,
@@ -109,48 +76,22 @@ export class CommentService implements ICommentService {
 
 			const post: Post = await this.postRepository.getById(reply.getPostId());
 
-			if (!post) {
-				const result: DataResult<CommentForCreateDto> = {
-					success: false,
-					message: 'Post not found',
-					data: null,
-					statusCode: 404,
-				};
-				return result;
-			}
+			if (!post) return { success: false, message: 'Post not found', statusCode: 404 };
 
 			const repliedCommentPost: Post = await this.postRepository.getById(repliedComment.getPostId());
 
-			if (!repliedCommentPost) {
-				const result: DataResult<CommentForCreateDto> = {
-					success: false,
-					message: 'Post not found',
-					data: null,
-					statusCode: 404,
-				};
-				return result;
-			}
+			if (!repliedCommentPost) return { success: false, message: 'Post not found', statusCode: 404 };
 
-			if (repliedComment.checkReplyPostIdMatches(reply.getPostId())) {
-				const result: DataResult<CommentForCreateDto> = {
-					success: false,
-					message: 'Post not found',
-					data: null,
-					statusCode: 404,
-				};
-				return result;
-			}
+			if (repliedComment.checkReplyPostIdMatches(reply.getPostId()))
+				return { success: false, message: 'Post not found', statusCode: 404 };
 
-			const createdComment: CommentForCreateDto = await this.commentRepository.reply(commentId, reply);
+			const isReplyCreated: boolean = await this.commentRepository.reply(commentId, reply);
 
-			const result: DataResult<CommentForCreateDto> = {
-				success: true,
-				message: 'Comment created successfully',
-				data: createdComment,
-				statusCode: 201,
+			return {
+				success: isReplyCreated,
+				message: isReplyCreated ? 'Comment replied successfully' : 'Comment reply failed',
+				statusCode: isReplyCreated ? 201 : 500,
 			};
-
-			return result;
 		} catch (error) {
 			console.error(error);
 			throw error;

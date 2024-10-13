@@ -9,7 +9,7 @@ export class Message extends Entity {
 	content: string;
 	type: MessageTypes;
 	isEdited: boolean;
-	status: MessageStatus;
+	statuses: { status: MessageStatus; userId: ObjectId }[];
 	replyTo?: ObjectId;
 	isForwarded: boolean;
 	mention?: ObjectId[];
@@ -24,6 +24,7 @@ export class Message extends Entity {
 		content,
 		type,
 		isEdited,
+		statuses,
 		replyTo,
 		isForwarded,
 		mention,
@@ -40,7 +41,7 @@ export class Message extends Entity {
 		this.content = content;
 		this.type = type;
 		this.isEdited = isEdited;
-		this.status = MessageStatus.SENT;
+		this.statuses = statuses;
 		this.replyTo = replyTo;
 		this.isForwarded = isForwarded;
 		this.mention = mention;

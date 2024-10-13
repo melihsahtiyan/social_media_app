@@ -9,18 +9,12 @@ import { MessageChunkForCreate } from '../models/dtos/message-chunk/message-chun
 @injectable()
 export class MessageChunkRepository extends RepositoryBase<MessageChunk> implements IMessageChunkRepository {
 	constructor() {
-		super(messageChunks);
+		super(messageChunks, MessageChunk);
 	}
 	async createChunk(createDto: MessageChunkForCreate): Promise<MessageChunk> {
 		const createdChunk = await this.model.create(createDto);
 
 		return new MessageChunk(createdChunk.toObject());
-	}
-	async getById(chunkId: string): Promise<MessageChunk> {
-		const foundChunk = await this.model.findById(chunkId);
-
-		if (!foundChunk) return null;
-		return new MessageChunk(foundChunk.toObject());
 	}
 	async getAll(): Promise<Array<MessageChunk>> {
 		const chunks = await this.model.find();

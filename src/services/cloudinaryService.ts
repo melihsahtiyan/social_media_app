@@ -113,8 +113,8 @@ export class CloudinaryService implements ICloudinaryService {
 		const res: boolean = await cloudinary.uploader
 			.destroy(publicId)
 			.then(result => {
-				console.log('Result: ', result);
-				console.log('Result public Id: ', publicId);
+				console.info('Result: ', result);
+				console.info('Result public Id: ', publicId);
 
 				return result;
 			})
@@ -122,7 +122,7 @@ export class CloudinaryService implements ICloudinaryService {
 				throw error.stack;
 			});
 
-		console.log(res);
+		console.info(res);
 
 		return res;
 	}

@@ -2,57 +2,41 @@ import 'reflect-metadata';
 import { injectable } from 'inversify';
 import mongoose from 'mongoose';
 import { UserDoc, users } from '../models/schemas/user.schema';
-import UserForCreate from '../models/dtos/user/user-for-create';
-import { UserForUpdate } from '../models/dtos/user/user-for-update';
 import jwt from 'jsonwebtoken';
 import IUserRepository from '../types/repositories/IUserRepository';
 import { CustomError } from '../types/error/CustomError';
 import { User } from '../models/entities/User';
-import { UserListDto } from '../models/dtos/user/user-list-dto';
 import { UserForSearchDto } from '../models/dtos/user/user-for-search-dto';
 import { UserForRequestDto } from '../models/dtos/user/user-for-request-dto';
 import { ObjectId } from '../types/ObjectId';
+import { RepositoryBase } from './repository-base';
 
 @injectable()
-export class UserRepository implements IUserRepository {
-	constructor() {}
-
-	async create(userForCreate: UserForCreate): Promise<UserDoc> {
-		return await users.create({
-			...userForCreate,
-			friends: [],
-			following: [],
-			posts: [],
-		});
+export class UserRepository extends RepositoryBase<User> implements IUserRepository {
+	constructor() {
+		super(users, User);
 	}
 
 	async getUserDetails(id: string): Promise<User> {
-		const user: UserDoc = await users.findById(id);
+		const user: UserDoc = await this.model.findById(id);
 
 		return new User(user.toObject());
 	}
 	async getUserProfile(id: string): Promise<User> {
-		const user: UserDoc = await users.findById(id);
+		const user: UserDoc = await this.model.findById(id);
 
 		return new User(user.toObject());
 	}
 
-	async getAll(filter?: Partial<User>): Promise<Array<UserListDto>> {
-		return (await users
-			.find(filter)
-			.populate('friends', '_id firstName lastName')
-			.populate('friendRequests', '_id firstName lastName')) as Array<UserListDto>;
-	}
-
 	async getAllByIds(ids: Array<ObjectId>): Promise<Array<User>> {
-		const listedUsers: Array<UserDoc> = await users.find({ $in: { _id: ids } });
+		const listedUsers: Array<UserDoc> = await this.model.find({ $in: { _id: ids } });
 
 		if (listedUsers.length === 0) return [];
 		return listedUsers.map(user => new User(user.toObject()));
 	}
 
 	async getAllPopulated(): Promise<UserDoc[]> {
-		return await users
+		return await this.model
 			.find()
 			.populate('friends _id firstName lastName')
 			.populate('friendRequests _id firstName lastName')
@@ -61,7 +45,7 @@ export class UserRepository implements IUserRepository {
 
 	async getUsersByIds(userIds: string[]): Promise<Array<User>> {
 		try {
-			const userList = await users.find({
+			const userList = await this.model.find({
 				_id: { $in: userIds },
 			});
 
@@ -76,18 +60,18 @@ export class UserRepository implements IUserRepository {
 	}
 
 	async getById(id: string): Promise<User> {
-		const result: UserDoc = await users.findById(id);
+		const result: UserDoc = await this.model.findById(id);
 
 		if (result !== null) return new User(result.toObject());
 	}
 
 	async getByEmail(email: string): Promise<User> {
-		const result: UserDoc = await users.findOne({ email: email });
+		const result: UserDoc = await this.model.findOne({ email: email });
 		if (result !== null) return new User(result.toObject());
 	}
 
 	async searchByName(name: string): Promise<Array<User>> {
-		const userSearchList: Array<UserDoc> = await users
+		const userSearchList: Array<UserDoc> = await this.model
 			.aggregate()
 			.addFields({ fullName: { $concat: ['$firstName', ' ', '$lastName'] } })
 			.match({ fullName: { $regex: name, $options: 'i' } })
@@ -98,16 +82,13 @@ export class UserRepository implements IUserRepository {
 		return result;
 	}
 
-	async getUsersByIdsForDetails(
-		ids: Array<mongoose.Schema.Types.ObjectId>,
-		detailedUser: string
-	): Promise<Array<UserForSearchDto>> {
-		const listedUsers = await users
+	async getUsersByIdsForDetails(ids: Array<ObjectId>, detailedUser: string): Promise<Array<UserForSearchDto>> {
+		const listedUsers = await this.model
 			.find({ _id: { $in: ids } })
 			.select('_id firstName lastName profilePhotoUrl')
 			.exec();
 
-		const detailedUserDoc: UserDoc = await users.findById(detailedUser);
+		const detailedUserDoc: UserDoc = await this.model.findById(detailedUser);
 
 		const usersForDetails: Array<UserForSearchDto> = listedUsers.map((user: UserDoc) => {
 			const userDetail: UserForSearchDto = {
@@ -123,10 +104,10 @@ export class UserRepository implements IUserRepository {
 	}
 
 	async getAllFriendRequests(id: string): Promise<Array<UserForRequestDto>> {
-		const user: UserDoc = await users.findById(id);
+		const user: UserDoc = await this.model.findById(id);
 		const friendRequests: Array<UserForRequestDto> = await Promise.all(
 			user.friendRequests.map(async requestId => {
-				const request: UserDoc = await users.findById(requestId);
+				const request: UserDoc = await this.model.findById(requestId);
 				const requestDto: UserForRequestDto = {
 					_id: request._id,
 					firstName: request.firstName,
@@ -141,20 +122,16 @@ export class UserRepository implements IUserRepository {
 		return friendRequests;
 	}
 
-	async update(id: string, user: UserForUpdate): Promise<UserDoc> {
-		return await users.findByIdAndUpdate(id, { ...user }, { new: true });
-	}
-
 	async updateprofilePhoto(id: string, profilePhotoUrl: string): Promise<UserDoc> {
-		return await users.findByIdAndUpdate(id, { profilePhotoUrl: profilePhotoUrl }, { new: true });
+		return await this.model.findByIdAndUpdate(id, { profilePhotoUrl: profilePhotoUrl }, { new: true });
 	}
 
 	async deleteProfilePhoto(id: string): Promise<UserDoc> {
-		return await users.findByIdAndUpdate(id, { profilePhotoUrl: null }, { new: true });
+		return await this.model.findByIdAndUpdate(id, { profilePhotoUrl: null }, { new: true });
 	}
 
 	async updateStatus(id: string, { studentVerification, emailVerification }): Promise<UserDoc> {
-		return await users.findByIdAndUpdate(
+		return await this.model.findByIdAndUpdate(
 			id,
 			{
 				status: {
@@ -166,27 +143,17 @@ export class UserRepository implements IUserRepository {
 		);
 	}
 
-	async delete(id: string): Promise<UserDoc> {
-		return await users.findByIdAndDelete(id);
-	}
-
-	async sendFriendRequest(
-		userToFollowId: mongoose.Schema.Types.ObjectId,
-		followingUserId: mongoose.Schema.Types.ObjectId
-	): Promise<UserDoc> {
-		const userToFollow: UserDoc = (await users.findById(userToFollowId)) as UserDoc;
+	async sendFriendRequest(userToFollowId: ObjectId, followingUserId: ObjectId): Promise<UserDoc> {
+		const userToFollow: UserDoc = (await this.model.findById(userToFollowId)) as UserDoc;
 
 		// Push the followerId to the followRequests array of the userToFollow
 		userToFollow.friendRequests.push(followingUserId);
 		return await userToFollow.save();
 	}
 
-	async deleteFriendRequest(
-		receiverUserId: mongoose.Schema.Types.ObjectId,
-		senderUserId: mongoose.Schema.Types.ObjectId
-	): Promise<UserDoc> {
+	async deleteFriendRequest(receiverUserId: ObjectId, senderUserId: ObjectId): Promise<UserDoc> {
 		try {
-			const receiverUser: UserDoc = (await users.findById(receiverUserId)) as UserDoc;
+			const receiverUser: UserDoc = (await this.model.findById(receiverUserId)) as UserDoc;
 
 			receiverUser.friendRequests = receiverUser.friendRequests.filter(
 				request => request.toString() !== senderUserId.toString()
@@ -200,8 +167,8 @@ export class UserRepository implements IUserRepository {
 	}
 
 	async acceptFriendRequest(receiverUserId: ObjectId, senderUserId: ObjectId): Promise<UserDoc> {
-		const receiverUser: UserDoc = await users.findById(receiverUserId);
-		const senderUser: UserDoc = await users.findById(senderUserId);
+		const receiverUser: UserDoc = await this.model.findById(receiverUserId);
+		const senderUser: UserDoc = await this.model.findById(senderUserId);
 		if (receiverUser.friendRequests.includes(senderUser._id)) {
 			await this.deleteFriendRequest(receiverUser._id, senderUser._id);
 
@@ -216,8 +183,8 @@ export class UserRepository implements IUserRepository {
 	}
 
 	async rejectFriendRequest(receiverUserId: ObjectId, senderUserId: ObjectId): Promise<UserDoc> {
-		const receiverUser: UserDoc = await users.findById(receiverUserId);
-		const senderUser: UserDoc = await users.findById(senderUserId);
+		const receiverUser: UserDoc = await this.model.findById(receiverUserId);
+		const senderUser: UserDoc = await this.model.findById(senderUserId);
 
 		await this.deleteFriendRequest(receiverUser._id, senderUser._id);
 
@@ -225,8 +192,8 @@ export class UserRepository implements IUserRepository {
 	}
 
 	async removeFriend(userToRemoveId: string, userId: string): Promise<UserDoc> {
-		const userToRemove: UserDoc = await users.findById(userToRemoveId);
-		const user: UserDoc = await users.findById(userId);
+		const userToRemove: UserDoc = await this.model.findById(userToRemoveId);
+		const user: UserDoc = await this.model.findById(userId);
 
 		userToRemove.friends = userToRemove.friends.filter(
 			(friends: mongoose.Schema.Types.ObjectId) => friends.toString() !== user._id.toString()

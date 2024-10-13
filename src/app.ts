@@ -48,11 +48,11 @@ app.listen({ port: process.env.PORT || 8080 }, () => {
 	mongoose
 		.connect(process.env.MONGO_URL)
 		.then(() => {
-			console.log('Server running, MongoDB connected');
+			console.info('Server running, MongoDB connected');
 		})
 		.catch(err => {
 			console.error('Failed to connect to MongoDB, retrying...', err.message);
 		});
 	const memoryUsage = process.memoryUsage();
-	console.log(`Heap Total: ${memoryUsage.heapTotal} - Heap Used: ${memoryUsage.heapUsed}`);
+	console.info(`Heap Total: ${memoryUsage.heapTotal} - Heap Used: ${memoryUsage.heapUsed}`);
 });

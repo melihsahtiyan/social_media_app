@@ -15,7 +15,7 @@ import { IMessageRepository } from '../types/repositories/IMessageRepository';
 import IUserService from '../types/services/IUserService';
 import { IMessageChunkService } from '../types/services/IMessageChunkService';
 import { ICloudinaryService } from '../types/services/ICloudinaryService';
-import { MessageTypes } from '../models/entities/enums/messageEnums';
+import { MessageStatus, MessageTypes } from '../models/entities/enums/messageEnums';
 
 @injectable()
 export class MessageService implements IMessageService {
@@ -60,8 +60,6 @@ export class MessageService implements IMessageService {
 			const chunk: MessageChunk = (await this.messageChunkService.getChunk(chat.chunks[0]?.toString())).data;
 
 			// If chunk does not exist or is full, create a new chunk
-			console.log(`Chunk isFull: ${chunk?.isFull}
-				${!!(!chunk || chunk.isFull)}`);
 			if (!chunk || chunk.isFull) {
 				const createdChunk: MessageChunk = (
 					await this.messageChunkService.createChunk({
@@ -83,7 +81,9 @@ export class MessageService implements IMessageService {
 				messageToCreate.type = MessageTypes.MEDIA;
 			}
 
-			const createdMessage = await this.messageRepository.create(messageToCreate);
+			messageToCreate.statuses = chat.members.map(member => ({ status: MessageStatus.SENT, userId: member }));
+
+			const createdMessage = await this.messageRepository.createMessage(messageToCreate);
 
 			const pushedMessageChunk: DataResult<MessageChunk> = await this.messageChunkService.pushMessageToChunk(
 				messageToCreate.chunkId.toString(),
@@ -94,7 +94,6 @@ export class MessageService implements IMessageService {
 				success: pushedMessageChunk.success,
 				message: pushedMessageChunk.success ? 'Message created!' : 'Message creation failed!',
 				statusCode: pushedMessageChunk.success ? 200 : 404,
-				data: pushedMessageChunk.success ? createdMessage._id : null,
 			} as Result;
 		} catch (err) {
 			const error: CustomError = new CustomError(err.message, err.status);
@@ -105,7 +104,7 @@ export class MessageService implements IMessageService {
 	}
 	async getMessage(messageId: string): Promise<DataResult<Message>> {
 		try {
-			const message: Message = await this.messageRepository.getById(messageId);
+			const message: Message = await this.messageRepository.get({ _id: messageId });
 			if (!message)
 				return { success: false, message: 'Message not found', statusCode: 404, data: null } as DataResult<Message>;
 
@@ -161,8 +160,30 @@ export class MessageService implements IMessageService {
 			throw error;
 		}
 	}
-	updateMessage(message: string): Promise<Result> {
-		throw new Error('Method not implemented.');
+	async updateMessage(userId: string, messageId: string, message: Partial<Message>): Promise<Result> {
+		try {
+			const user: User = (await this.userService.getUserById(userId)).data;
+			if (!user) return { success: false, message: 'User not found', statusCode: 404 } as Result;
+
+			const fetchedMessage: Message = (await this.getMessage(messageId)).data;
+			if (!fetchedMessage) return { success: false, message: 'Message not found', statusCode: 404 } as Result;
+
+			if (fetchedMessage.creator.toString() !== user._id.toString())
+				return { success: false, message: 'You are not allowed to update this message', statusCode: 403 } as Result;
+
+			const updatedMessage: boolean = await this.messageRepository.update(messageId, message);
+
+			return {
+				success: updatedMessage,
+				message: updatedMessage ? 'Message updated!' : 'Message update failed!',
+				statusCode: updatedMessage ? 200 : 404,
+			} as Result;
+		} catch (err) {
+			const error: CustomError = new CustomError(err.message, err.status);
+			error.className = err?.className ?? 'MessageService';
+			error.functionName = err?.functionName ?? 'updateMessage';
+			throw error;
+		}
 	}
 	pushMessageToChunk(messageId: string, chunkId: string): Promise<Result> {
 		throw new Error('Method not implemented.');

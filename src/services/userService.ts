@@ -26,10 +26,10 @@ export class UserService implements IUserService {
 		this.userRepository = userRepository;
 		this.cloudinaryService = cloudinaryService;
 	}
-	async getAllUsers(): Promise<DataResult<Array<UserListDto>>> {
+	async getAllUsers(): Promise<DataResult<Array<User>>> {
 		try {
-			const users: Array<UserListDto> = await this.userRepository.getAll({});
-			const result: DataResult<Array<UserListDto>> = {
+			const users: Array<User> = await this.userRepository.getAll({});
+			const result: DataResult<Array<User>> = {
 				statusCode: 200,
 				message: 'Users fetched successfully',
 				success: true,
@@ -63,7 +63,7 @@ export class UserService implements IUserService {
 
 	async getUserById(userId: string): Promise<DataResult<User>> {
 		try {
-			const user: User = await this.userRepository.getById(userId);
+			const user: User = await this.userRepository.get({ _id: userId });
 
 			if (!user) {
 				const result: DataResult<User> = {

@@ -64,7 +64,7 @@ export class ClubEventController {
 
 	async getEventById(req: Request, res: Response, next: NextFunction) {
 		try {
-			const id: string = req.params.id;
+			const id: string = req.query.id as string;
 
 			const result: DataResult<ClubEventDetailDto> = await this.clubEventService.getEventById(id);
 

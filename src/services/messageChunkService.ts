@@ -60,7 +60,7 @@ export class MessageChunkService implements IMessageChunkService {
 	}
 	async getChunk(chunkId: string): Promise<DataResult<MessageChunk>> {
 		try {
-			const chunk: MessageChunk = await this.messageChunkRepository.getById(chunkId);
+			const chunk: MessageChunk = await this.messageChunkRepository.get({ _id: chunkId });
 
 			if (!chunk)
 				return { success: false, message: 'Chunk not found', statusCode: 404, data: null } as DataResult<MessageChunk>;
@@ -115,7 +115,7 @@ export class MessageChunkService implements IMessageChunkService {
 
 	async pushMessageToChunk(chunkId: string, message: Message): Promise<DataResult<MessageChunk>> {
 		try {
-			const chunk: MessageChunk = await this.messageChunkRepository.getById(chunkId);
+			const chunk: MessageChunk = await this.messageChunkRepository.get({ _id: chunkId });
 			if (!chunk)
 				return { success: false, message: 'Chunk not found', statusCode: 404, data: null } as DataResult<MessageChunk>;
 
@@ -142,7 +142,7 @@ export class MessageChunkService implements IMessageChunkService {
 	}
 	async dropMessageFromChunk(chunkId: string, message: Message): Promise<DataResult<MessageChunk>> {
 		try {
-			const chunk: MessageChunk = await this.messageChunkRepository.getById(chunkId);
+			const chunk: MessageChunk = await this.messageChunkRepository.get({ _id: chunkId });
 			if (!chunk)
 				return { success: false, message: 'Chunk not found', statusCode: 404, data: null } as DataResult<MessageChunk>;
 

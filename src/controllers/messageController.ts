@@ -21,10 +21,6 @@ export class MessageController {
 			const media: Express.Multer.File = req?.file;
 			const userId = req.userId;
 
-			console.log(message);
-
-			console.log(media);
-
 			if (
 				// If message type is text and content is not provided
 				(message.type === MessageTypes.TEXT && !message.content) ||

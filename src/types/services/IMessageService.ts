@@ -5,14 +5,19 @@ import { Result } from '../result/Result';
 
 export interface IMessageService {
 	// Create Operation
-	createMessage(userId: string, messageToCreate: MessageForCreate, chatId: string, media?: Express.Multer.File): Promise<Result>;
+	createMessage(
+		userId: string,
+		messageToCreate: MessageForCreate,
+		chatId: string,
+		media?: Express.Multer.File
+	): Promise<Result>;
 
 	// Read Operations
 	getMessage(messageId: string): Promise<DataResult<Message>>;
 	getAllMessagesByChatId(chatId: string): Promise<DataResult<Array<Message>>>;
 	getAllMessagesByChunkId(chunkId: string): Promise<DataResult<Array<Message>>>;
 	// Update Operations
-	updateMessage(message: string): Promise<Result>;
+	updateMessage(userId: string, messageId: string, message: Partial<Message>): Promise<Result>;
 	pushMessageToChunk(messageId: string, chunkId: string): Promise<Result>;
 	dropMessageFromChunk(messageId: string, chunkId: string): Promise<Result>;
 

@@ -63,13 +63,6 @@ export class ClubController {
 
 			const result = await this.clubService.createClub(club, logo);
 
-			if (result.success) {
-				return res.status(result.statusCode).json({
-					message: result.message,
-					data: result.data
-				});
-			}
-
 			return res.status(result.statusCode).json({ result });
 		} catch (err) {
 			next(err);

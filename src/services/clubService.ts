@@ -1,4 +1,4 @@
-import "reflect-metadata"
+import 'reflect-metadata';
 import { inject, injectable } from 'inversify';
 import { ClubInputDto } from '../models/dtos/club/club-input-dto';
 import { Club } from '../models/entities/Club';
@@ -9,9 +9,9 @@ import { Result } from '../types/result/Result';
 import { ClubForUpdateDto } from '../models/dtos/club/club-for-update-dto';
 import { clearImage } from '../util/fileUtil';
 import { CustomError } from '../types/error/CustomError';
-import { IClubRepository } from "../types/repositories/IClubRepository";
-import IUserRepository from "../types/repositories/IUserRepository";
-import TYPES from "../util/ioc/types";
+import { IClubRepository } from '../types/repositories/IClubRepository';
+import IUserRepository from '../types/repositories/IUserRepository';
+import TYPES from '../util/ioc/types';
 
 @injectable()
 export class ClubService implements IClubService {
@@ -112,6 +112,28 @@ export class ClubService implements IClubService {
 			throw error;
 		}
 	}
+	async getAllClubsByMemberId(userId: string): Promise<DataResult<Array<Club>>> {
+		try {
+			const clubs: Array<Club> = await this.clubRepository.getAll({ $where: `this.members.includes("${userId}")` });
+
+			return {
+				data: clubs,
+				message: 'Clubs found',
+				success: true,
+				statusCode: 200,
+			} as DataResult<Array<Club>>;
+		} catch (err) {
+			const error: CustomError = new CustomError(
+				err.message,
+				err.statusCode,
+				null,
+				'ClubService',
+				'getAllClubsByMemberId'
+			);
+			throw error;
+		}
+	}
+
 	async getClubById(id: string): Promise<DataResult<Club>> {
 		try {
 			const club: Club = await this.clubRepository.getClubById(id);
@@ -140,95 +162,79 @@ export class ClubService implements IClubService {
 		}
 	}
 
-	async updateClub(id: string, club: ClubForUpdateDto, organizerId: string): Promise<DataResult<Club>> {
+	async updateClub(id: string, club: ClubForUpdateDto, organizerId: string): Promise<Result> {
 		try {
 			const organizer: User = await this.userRepository.getById(organizerId);
-			if (!organizer) {
-				const result: DataResult<Club> = {
+			if (!organizer)
+				return {
 					message: 'Organizer not found',
 					success: false,
 					statusCode: 404,
 				};
-				return result;
-			}
 
 			const clubToUpdate = await this.clubRepository.getClubById(id);
-			if (!clubToUpdate) {
-				const result: Result = {
+			if (!clubToUpdate)
+				return {
 					message: 'Club not found!',
 					success: false,
 					statusCode: 404,
 				};
-				return result;
-			}
 
-			if (!clubToUpdate.isOrganizer(organizer._id)) {
-				const result: Result = {
+			if (!clubToUpdate.isOrganizer(organizer._id))
+				return {
 					message: 'You are not authorized to update this club!',
 					success: false,
 					statusCode: 401,
 				};
-				return result;
-			}
 
 			const checkNameForUpdate = await this.clubRepository.getClubByName(club.name);
 
-			if (checkNameForUpdate && checkNameForUpdate._id.toString() !== id) {
-				const result: DataResult<Club> = {
+			if (checkNameForUpdate && checkNameForUpdate._id.toString() !== id)
+				return {
 					message: 'Club with this name already exists!',
 					success: false,
 					statusCode: 400,
 				};
-				return result;
-			}
 
 			const updatedClub = await this.clubRepository.update(id, club);
 
-			const result: DataResult<Club> = {
+			return {
 				message: 'Club updated!',
-				data: updatedClub,
-				success: true,
+				success: updatedClub,
 				statusCode: 200,
-			};
-
-			return result;
+			} as Result;
 		} catch (err) {
 			const error: CustomError = new Error(err.message);
 			error.statusCode = 500; // Internal Server Error
 			throw error;
 		}
 	}
-	async updateClubLogo(id: string, logo: Express.Multer.File, organizerId: string): Promise<DataResult<Club>> {
+	async updateClubLogo(id: string, logo: Express.Multer.File, organizerId: string): Promise<Result> {
 		try {
 			const organizer = await this.userRepository.getById(organizerId);
 
-			if (!organizer) {
-				const result: DataResult<Club> = {
+			if (!organizer)
+				return {
 					message: 'Organizer not found!',
 					success: false,
 					statusCode: 404,
 				};
-				return result;
-			}
-			const clubToCheck = await this.clubRepository.getById(id);
 
-			if (!clubToCheck.isOrganizer(organizer._id)) {
-				const result: DataResult<Club> = {
+			const clubToCheck = await this.clubRepository.get({ _id: id });
+
+			if (!clubToCheck.isOrganizer(organizer._id))
+				return {
 					message: 'You are not authorized to update this club!',
 					success: false,
 					statusCode: 401,
 				};
-				return result;
-			}
 
-			if (!clubToCheck) {
-				const result: DataResult<Club> = {
+			if (!clubToCheck)
+				return {
 					message: 'Club not found!',
 					success: false,
 					statusCode: 404,
 				};
-				return result;
-			}
 
 			const extension = logo.mimetype.split('/')[1];
 			const fileName = logo.filename.split('.')[0];
@@ -236,51 +242,43 @@ export class ClubService implements IClubService {
 
 			const updatedClub = await this.clubRepository.updateClubImage(id, path, null);
 
-			const result: DataResult<Club> = {
+			return {
 				message: 'Club logo updated!',
-				data: updatedClub,
-				success: true,
+				success: updatedClub,
 				statusCode: 200,
 			};
-
-			return result;
 		} catch (err) {
 			const error: CustomError = new Error(err.message);
 			error.statusCode = 500; // Internal Server Error
 			throw error;
 		}
 	}
-	async updateClubBanner(id: string, banner: Express.Multer.File, organizerId: string): Promise<DataResult<Club>> {
+	async updateClubBanner(id: string, banner: Express.Multer.File, organizerId: string): Promise<Result> {
 		try {
 			const organizer = await this.userRepository.getById(organizerId);
 
-			if (!organizer) {
-				const result: Result = {
+			if (!organizer)
+				return {
 					message: 'Organizer not found!',
 					success: false,
 					statusCode: 404,
 				};
-				return result;
-			}
-			const clubToCheck = await this.clubRepository.getById(id);
 
-			if (!clubToCheck.isOrganizer(organizer._id)) {
-				const result: Result = {
+			const clubToCheck = await this.clubRepository.get({ _id: id });
+
+			if (!clubToCheck.isOrganizer(organizer._id))
+				return {
 					message: 'You are not authorized to update this club!',
 					success: false,
 					statusCode: 401,
 				};
-				return result;
-			}
 
-			if (!clubToCheck) {
-				const result: Result = {
+			if (!clubToCheck)
+				return {
 					message: 'Club not found!',
 					success: false,
 					statusCode: 404,
 				};
-				return result;
-			}
 
 			if (clubToCheck.banner) {
 				clearImage(clubToCheck.banner);
@@ -291,62 +289,52 @@ export class ClubService implements IClubService {
 
 			const updatedClub = await this.clubRepository.updateClubImage(id, null, path);
 
-			const result: DataResult<Club> = {
+			return {
 				message: 'Club banner updated!',
-				data: updatedClub,
-				success: true,
+				success: updatedClub,
 				statusCode: 200,
 			};
-			return result;
 		} catch (err) {
 			const error: CustomError = new Error(err.message);
 			error.statusCode = 500; // Internal Server Error
 			throw error;
 		}
 	}
-	async updateClubPresident(id: string, presidentId: string, updatedPresidentId: string): Promise<DataResult<Club>> {
+	async updateClubPresident(id: string, presidentId: string, updatedPresidentId: string): Promise<Result> {
 		try {
-			const club = await this.clubRepository.getById(id);
-			if (!club) {
-				const result: DataResult<Club> = {
+			const club = await this.clubRepository.get({ _id: id });
+			if (!club)
+				return {
 					message: 'Club not found!',
 					success: false,
 					statusCode: 404,
 				};
-				return result;
-			}
 
 			const president: User = await this.userRepository.getById(presidentId);
 
-			if (club.isPresident(president._id)) {
-				const result: DataResult<Club> = {
+			if (club.isPresident(president._id))
+				return {
 					message: 'You are not authorized to update this club!',
 					success: false,
 					statusCode: 401,
 				};
-				return result;
-			}
 
 			const presitendForUpdate: User = await this.userRepository.getById(updatedPresidentId);
 
-			if (!presitendForUpdate) {
-				const result: DataResult<Club> = {
+			if (!presitendForUpdate)
+				return {
 					message: 'New president not found!',
 					success: false,
 					statusCode: 404,
 				};
-				return result;
-			}
 
 			const updatedClub = await this.clubRepository.updateClubPresident(id, updatedPresidentId);
 
-			const result: DataResult<Club> = {
+			return {
 				message: 'Club president updated!',
-				data: updatedClub,
-				success: true,
+				success: updatedClub,
 				statusCode: 200,
 			};
-			return result;
 		} catch (err) {
 			const error: CustomError = new Error(err.message);
 			error.statusCode = 500; // Internal Server Error
@@ -355,44 +343,37 @@ export class ClubService implements IClubService {
 	}
 	async deleteClub(id: string, userId: string): Promise<Result> {
 		try {
-			const clubExist = await this.clubRepository.getById(id);
-			if (!clubExist) {
-				const result: Result = {
+			const clubExist = await this.clubRepository.get({ _id: id });
+			if (!clubExist)
+				return {
 					message: 'Club not found!',
 					success: false,
 					statusCode: 404,
 				};
-				return result;
-			}
 
 			const president = await this.userRepository.getById(userId);
 
-			if (!president) {
-				const result: Result = {
+			if (!president)
+				return {
 					message: 'President not found!',
 					success: false,
 					statusCode: 404,
 				};
-				return result;
-			}
 
-			if (clubExist.isPresident(president._id)) {
-				const result: Result = {
+			if (clubExist.isPresident(president._id))
+				return {
 					message: 'You are not authorized to delete this club!',
 					success: false,
 					statusCode: 401,
 				};
-				return result;
-			}
 
-			const isDeleted: boolean = await this.clubRepository.deleteClub(id);
+			const isDeleted: boolean = await this.clubRepository.delete(id);
 
-			const result: Result = {
+			return {
 				message: isDeleted ? 'Club deleted!' : 'Club deletion failed!',
 				success: isDeleted,
 				statusCode: isDeleted ? 200 : 500,
 			};
-			return result;
 		} catch (err) {
 			const error: CustomError = new Error(err.message);
 			error.statusCode = 500; // Internal Server Error

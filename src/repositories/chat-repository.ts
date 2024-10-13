@@ -11,7 +11,7 @@ import { RepositoryBase } from './repository-base';
 @injectable()
 export class ChatRepository extends RepositoryBase<Chat> implements IChatRepository {
 	constructor() {
-		super(chats);
+		super(chats, Chat);
 	}
 	override async create(chat: ChatForCreate): Promise<boolean> {
 		try {
@@ -46,12 +46,6 @@ export class ChatRepository extends RepositoryBase<Chat> implements IChatReposit
 		);
 
 		return !!updatedChat.chunks.find(chunk => chunk === messageChunkId);
-	}
-	async getById(chatId: string): Promise<Chat> {
-		const chat = await this.model.findById(chatId);
-
-		if (!chat) return null;
-		return new Chat(chat.toObject());
 	}
 	async getByMembers(members: Array<string>): Promise<Chat> {
 		const chat: ChatDoc = await this.model.findOne({ members: { $all: members as string[] } });

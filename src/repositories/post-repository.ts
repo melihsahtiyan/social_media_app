@@ -3,29 +3,30 @@ import { injectable } from 'inversify';
 import { posts, PostDoc } from '../models/schemas/post.schema';
 import { UserDoc, users } from '../models/schemas/user.schema';
 import { PostForCreate } from '../models/dtos/post/post-for-create';
-import mongoose from 'mongoose';
 import IPostRepository from '../types/repositories/IPostRepository';
 import { Post } from '../models/entities/Post';
-import { Schema } from 'mongoose';
-import { CustomError } from '../types/error/CustomError';
+import { RepositoryBase } from './repository-base';
+import { ObjectId } from '../types/ObjectId';
 
 @injectable()
-export class PostRepository implements IPostRepository {
-	constructor() {}
+export class PostRepository extends RepositoryBase<Post> implements IPostRepository {
+	constructor() {
+		super(posts, Post);
+	}
 
-	async createPost(postForCreate: PostForCreate): Promise<PostDoc> {
-		const createdPost: PostDoc = await posts.create({ ...postForCreate });
+	async create(postForCreate: PostForCreate): Promise<boolean> {
+		const createdPost: PostDoc = await this.model.create({ ...postForCreate });
 
 		await users.findByIdAndUpdate(createdPost.creator, { $push: { posts: createdPost._id } }, { new: true });
 
-		return createdPost;
+		return !!createdPost;
 	}
 	async getAllUniversityPosts(university: string): Promise<Array<Post>> {
-		const usersFromUniversity: UserDoc[] = await users.find({
+		const usersFromUniversity: UserDoc[] = await this.model.find({
 			university: university,
 		});
 
-		const fetchedPosts: PostDoc[] = await posts
+		const fetchedPosts: PostDoc[] = await this.model
 			.find({ creator: { $in: usersFromUniversity.map(user => user._id) } })
 			.populate('creator', 'firstName lastName profilePhotoUrl')
 			.populate('likes', 'firstName lastName profilePhotoUrl')
@@ -35,7 +36,7 @@ export class PostRepository implements IPostRepository {
 	}
 
 	async getAllPopulatedPosts(pages?: number): Promise<PostDoc[]> {
-		return await posts
+		return await this.model
 			.find()
 			.populate('creator', 'firstName lastName profilePhotoUrl')
 			.sort({ createdAt: 1 })
@@ -45,22 +46,10 @@ export class PostRepository implements IPostRepository {
 	// 	throw new Error('Method not implemented.');
 	// }
 
-	async getById(postId: string): Promise<Post> {
-		try {
-			const post: PostDoc = await posts.findById(postId);
-			if (!post) {
-				throw new CustomError('Post not found', 404);
-			}
-			return new Post(post.toObject());
-		} catch (err) {
-			throw new CustomError('Failed to fetch post', 500, [err]);
-		}
-	}
-
 	async getFriendsPosts(userId: string): Promise<Post[]> {
 		const user: UserDoc = await users.findById(userId);
 
-		const postDocList: Array<PostDoc> = await posts
+		const postDocList: Array<PostDoc> = await this.model
 			.find({ creator: { $in: user.friends } })
 			.populate('creator', 'firstName lastName profilePhotoUrl')
 			.sort({ createdAt: 1 });
@@ -73,7 +62,7 @@ export class PostRepository implements IPostRepository {
 	}
 
 	async updateCaption(id: string, caption: string): Promise<Post> {
-		const updatedPost: PostDoc = await posts.findByIdAndUpdate(
+		const updatedPost: PostDoc = await this.model.findByIdAndUpdate(
 			id,
 			{ 'content.caption': caption, isUpdated: true },
 			{ new: true }
@@ -81,42 +70,25 @@ export class PostRepository implements IPostRepository {
 
 		return new Post(updatedPost.toObject());
 	}
-	async updatePost(post: PostDoc): Promise<Post> {
-		const updatedPost: PostDoc = await posts.findByIdAndUpdate(post._id, { ...post, isUpdated: true }, { new: true });
 
-		return new Post(updatedPost.toObject());
-	}
-
-	async deletePost(id: Schema.Types.ObjectId): Promise<boolean> {
-		const postToDelete: PostDoc = await posts.findById(id);
-
-		const creator: UserDoc = await users.findById(postToDelete.creator);
-		creator.posts = creator.posts.filter(postId => postId.toString() !== id.toString());
-		await creator.save();
-
-		const deletedPost = await posts.findByIdAndDelete(id);
-
-		return deletedPost ? true : false;
-	}
-
-	async likePost(postId: mongoose.Schema.Types.ObjectId, userId: mongoose.Schema.Types.ObjectId): Promise<Post> {
-		const post: PostDoc = await posts.findById(postId);
+	async likePost(postId: ObjectId, userId: ObjectId): Promise<Post> {
+		const post: PostDoc = await this.model.findById(postId);
 
 		const version = post.__v;
 
-		const updatedPost: PostDoc = await posts.findByIdAndUpdate(
+		const updatedPost: PostDoc = await this.model.findByIdAndUpdate(
 			{ _id: postId, __v: version },
 			{ $push: { likes: userId } },
 			{ new: true }
 		);
 		return new Post(updatedPost.toObject());
 	}
-	async unlikePost(postId: mongoose.Schema.Types.ObjectId, userId: mongoose.Schema.Types.ObjectId): Promise<Post> {
-		const post: PostDoc = await posts.findById(postId);
+	async unlikePost(postId: ObjectId, userId: ObjectId): Promise<Post> {
+		const post: PostDoc = await this.model.findById(postId);
 
 		const version = post.__v;
 
-		const updatedPost: PostDoc = await posts.findByIdAndUpdate(
+		const updatedPost: PostDoc = await this.model.findByIdAndUpdate(
 			{ _id: postId, __v: version },
 			{ $pull: { likes: userId } },
 			{ new: true }

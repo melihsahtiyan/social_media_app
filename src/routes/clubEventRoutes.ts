@@ -4,7 +4,7 @@ import { Express, Response, NextFunction } from 'express';
 import Request from '../types/Request';
 import { logRequest } from '../util/loggingHandler';
 import isAuth from '../middleware/is-auth';
-import { body, param } from 'express-validator';
+import { body, param, query } from 'express-validator';
 import { singleMediaUpload } from '../util/fileUtil';
 import TYPES from '../util/ioc/types';
 
@@ -24,7 +24,7 @@ function routes(app: Express) {
 			body('time').not().isEmpty().isString().withMessage('Invalid time'),
 			body('location').not().isEmpty().isString().isLength({ min: 3 }).withMessage('Invalid location'),
 			body('isPublic').not().isEmpty().isBoolean().withMessage('Invalid isPublic'),
-			body('isOnline').not().isEmpty().isBoolean().withMessage('Invalid isOnline')
+			body('isOnline').not().isEmpty().isBoolean().withMessage('Invalid isOnline'),
 		],
 		async (req: Request, res: Response, next: NextFunction) => {
 			await controller.create(req, res, next);
@@ -44,7 +44,7 @@ function routes(app: Express) {
 			body('time').not().isEmpty().isString().withMessage('Invalid time'),
 			body('location').not().isEmpty().isString().isLength({ min: 3 }).withMessage('Invalid location'),
 			body('isPublic').not().isEmpty().isBoolean().withMessage('Invalid isPublic'),
-			body('isOnline').not().isEmpty().isBoolean().withMessage('Invalid isOnline')
+			body('isOnline').not().isEmpty().isBoolean().withMessage('Invalid isOnline'),
 		],
 		async (req: Request, res: Response, next: NextFunction) => {
 			await controller.update(req, res, next);
@@ -62,21 +62,21 @@ function routes(app: Express) {
 	);
 
 	app.get(
-		'/clubEvent/id=:id',
+		'/clubEvent/getById',
 		logRequest,
-		[param('id').isMongoId().withMessage('Invalid club event id')],
+		[query('id').isMongoId().withMessage('Invalid club event id')],
 		isAuth,
 		async (req: Request, res: Response, next: NextFunction) => {
 			await controller.getEventById(req, res, next);
 		}
 	);
 
-	app.get('/clubEvent/getAll', logRequest, isAuth, async (req: Request, res: Response, next: NextFunction) => {
+	app.get('/clubEvent/getAll', logRequest, async (req: Request, res: Response, next: NextFunction) => {
 		await controller.getAll(req, res, next);
 	});
 
 	app.get(
-		'/clubEvent/getFutureClubEventsByUserIdAndIsPublic',
+		'/clubEvent/getFutureEventsByUserIdAndIsPublic',
 		logRequest,
 		isAuth,
 		async (req: Request, res: Response, next: NextFunction) => {

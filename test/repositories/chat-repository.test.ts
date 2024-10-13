@@ -66,7 +66,7 @@ describe('ChatRepository', () => {
 
 	describe('getById', () => {
 		it('Should return chat by id', async () => {
-			const chat: Chat = await chatRepository.getById(chatId.toString());
+			const chat: Chat = await chatRepository.get(chatId.toString());
 
 			expect(chat).not.toBeNull();
 			expect(chat).not.toBeUndefined();

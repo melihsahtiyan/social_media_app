@@ -1,4 +1,4 @@
-import "reflect-metadata"
+import 'reflect-metadata';
 import { inject, injectable } from 'inversify';
 import { IClubEventService } from '../types/services/IClubEventService';
 import { ClubEventDetailDto } from '../models/dtos/event/club-event-detail-dto';
@@ -11,26 +11,26 @@ import { ClubEventForCreate } from '../models/dtos/event/club-event-for-create';
 import { User } from '../models/entities/User';
 import { ICloudinaryService } from '../types/services/ICloudinaryService';
 import TYPES from '../util/ioc/types';
-import { IClubEventRepository } from "../types/repositories/IClubEventRepository";
-import { IClubRepository } from "../types/repositories/IClubRepository";
-import IUserRepository from "../types/repositories/IUserRepository";
+import { IClubEventRepository } from '../types/repositories/IClubEventRepository';
+import { IClubService } from '../types/services/IClubService';
+import IUserService from '../types/services/IUserService';
 
 @injectable()
 export class ClubEventService implements IClubEventService {
 	private readonly clubEventRepository: IClubEventRepository;
-	private readonly clubRepository: IClubRepository;
-	private readonly userRepository: IUserRepository;
+	private readonly clubService: IClubService;
+	private readonly userService: IUserService;
 	private readonly cloudinaryService: ICloudinaryService;
 
 	constructor(
 		@inject(TYPES.IClubEventRepository) clubEventRepository: IClubEventRepository,
-		@inject(TYPES.IClubRepository) clubRepository: IClubRepository,
-		@inject(TYPES.IUserRepository) userRepository: IUserRepository,
+		@inject(TYPES.IClubService) clubService: IClubService,
+		@inject(TYPES.IUserService) userService: IUserService,
 		@inject(TYPES.ICloudinaryService) cloudinaryService: ICloudinaryService
 	) {
 		this.clubEventRepository = clubEventRepository;
-		this.clubRepository = clubRepository;
-		this.userRepository = userRepository;
+		this.clubService = clubService;
+		this.userService = userService;
 		this.cloudinaryService = cloudinaryService;
 	}
 	async create(
@@ -39,11 +39,11 @@ export class ClubEventService implements IClubEventService {
 		file: Express.Multer.File
 	): Promise<DataResult<ClubEventInputDto>> {
 		try {
-			const organizer: User = await this.userRepository.getById(organizerId);
+			const organizer: User = (await this.userService.getUserById(organizerId)).data;
 
 			if (!organizer) return { success: false, message: 'Organizer not found!', statusCode: 404, data: null };
 
-			const club: Club = await this.clubRepository.getById(clubEventInput.club);
+			const club: Club = (await this.clubService.getClubById(clubEventInput.club)).data;
 
 			if (!club) return { success: false, message: 'Club not found!', statusCode: 404, data: null };
 
@@ -103,11 +103,13 @@ export class ClubEventService implements IClubEventService {
 
 			if (!event) return { success: false, message: 'Event not found', statusCode: 404, data: null };
 
-			const club: Club = await this.clubRepository.getById(event.getClubId());
+			const club: Club = (await this.clubService.getClubById(event.getClubId())).data;
 
-			const organizer: User = await this.userRepository.getById(event.getOrganizerId());
+			const organizer: User = (await this.userService.getUserById(event.getOrganizerId())).data;
 
-			const attendees: User[] = await this.userRepository.getUsersByIds(event.attendees.map(attendee => attendee.toString()));
+			const attendees: User[] = (
+				await this.userService.getUsersByIds(event.attendees.map(attendee => attendee.toString()))
+			).data;
 
 			const eventDetail: ClubEventDetailDto = {
 				title: event.title,
@@ -137,7 +139,7 @@ export class ClubEventService implements IClubEventService {
 	}
 	async getFutureClubEventsByUserId(userId: string): Promise<DataResult<ClubEvent[]>> {
 		try {
-			const user: User = await this.userRepository.getById(userId);
+			const user: User = (await this.userService.getUserById(userId)).data;
 
 			if (!user) {
 				const error: CustomError = new Error('User not found!');
@@ -145,7 +147,12 @@ export class ClubEventService implements IClubEventService {
 				throw error;
 			}
 
-			const events: ClubEvent[] = await this.clubEventRepository.getFutureEventsByUserId(userId);
+			const clubs: Club[] = (await this.clubService.getAllClubsByMemberId(userId)).data;
+
+			const events: ClubEvent[] = await this.clubEventRepository.getAll({
+				club: { $in: clubs.map(club => club._id) },
+				date: { $gte: Date.now() },
+			});
 
 			if (!events) return { success: true, message: 'Events not found', statusCode: 404, data: null };
 
@@ -159,7 +166,7 @@ export class ClubEventService implements IClubEventService {
 
 	async getFutureClubEventsByUserIdAndIsPublic(userId: string): Promise<DataResult<ClubEvent[]>> {
 		try {
-			const user: User = await this.userRepository.getById(userId);
+			const user: User = (await this.userService.getUserById(userId)).data;
 
 			if (!user) {
 				const error: CustomError = new Error('User not found!');
@@ -167,7 +174,10 @@ export class ClubEventService implements IClubEventService {
 				throw error;
 			}
 
-			const events: ClubEvent[] = await this.clubEventRepository.getFutureEventsByUserIdAndIsPublic(userId);
+			const events: ClubEvent[] = await this.clubEventRepository.getAll({
+				isPublic: true,
+				date: { $gte: Date.now() },
+			});
 
 			if (!events) {
 				return { success: true, message: 'Events not found', statusCode: 404, data: null };
@@ -186,7 +196,7 @@ export class ClubEventService implements IClubEventService {
 		clubEventInput: ClubEventInputDto
 	): Promise<DataResult<ClubEventInputDto>> {
 		try {
-			const organizer: User = await this.userRepository.getById(organizerId);
+			const organizer: User = (await this.userService.getUserById(organizerId)).data;
 
 			if (!organizer) return { success: false, message: 'Organizer not found', statusCode: 404, data: null };
 
@@ -194,7 +204,7 @@ export class ClubEventService implements IClubEventService {
 
 			if (!event) return { success: false, message: 'Event not found', statusCode: 404, data: null };
 
-			const club: Club = await this.clubRepository.getById(clubEventInput.club);
+			const club: Club = (await this.clubService.getClubById(clubEventInput.club)).data;
 
 			if (!club) return { success: false, message: 'Club not found', statusCode: 404, data: null };
 
@@ -226,7 +236,7 @@ export class ClubEventService implements IClubEventService {
 	}
 	async delete(id: string, organizerId: string): Promise<DataResult<boolean>> {
 		try {
-			const organizer: User = await this.userRepository.getById(organizerId);
+			const organizer: User = (await this.userService.getUserById(organizerId)).data;
 
 			if (!organizer) return { success: false, message: 'Organizer not found', statusCode: 404, data: false };
 
@@ -234,7 +244,7 @@ export class ClubEventService implements IClubEventService {
 
 			if (!event) return { success: false, message: 'Event not found', statusCode: 404, data: false };
 
-			const club: Club = await this.clubRepository.getById(event.getClubId());
+			const club: Club = (await this.clubService.getClubById(event.getClubId())).data;
 
 			if (!club) return { success: false, message: 'Club not found', statusCode: 404, data: false };
 

@@ -1,26 +1,32 @@
 import { ObjectId } from '../../types/ObjectId';
 import { Entity } from './Entity';
-
+import { User } from './User';
 
 export class Poll extends Entity {
 	question: string;
 	options: Array<{ optionName: string; votes: ObjectId[] }>;
 	totalVotes: number;
 	expiresAt: Date;
-	constructor(
-		question: string,
-		options: Array<{ optionName: string; votes: ObjectId[] }>,
-		totalVotes: number,
-		expiresAt: Date
-	) {
+	constructor({
+		question,
+		options,
+		totalVotes,
+		expiresAt,
+	}: {
+		question: string;
+		options: Array<{ optionName: string; votes: ObjectId[] }>;
+		totalVotes: number;
+		expiresAt: Date;
+	}) {
 		super();
+
 		this.question = question;
 		this.options = options;
 		this.totalVotes = totalVotes;
 		this.expiresAt = expiresAt;
 	}
 
-	isAuthenticVoter(voter, creator): boolean {
+	isAuthenticVoter(voter: User, creator: User): boolean {
 		return voter.friends.includes(creator._id) || voter.university === creator.university ? true : false;
 	}
 	findVote(userId: ObjectId): {

@@ -99,7 +99,7 @@ export class ChatService implements IChatService {
 	}
 	async getChatById(chatId: string): Promise<DataResult<Chat>> {
 		try {
-			const chat: Chat = await this.chatRepository.getById(chatId);
+			const chat: Chat = await this.chatRepository.get({ _id: chatId });
 
 			if (chat) {
 				return { success: true, data: chat, statusCode: 201 } as DataResult<Chat>;
@@ -132,7 +132,7 @@ export class ChatService implements IChatService {
 	}
 	async getChatDetails(chatId: string): Promise<DataResult<ChatDetailDto>> {
 		try {
-			const chat: Chat = await this.chatRepository.getById(chatId);
+			const chat: Chat = await this.chatRepository.get({ _id: chatId });
 			const adminUsers: User[] = (await this.userService.getUsersByIds(chat.admins.map(admin => admin.toString())))
 				.data;
 
@@ -165,7 +165,7 @@ export class ChatService implements IChatService {
 
 			if (!user) return { success: false, message: 'User not found', statusCode: 404 } as Result;
 
-			const chatToUpdate: Chat = await this.chatRepository.getById(chatId);
+			const chatToUpdate: Chat = await this.chatRepository.get({ _id: chatId });
 
 			if (!chatToUpdate) return { success: false, message: 'Chat not found', statusCode: 404 } as Result;
 
@@ -191,7 +191,7 @@ export class ChatService implements IChatService {
 	}
 	async pushChunkToChat(chatId: string, chunkId: ObjectId): Promise<Result> {
 		try {
-			const chat: Chat = await this.chatRepository.getById(chatId);
+			const chat: Chat = await this.chatRepository.get({ _id: chatId });
 
 			if (!chat) return { success: false, message: 'Chat not found', statusCode: 404 } as Result;
 
@@ -211,7 +211,7 @@ export class ChatService implements IChatService {
 	async addChatMember(admin: string, chatId: string, memberId: string): Promise<Result> {
 		try {
 			const adminUser: User = (await this.userService.getUserById(admin)).data;
-			const chat: Chat = await this.chatRepository.getById(chatId);
+			const chat: Chat = await this.chatRepository.get({ _id: chatId });
 			const member: User = (await this.userService.getUserById(memberId)).data;
 
 			if (!adminUser) return { success: false, message: 'Admin not found', statusCode: 404 } as Result;
@@ -221,8 +221,8 @@ export class ChatService implements IChatService {
 			if (!chat.isAdmin(adminUser._id))
 				return { success: false, message: 'You are not an admin of this chat', statusCode: 403 } as Result;
 
-			if (!chat.isMember(member._id))
-				return { success: false, message: 'User is not a member of this chat', statusCode: 403 } as Result;
+			if (chat.isMember(member._id))
+				return { success: false, message: 'User is already a member of this chat', statusCode: 403 } as Result;
 
 			const updatedChat: Chat = await this.chatRepository.addMember(chat._id, member._id);
 
@@ -241,7 +241,7 @@ export class ChatService implements IChatService {
 	async removeChatMember(admin: string, chatId: string, memberId: string): Promise<Result> {
 		try {
 			const adminUser: User = (await this.userService.getUserById(admin)).data;
-			const chat: Chat = await this.chatRepository.getById(chatId);
+			const chat: Chat = await this.chatRepository.get({ _id: chatId });
 			const member: User = (await this.userService.getUserById(memberId)).data;
 
 			if (!adminUser) return { success: false, message: 'Admin not found', statusCode: 404 } as Result;
@@ -275,7 +275,7 @@ export class ChatService implements IChatService {
 			if (!adminUser) return { success: false, message: 'Admin not found', statusCode: 404 } as Result;
 
 			// Check if chat exists
-			const chat: Chat = await this.chatRepository.getById(chatId);
+			const chat: Chat = await this.chatRepository.get({ _id: chatId });
 			if (!chat) return { success: false, message: 'Chat not found', statusCode: 404 } as Result;
 
 			// Check if admin is an admin of the chat
@@ -310,7 +310,7 @@ export class ChatService implements IChatService {
 			const adminUser: User = (await this.userService.getUserById(admin)).data;
 			if (!adminUser) return { success: false, message: 'Admin not found', statusCode: 404 } as Result;
 
-			const chat: Chat = await this.chatRepository.getById(chatId);
+			const chat: Chat = await this.chatRepository.get({ _id: chatId });
 			if (!chat) return { success: false, message: 'Chat not found', statusCode: 404 } as Result;
 
 			if (!chat.isAdmin(adminUser._id))
