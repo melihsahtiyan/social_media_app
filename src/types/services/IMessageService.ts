@@ -18,10 +18,8 @@ export interface IMessageService {
 	getAllMessagesByChunkId(userId: string, chunkId: string): Promise<DataResult<Array<Message>>>;
 	// Update Operations
 	updateMessage(userId: string, messageId: string, message: Partial<Message>): Promise<Result>;
-	pushMessageToChunk(messageId: string, chunkId: string): Promise<Result>;
-	dropMessageFromChunk(messageId: string, chunkId: string): Promise<Result>;
 
 	// Delete Operations
-	deleteMessage(messageId: string): Promise<Result>;
-	deleteAllMessagesByChatId(chatId: string): Promise<Result>;
+	deleteMessage(userId: string, messageId: string): Promise<Result>;
+	deleteAllMessagesByChatId(userId: string, chatId: string): Promise<Result>;
 }

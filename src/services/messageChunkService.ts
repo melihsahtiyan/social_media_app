@@ -69,6 +69,7 @@ export class MessageChunkService implements IMessageChunkService {
 			if (!user) return { success: false, message: 'User not found', statusCode: 404 } as Result;
 
 			const chunk = await this.messageChunkRepository.get({ _id: chunkId });
+			if (!chunk) return { success: false, message: 'Chunk not found', statusCode: 404 } as Result;
 
 			const chat: Chat = (await this.chatService.getChatById(chunk.chat.toString())).data;
 			if (!chat) return { success: false, message: 'Chat not found', statusCode: 404 } as Result;
@@ -76,12 +77,7 @@ export class MessageChunkService implements IMessageChunkService {
 			if (!chat.isMember(user._id))
 				return { success: false, message: 'User is not a member of the chat', statusCode: 403 } as Result;
 
-			return {
-				success: chunk ? true : false,
-				message: chunk ? 'Chunk found!' : 'Chunk not found',
-				statusCode: chunk ? 200 : 404,
-				data: chunk,
-			} as DataResult<MessageChunk>;
+			return { success: true, message: 'Chunk found!', statusCode: 200, data: chunk } as DataResult<MessageChunk>;
 		} catch (err) {
 			const error: CustomError = new CustomError(err);
 			error.className = err?.className || 'MessageChunkService';

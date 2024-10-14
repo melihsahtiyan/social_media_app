@@ -50,4 +50,23 @@ export class Message extends Entity {
 		this.isDeleted = isDeleted;
 		this.deletedAt = deletedAt;
 	}
+
+	isEditable(userId: ObjectId): boolean {
+		return (
+			this.type === MessageTypes.TEXT &&
+			!this.isForwarded &&
+			!this.isDeleted &&
+			this.creator.toString() === userId.toString()
+		);
+	}
+
+	editMessage(content: string): void {
+		this.content = content;
+		this.isEdited = true;
+	}
+
+	deleteMessage(): void {
+		this.isDeleted = true;
+		this.deletedAt = new Date(Date.now());
+	}
 }

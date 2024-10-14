@@ -6,6 +6,7 @@ import { IMessageService } from '../types/services/IMessageService';
 import TYPES from '../util/ioc/types';
 import { MessageForCreate } from '../models/dtos/message/message-for-create';
 import { MessageTypes } from '../models/entities/enums/messageEnums';
+import { isValid } from '../util/validationHandler';
 
 @injectable()
 export class MessageController {
@@ -57,6 +58,35 @@ export class MessageController {
 			const messages = await this.messageService.getAllMessagesByChunkId(userId, chunkId);
 
 			return res.status(messages.statusCode).json(messages);
+		} catch (error) {
+			next(error);
+		}
+	}
+
+	async updateMessage(req: Request, res: Response, next: NextFunction) {
+		try {
+			isValid(req);
+			const userId = req.userId;
+			const messageId = req.body.messageId;
+			const content = req.body.content;
+
+			const result = await this.messageService.updateMessage(userId, messageId, { content });
+
+			return res.status(result.statusCode).json(result);
+		} catch (error) {
+			next(error);
+		}
+	}
+
+	async deleteMessage(req: Request, res: Response, next: NextFunction) {
+		try {
+			isValid(req);
+			const userId = req.userId;
+			const messageId = req.query.id as string;
+
+			const result = await this.messageService.deleteMessage(userId, messageId);
+
+			return res.status(result.statusCode).json(result);
 		} catch (error) {
 			next(error);
 		}

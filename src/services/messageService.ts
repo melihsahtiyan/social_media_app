@@ -112,7 +112,7 @@ export class MessageService implements IMessageService {
 	}
 	async getMessage(messageId: string): Promise<DataResult<Message>> {
 		try {
-			const message: Message = await this.messageRepository.get({ _id: messageId });
+			const message: Message = await this.messageRepository.get({ _id: messageId, isDeleted: false });
 			if (!message)
 				return { success: false, message: 'Message not found', statusCode: 404, data: null } as DataResult<Message>;
 
@@ -143,7 +143,7 @@ export class MessageService implements IMessageService {
 					data: null,
 				} as DataResult<Array<Message>>;
 
-			const messages: Array<Message> = await this.messageRepository.getAll({ chatId: chat._id });
+			const messages: Array<Message> = await this.messageRepository.getAll({ chatId: chat._id, isDeleted: false });
 			if (!messages)
 				return { success: false, message: 'Messages not found', statusCode: 404, data: null } as DataResult<
 					Array<Message>
@@ -165,11 +165,16 @@ export class MessageService implements IMessageService {
 			if (!user)
 				return { success: false, message: 'User not found', statusCode: 404, data: null } as DataResult<Array<Message>>;
 
-			const chunk: MessageChunk = (await this.messageChunkService.getChunk(userId, chunkId)).data;
-			if (!chunk)
-				return { success: false, message: 'Chunk not found', statusCode: 404, data: null } as DataResult<
-					Array<Message>
-				>;
+			const getChunk = await this.messageChunkService.getChunk(userId, chunkId);
+			if (!getChunk.success)
+				return {
+					success: getChunk.success,
+					message: getChunk.message,
+					statusCode: getChunk.statusCode,
+					data: null,
+				} as DataResult<Array<Message>>;
+
+			const chunk: MessageChunk = getChunk.data;
 
 			const chat: Chat = (await this.chatService.getChatById(chunk.chat.toString())).data;
 			if (!chat)
@@ -183,7 +188,7 @@ export class MessageService implements IMessageService {
 					data: null,
 				} as DataResult<Array<Message>>;
 
-			const messages: Array<Message> = await this.messageRepository.getAll({ chunkId: chunk._id });
+			const messages: Array<Message> = await this.messageRepository.getAll({ chunkId: chunk._id, isDeleted: false });
 
 			return { success: true, message: 'Messages found!', statusCode: 200, data: messages } as DataResult<
 				Array<Message>
@@ -203,16 +208,18 @@ export class MessageService implements IMessageService {
 			const fetchedMessage: Message = (await this.getMessage(messageId)).data;
 			if (!fetchedMessage) return { success: false, message: 'Message not found', statusCode: 404 } as Result;
 
-			if (fetchedMessage.creator.toString() !== user._id.toString())
-				return { success: false, message: 'You are not allowed to update this message', statusCode: 403 } as Result;
+			if (fetchedMessage.isEditable(user._id)) {
+				fetchedMessage.editMessage(message.content);
+				const updatedMessage: boolean = await this.messageRepository.update(messageId, fetchedMessage);
 
-			const updatedMessage: boolean = await this.messageRepository.update(messageId, message);
+				return {
+					success: updatedMessage,
+					message: updatedMessage ? 'Message updated!' : 'Message update failed!',
+					statusCode: updatedMessage ? 200 : 404,
+				} as Result;
+			}
 
-			return {
-				success: updatedMessage,
-				message: updatedMessage ? 'Message updated!' : 'Message update failed!',
-				statusCode: updatedMessage ? 200 : 404,
-			} as Result;
+			return { success: false, message: 'You are not allowed to update this message', statusCode: 403 } as Result;
 		} catch (err) {
 			const error: CustomError = new CustomError(err.message, err.status);
 			error.className = err?.className ?? 'MessageService';
@@ -220,16 +227,33 @@ export class MessageService implements IMessageService {
 			throw error;
 		}
 	}
-	pushMessageToChunk(messageId: string, chunkId: string): Promise<Result> {
-		throw new Error('Method not implemented.');
+	async deleteMessage(userId: string, messageId: string): Promise<Result> {
+		try {
+			const user: User = (await this.userService.getUserById(userId)).data;
+			if (!user) return { success: false, message: 'User not found', statusCode: 404 } as Result;
+
+			const message: Message = (await this.getMessage(messageId)).data;
+			if (!message) return { success: false, message: 'Message not found', statusCode: 404 } as Result;
+
+			if (message.creator.toString() !== user._id.toString())
+				return { success: false, message: 'You are not allowed to delete this message', statusCode: 403 } as Result;
+
+			message.deleteMessage();
+			const updatedMessage: boolean = await this.messageRepository.update(messageId, message);
+
+			return {
+				success: updatedMessage,
+				message: updatedMessage ? 'Message deleted!' : 'Message deletion failed!',
+				statusCode: updatedMessage ? 200 : 404,
+			} as Result;
+		} catch (err) {
+			const error: CustomError = new CustomError(err.message, err.status);
+			error.className = err?.className ?? 'MessageService';
+			error.functionName = err?.functionName ?? 'deleteMessage';
+			throw error;
+		}
 	}
-	dropMessageFromChunk(messageId: string, chunkId: string): Promise<Result> {
-		throw new Error('Method not implemented.');
-	}
-	deleteMessage(messageId: string): Promise<Result> {
-		throw new Error('Method not implemented.');
-	}
-	deleteAllMessagesByChatId(chatId: string): Promise<Result> {
+	async deleteAllMessagesByChatId(userId: string, chatId: string): Promise<Result> {
 		throw new Error('Method not implemented.');
 	}
 }

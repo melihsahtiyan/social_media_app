@@ -34,7 +34,13 @@ export const messageSchema = new Schema({
 		default: false,
 	},
 	statuses: {
-		type: [{ status: { type: String, enum: MessageStatus }, userId: { type: Schema.Types.ObjectId, ref: 'User' } }],
+		type: [
+			{
+				status: { type: String, enum: MessageStatus },
+				userId: { type: Schema.Types.ObjectId, ref: 'User' },
+				_id: false,
+			},
+		],
 		default: [{ status: MessageStatus.SENT }],
 	},
 	replyTo: {
