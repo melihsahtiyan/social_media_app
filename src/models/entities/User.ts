@@ -18,48 +18,29 @@ export class User extends Entity {
 	};
 	profilePhotoUrl: string;
 	friends: ObjectId[];
-	// friendRequests: { userId: ObjectId; createdAt: Date }[];
-	friendRequests: ObjectId[];
+	friendRequests: { userId: ObjectId; createdAt: Date }[];
 	posts: ObjectId[];
 	organizations: ObjectId[];
 	attendances: ObjectId[];
-	constructor({
-		_id,
-		firstName,
-		lastName,
-		birthDate,
-		email,
-		password,
-		university,
-		department,
-		studentEmail,
-		status,
-		profilePhotoUrl,
-		friends,
-		friendRequests,
-		posts,
-		organizations,
-		attendances,
-		createdAt,
-	}) {
+	constructor(user: Partial<User>) {
 		super();
-		this._id = _id;
-		this.firstName = firstName;
-		this.lastName = lastName;
-		this.birthDate = birthDate;
-		this.email = email;
-		this.password = password;
-		this.university = university;
-		this.department = department;
-		this.studentEmail = studentEmail;
-		this.status = status;
-		this.profilePhotoUrl = profilePhotoUrl;
-		this.friends = friends;
-		this.friendRequests = friendRequests;
-		this.posts = posts;
-		this.organizations = organizations;
-		this.attendances = attendances;
-		this.createdAt = createdAt;
+		this._id = user._id;
+		this.firstName = user.firstName;
+		this.lastName = user.lastName;
+		this.birthDate = user.birthDate;
+		this.email = user.email;
+		this.password = user.password;
+		this.university = user.university;
+		this.department = user.department;
+		this.studentEmail = user.studentEmail;
+		this.status = user.status;
+		this.profilePhotoUrl = user.profilePhotoUrl;
+		this.friends = user.friends;
+		this.friendRequests = user.friendRequests;
+		this.posts = user.posts;
+		this.organizations = user.organizations;
+		this.attendances = user.attendances;
+		this.createdAt = user.createdAt;
 	}
 	getId(): string {
 		return this._id.toString();
@@ -75,8 +56,8 @@ export class User extends Entity {
 				firstName: this.firstName,
 				lastName: this.lastName,
 			},
-			process.env.SECRET_KEY
-			// ,{ expiresIn: "1h" }
+			process.env.SECRET_KEY,
+			{ expiresIn: process.env.NODE_ENV === 'production' ? '1h' : '100d' }
 		);
 		return token;
 	}
@@ -85,6 +66,10 @@ export class User extends Entity {
 			(this.friends.find(friend => friend.toString() === creator._id.toString()) ? true : false) ||
 			creator.university === this.university
 		);
+	}
+
+	addFriendRequest(userId: ObjectId): void {
+		this.friendRequests.push({ userId, createdAt: new Date(Date.now()) });
 	}
 
 	isFriend(userId: ObjectId): boolean {

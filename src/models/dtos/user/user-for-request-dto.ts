@@ -6,4 +6,5 @@ export interface UserForRequestDto extends Dto {
 	firstName: string;
 	lastName: string;
 	profilePhotoUrl: string;
+	createdAt: Date;
 }

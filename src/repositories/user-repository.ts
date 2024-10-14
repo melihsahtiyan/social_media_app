@@ -106,13 +106,14 @@ export class UserRepository extends RepositoryBase<User> implements IUserReposit
 	async getAllFriendRequests(id: string): Promise<Array<UserForRequestDto>> {
 		const user: UserDoc = await this.model.findById(id);
 		const friendRequests: Array<UserForRequestDto> = await Promise.all(
-			user.friendRequests.map(async requestId => {
-				const request: UserDoc = await this.model.findById(requestId);
+			user.friendRequests.map(async request => {
+				const requestUser: UserDoc = await this.model.findById(request.userId);
 				const requestDto: UserForRequestDto = {
-					_id: request._id,
-					firstName: request.firstName,
-					lastName: request.lastName,
-					profilePhotoUrl: request.profilePhotoUrl,
+					_id: requestUser._id,
+					firstName: requestUser.firstName,
+					lastName: requestUser.lastName,
+					profilePhotoUrl: requestUser.profilePhotoUrl,
+					createdAt: request.createdAt,
 				};
 
 				return requestDto;
@@ -146,9 +147,10 @@ export class UserRepository extends RepositoryBase<User> implements IUserReposit
 	async sendFriendRequest(userToFollowId: ObjectId, followingUserId: ObjectId): Promise<UserDoc> {
 		const userToFollow: UserDoc = (await this.model.findById(userToFollowId)) as UserDoc;
 
+		const user = new User(userToFollow);
 		// Push the followerId to the followRequests array of the userToFollow
-		userToFollow.friendRequests.push(followingUserId);
-		return await userToFollow.save();
+		user.addFriendRequest(followingUserId);
+		return await this.model.findByIdAndUpdate(userToFollowId, user, { new: true });
 	}
 
 	async deleteFriendRequest(receiverUserId: ObjectId, senderUserId: ObjectId): Promise<UserDoc> {
