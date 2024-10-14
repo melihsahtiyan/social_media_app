@@ -8,23 +8,27 @@ import { User } from '../models/entities/User';
 import { UserDoc } from '../models/schemas/user.schema';
 import { UserForUpdate } from '../models/dtos/user/user-for-update';
 import { UserDetailDto } from '../models/dtos/user/user-detail-dto';
-import { UserListDto } from '../models/dtos/user/user-list-dto';
 import { UserForSearchDto } from '../models/dtos/user/user-for-search-dto';
 import { UserProfileDto } from '../models/dtos/user/user-profile-dto';
 import IUserRepository from '../types/repositories/IUserRepository';
 import { ICloudinaryService } from '../types/services/ICloudinaryService';
 import TYPES from '../util/ioc/types';
+import { UserForRequestDto } from '../models/dtos/user/user-for-request-dto';
+import IPostService from '../types/services/IPostService';
 
 @injectable()
 export class UserService implements IUserService {
 	private readonly userRepository: IUserRepository;
 	private readonly cloudinaryService: ICloudinaryService;
+	private readonly postService: IPostService;
 	constructor(
 		@inject(TYPES.IUserRepository) userRepository: IUserRepository,
-		@inject(TYPES.ICloudinaryService) cloudinaryService: ICloudinaryService
+		@inject(TYPES.ICloudinaryService) cloudinaryService: ICloudinaryService,
+		@inject(TYPES.IPostService) postService: IPostService
 	) {
 		this.userRepository = userRepository;
 		this.cloudinaryService = cloudinaryService;
+		this.postService = postService;
 	}
 	async getAllUsers(): Promise<DataResult<Array<User>>> {
 		try {
@@ -114,7 +118,7 @@ export class UserService implements IUserService {
 
 	async viewUserProfile(userId: string, viewerId: string): Promise<DataResult<UserProfileDto | UserDetailDto>> {
 		try {
-			const user: User = await this.userRepository.getUserProfile(userId);
+			const user: User = await this.userRepository.getById(userId);
 
 			const viewer: User = await this.userRepository.getById(viewerId);
 
@@ -140,17 +144,13 @@ export class UserService implements IUserService {
 
 			const friends: User[] = await this.userRepository.getUsersByIds(user.friends.map(friend => friend.toString()));
 
-			const friendDetails: Array<{
-				_id: string;
-				firstName: string;
-				lastName: string;
-				profilePhotoUrl: string;
-			}> = friends.map(friend => {
+			const friendDetails: Array<UserForRequestDto> = friends.map(friend => {
 				return {
-					_id: friend._id.toString(),
+					_id: friend._id,
 					firstName: friend.firstName,
 					lastName: friend.lastName,
 					profilePhotoUrl: friend.profilePhotoUrl,
+					createdAt: friend.createdAt,
 				};
 			});
 
@@ -158,19 +158,17 @@ export class UserService implements IUserService {
 				user.friendRequests.map(request => request.toString())
 			);
 
-			const friendRequestDetails: Array<{
-				_id: string;
-				firstName: string;
-				lastName: string;
-				profilePhotoUrl: string;
-			}> = friendRequests.map(request => {
+			const friendRequestDetails: Array<UserForRequestDto> = friendRequests.map(request => {
 				return {
-					_id: request._id.toString(),
+					_id: request._id,
 					firstName: request.firstName,
 					lastName: request.lastName,
 					profilePhotoUrl: request.profilePhotoUrl,
+					createdAt: request.createdAt,
 				};
 			});
+
+			const totalLikes: number = (await this.postService.getTotalLikes(user.posts)).data;
 
 			const userProfileDto: UserProfileDto = {
 				_id: user._id,
@@ -187,6 +185,7 @@ export class UserService implements IUserService {
 				friendCount: user.friends.length,
 				isFriend: viewer.isFriend(user._id),
 				posts: user.posts,
+				totalLikes: totalLikes,
 			};
 
 			// if (!viewer.isFriendOrSameUniversity(user)) {

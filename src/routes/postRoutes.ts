@@ -5,13 +5,12 @@ import isAuth from '../middleware/is-auth';
 import { logRequest } from '../util/loggingHandler';
 import { PostController } from '../controllers/postController';
 import container from '../util/ioc/iocContainer';
-import { param } from 'express-validator';
+import { param, query } from 'express-validator';
 import TYPES from '../util/ioc/types';
 
 const controller: PostController = container.get<PostController>(TYPES.PostController);
 
 function routes(app: Express) {
-
 	/**
 	 * @swagger
 	 * '/post/create':
@@ -25,9 +24,15 @@ function routes(app: Express) {
 	 * 		application/json:
 	 * 			schema:
 	 */
-	app.post('/post/create', logRequest, mediaArrayUpload.array('medias'), isAuth, async (req: Request, res: Response, next: NextFunction) => {
-		await controller.createPost(req, res, next);
-	});
+	app.post(
+		'/post/create',
+		isAuth,
+		mediaArrayUpload.array('medias'),
+		logRequest,
+		async (req: Request, res: Response, next: NextFunction) => {
+			await controller.createPost(req, res, next);
+		}
+	);
 
 	app.get('/post/getAllPosts', logRequest, async (req: Request, res: Response, next: NextFunction) => {
 		await controller.getPosts(req, res, next);
@@ -66,18 +71,20 @@ function routes(app: Express) {
 		}
 	);
 
-	app.post(
-		'/post/likePost/postId=:postId',
+	app.put(
+		'/post/likePost',
 		isAuth,
+		[query('id').isString().not().isEmpty().withMessage('Post id is required')],
 		logRequest,
 		async (req: Request, res: Response, next: NextFunction) => {
 			await controller.likePost(req, res, next);
 		}
 	);
 
-	app.post(
-		'/post/unlikePost/postId=:postId',
+	app.put(
+		'/post/unlikePost',
 		isAuth,
+		[query('id').isString().not().isEmpty().withMessage('Post id is required')],
 		logRequest,
 		async (req: Request, res: Response, next: NextFunction) => {
 			await controller.unlikePost(req, res, next);

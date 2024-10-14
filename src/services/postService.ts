@@ -15,6 +15,7 @@ import IPostRepository from '../types/repositories/IPostRepository';
 import IUserRepository from '../types/repositories/IUserRepository';
 import { ICloudinaryService } from '../types/services/ICloudinaryService';
 import TYPES from '../util/ioc/types';
+import { ObjectId } from '../types/ObjectId';
 
 @injectable()
 export class PostService implements IPostService {
@@ -82,6 +83,30 @@ export class PostService implements IPostService {
 			error.statusCode = err?.statusCode || 500;
 
 			throw err;
+		}
+	}
+
+	async getTotalLikes(postIds: Array<ObjectId>): Promise<DataResult<number>> {
+		try {
+			const posts: Array<Post> = await this.postRepository.getAll({ _id: postIds });
+
+			const totalLikes: number = posts.reduce((total, post) => total + post.likes.length, 0);
+
+			return {
+				statusCode: 200,
+				message: 'Total likes fetched!',
+				success: true,
+				data: totalLikes,
+			};
+		} catch (err) {
+			const error: CustomError = new CustomError(
+				err.message,
+				err.statusCode || 500,
+				err.errors || null,
+				'PostService',
+				'getTotalLikes'
+			);
+			throw error;
 		}
 	}
 

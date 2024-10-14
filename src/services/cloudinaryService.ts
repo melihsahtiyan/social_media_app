@@ -100,7 +100,6 @@ export class CloudinaryService implements ICloudinaryService {
 			});
 
 			// const res: string = result.secure_url;
-			// console.log('File Upload:', res);
 
 			// const publicId: string = res.split('/')[7] + '/' + res.split('/')[8] + '/' + res.split('/')[9].split('.')[0];
 			return result.public_id;

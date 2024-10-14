@@ -125,7 +125,7 @@ export class PostController {
 
 	async likePost(req: Request, res: Response, next: NextFunction) {
 		try {
-			const postId: string = req.params.postId;
+			const postId: string = req.query.id as string;
 			const userId: string = req.userId;
 
 			const result: DataResult<number> = await this._postService.likePost(postId, userId);
@@ -141,7 +141,7 @@ export class PostController {
 
 	async unlikePost(req: Request, res: Response, next: NextFunction) {
 		try {
-			const postId: string = req.params.postId;
+			const postId: string = req.query.id as string;
 			const userId: string = req.userId;
 
 			const result: DataResult<number> = await this._postService.unlikePost(postId, userId);
