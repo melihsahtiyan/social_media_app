@@ -14,8 +14,8 @@ export interface IMessageService {
 
 	// Read Operations
 	getMessage(messageId: string): Promise<DataResult<Message>>;
-	getAllMessagesByChatId(chatId: string): Promise<DataResult<Array<Message>>>;
-	getAllMessagesByChunkId(chunkId: string): Promise<DataResult<Array<Message>>>;
+	getAllMessagesByChatId(userId: string, chatId: string): Promise<DataResult<Array<Message>>>;
+	getAllMessagesByChunkId(userId: string, chunkId: string): Promise<DataResult<Array<Message>>>;
 	// Update Operations
 	updateMessage(userId: string, messageId: string, message: Partial<Message>): Promise<Result>;
 	pushMessageToChunk(messageId: string, chunkId: string): Promise<Result>;

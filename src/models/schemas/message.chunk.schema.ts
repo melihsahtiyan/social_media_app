@@ -27,14 +27,11 @@ export const messageChunkSchema: Schema = new Schema({
 		type: Boolean,
 		default: false,
 	},
-	previousPartition: {
+	previousChunk: {
 		type: Schema.Types.ObjectId,
 		ref: 'MessageChunk',
-		reqired: function (this: MessageChunkDoc): boolean {
-			return this.isFull;
-		},
 	},
-	nextPartition: {
+	nextChunk: {
 		type: Schema.Types.ObjectId,
 		ref: 'MessageChunk',
 	},

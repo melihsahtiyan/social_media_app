@@ -34,39 +34,23 @@ export class Chat extends Entity {
 	admins?: ObjectId[];
 	title?: string;
 
-	constructor({
-		_id,
-		members,
-		chunks,
-		sharedMedias,
-		sharedPosts,
-		sharedEvents,
-		pinnedMessages,
-		unreadMessages,
-		isGroup,
-		admins,
-		title,
-		description,
-		avatar,
-		createdAt,
-		updatedAt,
-	}) {
+	constructor(chat: Partial<Chat>) {
 		super();
-		this._id = _id;
-		this.members = members;
-		this.chunks = chunks;
-		this.sharedMedias = sharedMedias;
-		this.sharedPosts = sharedPosts;
-		this.sharedEvents = sharedEvents;
-		this.pinnedMessages = pinnedMessages;
-		this.unreadMessages = unreadMessages;
-		this.isGroup = isGroup;
-		this.admins = admins;
-		this.title = title;
-		this.description = description;
-		this.avatar = avatar;
-		this.createdAt = createdAt;
-		this.updatedAt = updatedAt;
+		this._id = chat._id;
+		this.members = chat.members;
+		this.chunks = chat.chunks;
+		this.sharedMedias = chat.sharedMedias;
+		this.sharedPosts = chat.sharedPosts;
+		this.sharedEvents = chat.sharedEvents;
+		this.pinnedMessages = chat.pinnedMessages;
+		this.unreadMessages = chat.unreadMessages;
+		this.isGroup = chat.isGroup;
+		this.admins = chat.admins;
+		this.title = chat.title;
+		this.description = chat.description;
+		this.avatar = chat.avatar;
+		this.createdAt = chat.createdAt;
+		this.updatedAt = chat.updatedAt;
 	}
 
 	async addMember(member: ObjectId) {
@@ -87,6 +71,14 @@ export class Chat extends Entity {
 
 	addChunk(messageChunk: ObjectId) {
 		this.chunks?.unshift(messageChunk);
+	}
+
+	getChunk(chunkId: ObjectId): ObjectId {
+		return this.chunks.find(chunk => chunk.toString() === chunkId.toString()) as ObjectId;
+	}
+
+	getActiveChunk(): ObjectId {
+		return this.chunks[0];
 	}
 
 	async setAvatar(avatar: string) {

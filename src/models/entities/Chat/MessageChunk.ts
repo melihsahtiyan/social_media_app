@@ -13,17 +13,7 @@ export class MessageChunk extends Entity {
 	previousChunk: ObjectId;
 	nextChunk: ObjectId; // New one should be first of the list and the oldest one should be last
 
-	constructor({
-		_id,
-		messages,
-		chat,
-		messageCount,
-		isFull,
-		previousChunk,
-		nextChunk,
-		createdAt,
-		updatedAt,
-	}) {
+	constructor({ _id, messages, chat, messageCount, isFull, previousChunk, nextChunk, createdAt, updatedAt }) {
 		super();
 		this._id = _id;
 		this.messages = messages;

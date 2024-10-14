@@ -8,9 +8,9 @@ export interface IMessageChunkService {
 	createChunk(chunkToCreate: MessageChunkForCreate): Promise<DataResult<MessageChunk>>;
 
 	// Read Operations
-	getChunk(chunkId: string): Promise<DataResult<MessageChunk>>;
+	getChunk(userId: string, chunkId: string): Promise<DataResult<MessageChunk>>;
 	getAllChunks(): Promise<DataResult<Array<MessageChunk>>>;
-	getAllChunksByChatId(chatId: string): Promise<DataResult<Array<MessageChunk>>>;
+	getAllChunksByChatId(userId: string, chatId: string): Promise<DataResult<Array<MessageChunk>>>;
 
 	// Update Operations
 	// updateChunk(chunk: string): Promise<Result>;

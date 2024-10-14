@@ -40,8 +40,9 @@ export class MessageController {
 
 	async getAllMessagesByChatId(req: Request, res: Response, next: NextFunction) {
 		try {
+			const userId = req.userId;
 			const chatId = req.query.chatId as string;
-			const messages = await this.messageService.getAllMessagesByChatId(chatId);
+			const messages = await this.messageService.getAllMessagesByChatId(userId, chatId);
 
 			return res.status(messages.statusCode).json(messages);
 		} catch (error) {
@@ -51,8 +52,9 @@ export class MessageController {
 
 	async getAllMessagesByChunkId(req: Request, res: Response, next: NextFunction) {
 		try {
+			const userId = req.userId;
 			const chunkId = req.query.chunkId as string;
-			const messages = await this.messageService.getAllMessagesByChunkId(chunkId);
+			const messages = await this.messageService.getAllMessagesByChunkId(userId, chunkId);
 
 			return res.status(messages.statusCode).json(messages);
 		} catch (error) {

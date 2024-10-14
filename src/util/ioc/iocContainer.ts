@@ -46,6 +46,7 @@ import { IMessageService } from '../../types/services/IMessageService';
 import { IMessageRepository } from '../../types/repositories/IMessageRepository';
 import { IMessageChunkService } from '../../types/services/IMessageChunkService';
 import { IMessageChunkRepository } from '../../types/repositories/IMessageChunkRepository';
+import { MessageChunkController } from '../../controllers/messageChunkController';
 import IUserService from '../../types/services/IUserService';
 import IUserRepository from '../../types/repositories/IUserRepository';
 import { IPollService } from '../../types/services/IPollService';
@@ -73,6 +74,7 @@ container.bind<ChatController>(TYPES.ChatController).to(ChatController).inSingle
 
 container.bind<IMessageChunkRepository>(TYPES.IMessageChunkRepository).to(MessageChunkRepository).inSingletonScope();
 container.bind<IMessageChunkService>(TYPES.IMessageChunkService).to(MessageChunkService).inSingletonScope();
+container.bind<MessageChunkController>(TYPES.MessageChunkController).to(MessageChunkController).inSingletonScope();
 
 container.bind<IMessageRepository>(TYPES.IMessageRepository).to(MessageRepository).inSingletonScope();
 container.bind<IMessageService>(TYPES.IMessageService).to(MessageService).inSingletonScope();

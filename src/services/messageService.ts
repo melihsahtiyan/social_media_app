@@ -54,10 +54,18 @@ export class MessageService implements IMessageService {
 			const chat: Chat = (await this.chatService.getChatById(chatId)).data;
 			if (!chat) return { success: false, message: 'Chat not found', statusCode: 404 } as Result;
 
+			if (!chat.isMember(user._id))
+				return {
+					success: false,
+					message: 'You are not a member of this chat',
+					statusCode: 403,
+				} as Result;
+
 			messageToCreate.chatId = chat._id;
 
 			// Check if chunk exists
-			const chunk: MessageChunk = (await this.messageChunkService.getChunk(chat.chunks[0]?.toString())).data;
+			const chunk: MessageChunk = (await this.messageChunkService.getChunk(userId, chat.getActiveChunk()?.toString()))
+				.data;
 
 			// If chunk does not exist or is full, create a new chunk
 			if (!chunk || chunk.isFull) {
@@ -116,12 +124,24 @@ export class MessageService implements IMessageService {
 			throw error;
 		}
 	}
-	async getAllMessagesByChatId(chatId: string): Promise<DataResult<Array<Message>>> {
+	async getAllMessagesByChatId(userId: string, chatId: string): Promise<DataResult<Array<Message>>> {
 		try {
+			const user: User = (await this.userService.getUserById(userId)).data;
+			if (!user)
+				return { success: false, message: 'User not found', statusCode: 404, data: null } as DataResult<Array<Message>>;
+
 			const chat: Chat = (await this.chatService.getChatById(chatId)).data;
 
 			if (!chat)
 				return { success: false, message: 'Chat not found', statusCode: 404, data: null } as DataResult<Array<Message>>;
+
+			if (!chat.isMember(user._id))
+				return {
+					success: false,
+					message: 'You are not a member of this chat',
+					statusCode: 403,
+					data: null,
+				} as DataResult<Array<Message>>;
 
 			const messages: Array<Message> = await this.messageRepository.getAll({ chatId: chat._id });
 			if (!messages)
@@ -139,14 +159,29 @@ export class MessageService implements IMessageService {
 			throw error;
 		}
 	}
-	async getAllMessagesByChunkId(chunkId: string): Promise<DataResult<Array<Message>>> {
+	async getAllMessagesByChunkId(userId: string, chunkId: string): Promise<DataResult<Array<Message>>> {
 		try {
-			const chunk: MessageChunk = (await this.messageChunkService.getChunk(chunkId)).data;
+			const user: User = (await this.userService.getUserById(userId)).data;
+			if (!user)
+				return { success: false, message: 'User not found', statusCode: 404, data: null } as DataResult<Array<Message>>;
 
+			const chunk: MessageChunk = (await this.messageChunkService.getChunk(userId, chunkId)).data;
 			if (!chunk)
 				return { success: false, message: 'Chunk not found', statusCode: 404, data: null } as DataResult<
 					Array<Message>
 				>;
+
+			const chat: Chat = (await this.chatService.getChatById(chunk.chat.toString())).data;
+			if (!chat)
+				return { success: false, message: 'Chat not found', statusCode: 404, data: null } as DataResult<Array<Message>>;
+
+			if (!chat.isMember(user._id))
+				return {
+					success: false,
+					message: 'You are not a member of this chat',
+					statusCode: 403,
+					data: null,
+				} as DataResult<Array<Message>>;
 
 			const messages: Array<Message> = await this.messageRepository.getAll({ chunkId: chunk._id });
 

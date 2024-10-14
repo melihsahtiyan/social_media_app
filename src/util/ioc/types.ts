@@ -36,6 +36,7 @@ const TYPES = {
 
   IMessageChunkRepository: Symbol("IMessageChunkRepository"),
   IMessageChunkService: Symbol("IMessageChunkService"),
+  MessageChunkController: Symbol("MessageChunkController"),
 
   IMessageRepository: Symbol("IMessageRepository"),
   IMessageService: Symbol("IMessageService"),

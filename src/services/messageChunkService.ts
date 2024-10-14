@@ -11,17 +11,22 @@ import IChatService from '../types/services/IChatService';
 import TYPES from '../util/ioc/types';
 import { IMessageChunkRepository } from '../types/repositories/IMessageChunkRepository';
 import { Message } from '../models/entities/Chat/Message';
+import IUserService from '../types/services/IUserService';
+import { User } from '../models/entities/User';
 
 @injectable()
 export class MessageChunkService implements IMessageChunkService {
 	private readonly messageChunkRepository: IMessageChunkRepository;
 	private readonly chatService: IChatService;
+	private readonly userService: IUserService;
 	constructor(
 		@inject(TYPES.IMessageChunkRepository) messageChunkRepository: IMessageChunkRepository,
-		@inject(TYPES.IChatService) chatService: IChatService
+		@inject(TYPES.IChatService) chatService: IChatService,
+		@inject(TYPES.IUserService) userService: IUserService
 	) {
 		this.messageChunkRepository = messageChunkRepository;
 		this.chatService = chatService;
+		this.userService = userService;
 	}
 	async createChunk(chunkToCreate: MessageChunkForCreate): Promise<DataResult<MessageChunk>> {
 		try {
@@ -58,14 +63,25 @@ export class MessageChunkService implements IMessageChunkService {
 			throw error;
 		}
 	}
-	async getChunk(chunkId: string): Promise<DataResult<MessageChunk>> {
+	async getChunk(userId: string, chunkId: string): Promise<DataResult<MessageChunk>> {
 		try {
-			const chunk: MessageChunk = await this.messageChunkRepository.get({ _id: chunkId });
+			const user: User = (await this.userService.getUserById(userId)).data;
+			if (!user) return { success: false, message: 'User not found', statusCode: 404 } as Result;
 
-			if (!chunk)
-				return { success: false, message: 'Chunk not found', statusCode: 404, data: null } as DataResult<MessageChunk>;
+			const chunk = await this.messageChunkRepository.get({ _id: chunkId });
 
-			return { success: true, message: 'Chunk found!', statusCode: 200, data: chunk } as DataResult<MessageChunk>;
+			const chat: Chat = (await this.chatService.getChatById(chunk.chat.toString())).data;
+			if (!chat) return { success: false, message: 'Chat not found', statusCode: 404 } as Result;
+
+			if (!chat.isMember(user._id))
+				return { success: false, message: 'User is not a member of the chat', statusCode: 403 } as Result;
+
+			return {
+				success: chunk ? true : false,
+				message: chunk ? 'Chunk found!' : 'Chunk not found',
+				statusCode: chunk ? 200 : 404,
+				data: chunk,
+			} as DataResult<MessageChunk>;
 		} catch (err) {
 			const error: CustomError = new CustomError(err);
 			error.className = err?.className || 'MessageChunkService';
@@ -89,14 +105,23 @@ export class MessageChunkService implements IMessageChunkService {
 			throw error;
 		}
 	}
-	async getAllChunksByChatId(chatId: string): Promise<DataResult<Array<MessageChunk>>> {
+	async getAllChunksByChatId(userId: string, chatId: string): Promise<DataResult<Array<MessageChunk>>> {
 		try {
+			const user: User = (await this.userService.getUserById(userId)).data;
+			if (!user) return { success: false, message: 'User not found', statusCode: 404 } as Result;
+
 			const chunks: Array<MessageChunk> = await this.messageChunkRepository.getAllByChatId(chatId);
 
 			if (!chunks)
 				return { success: false, message: 'Chunks not found', statusCode: 404, data: null } as DataResult<
 					Array<MessageChunk>
 				>;
+
+			const chat: Chat = (await this.chatService.getChatById(chatId)).data;
+			if (!chat) return { success: false, message: 'Chat not found', statusCode: 404 } as Result;
+
+			if (!chat.isMember(user._id))
+				return { success: false, message: 'User is not a member of the chat', statusCode: 403 } as Result;
 
 			return { success: true, message: 'Chunks found!', statusCode: 200, data: chunks } as DataResult<
 				Array<MessageChunk>
