@@ -1,12 +1,12 @@
 import "reflect-metadata"
 import { NextFunction, Response } from 'express';
-import Request from '../types/Request';
+import Request from '../../types/Request';
 import { inject, injectable } from 'inversify';
-import { PollInputDto } from '../models/dtos/post/poll/poll-input-dto';
-import { isValid } from '../util/validationHandler';
-import { VoteInputDto } from '../models/dtos/post/poll/vote-input-dto';
-import { IPollService } from "../types/services/IPollService";
-import TYPES from "../util/ioc/types";
+import { PollInputDto } from '../../models/dtos/post/poll/poll-input-dto';
+import { isValid } from '../../util/validationHandler';
+import { VoteInputDto } from '../../models/dtos/post/poll/vote-input-dto';
+import { IPollService } from "../../types/services/IPollService";
+import TYPES from "../../util/ioc/types";
 
 @injectable()
 export class PollController {

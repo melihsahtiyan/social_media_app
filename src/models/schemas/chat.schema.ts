@@ -45,7 +45,7 @@ const chatSchema = new Schema({
 			},
 		],
 		default: [],
-		length: function (this: ChatDoc) {
+		length: function () {
 			return this.members.length;
 		},
 	},
@@ -63,13 +63,13 @@ const chatSchema = new Schema({
 			},
 		],
 		default: [],
-		length: function (this: ChatDoc) {
+		length: function () {
 			return this.members.length;
 		},
 	},
 	isGroup: {
 		type: Boolean,
-		default: function (this: ChatDoc) {
+		default: function () {
 			if (this.members.length > 2) {
 				return true;
 			} else {
@@ -81,14 +81,14 @@ const chatSchema = new Schema({
 		{
 			type: Schema.Types.ObjectId,
 			ref: 'User',
-			required: function (this: ChatDoc) {
+			required: function () {
 				return this.isGroup;
 			},
 		},
 	],
 	title: {
 		type: String,
-		required: function (this: ChatDoc) {
+		required: function () {
 			return this.isGroup;
 		},
 	},
@@ -100,7 +100,7 @@ const chatSchema = new Schema({
 	avatar: {
 		type: String,
 		default: null,
-		required: function (this: ChatDoc) {
+		required: function () {
 			return this.isGroup;
 		},
 	},

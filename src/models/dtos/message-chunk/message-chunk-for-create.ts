@@ -1,6 +1,7 @@
+import { ObjectId } from '../../../types/ObjectId';
 import { Dto } from '../Dto';
 
 export interface MessageChunkForCreate extends Dto {
 	chat: string;
-	nextChunk?: string;
-};
+	nextChunk?: ObjectId;
+}

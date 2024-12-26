@@ -1,12 +1,12 @@
-import { ClubEventController } from '../controllers/clubEventController';
-import container from '../util/ioc/iocContainer';
+import { ClubEventController } from '../controllers/club.event.controller';
+import container from '../../util/ioc/iocContainer';
 import { Express, Response, NextFunction } from 'express';
-import Request from '../types/Request';
-import { logRequest } from '../util/loggingHandler';
-import isAuth from '../middleware/is-auth';
+import Request from '../../types/Request';
+import { logRequest } from '../../util/loggingHandler';
+import isAuth from '../../middleware/is-auth';
 import { body, param, query } from 'express-validator';
-import { singleMediaUpload } from '../util/fileUtil';
-import TYPES from '../util/ioc/types';
+import { singleMediaUpload } from '../../util/fileUtil';
+import TYPES from '../../util/ioc/types';
 
 const controller: ClubEventController = container.get<ClubEventController>(TYPES.ClubEventController);
 

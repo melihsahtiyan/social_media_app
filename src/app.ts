@@ -2,30 +2,32 @@ import express, { Express } from 'express';
 import mongoose from 'mongoose';
 import bodyParser from 'body-parser';
 import { handleError } from './middleware/errorHandlingMiddleware';
-import authRoutes from './routes/authRoutes';
-import userRoutes from './routes/userRoutes';
-import friendshipRoutes from './routes/friendshipRoutes';
-import clubRoutes from './routes/clubRoutes';
-import messageRoutes from './routes/messageRoutes';
-import messageChunkRoutes from './routes/messageChunkRoutes';
-import postRoutes from './routes/postRoutes';
-import pollRoutes from './routes/pollRoutes';
-import commentRoutes from './routes/commentRoutes';
-import chatRoutes from './routes/chatRoutes';
-import clubEventRoutes from './routes/clubEventRoutes';
-import fileRoute from './routes/fileRoute';
 import dotenv from 'dotenv';
 import cors from 'cors';
+import WebSocket from 'ws';
 
 dotenv.config();
 
 const app: Express = express();
-
+const wss = new WebSocket.Server({ port: parseInt(process.env.WEB_SOCKET_PORT) || 3000 });
 app.use(bodyParser.json());
+
+import authRoutes from './presentation/routes/auth.routes';
+import userRoutes from './presentation/routes/user.routes';
+import friendshipRoutes from './presentation/routes/friendship.routes';
+import clubRoutes from './presentation/routes/club.routes';
+import messageRoutes from './presentation/routes/message.routes';
+import messageChunkRoutes from './presentation/routes/message.chunk.routes';
+import postRoutes from './presentation/routes/post.routes';
+import pollRoutes from './presentation/routes/poll.routes';
+import commentRoutes from './presentation/routes/comment.routes';
+import chatRoutes from './presentation/routes/chat.routes';
+import clubEventRoutes from './presentation/routes/club.event.routes';
+import fileRoute from './presentation/routes/file.routes';
 
 const corsOptions = {
 	//TODO: Change origin to your domain
-	origin: process.env.NODE_ENV === 'production' ? 'https://yourdomain.com' : '*',
+	origin: process.env.NODE_ENV === 'production' ? process.env.ENV_DOMAIN : '*',
 	methods: 'GET, POST, PUT, PATCH, DELETE',
 	allowedHeaders: 'Content-Type, Authorization',
 };
@@ -51,6 +53,12 @@ app.listen({ port: process.env.PORT || 8080 }, () => {
 		.connect(process.env.MONGO_URL)
 		.then(() => {
 			console.info('Server running, MongoDB connected');
+			wss.on('connection', ws => {
+				ws.on('message', message => {
+					console.log(`Received message => ${message}`);
+					ws.send('Message received');
+				});
+			});
 		})
 		.catch(err => {
 			console.error('Failed to connect to MongoDB, retrying...', err.message);

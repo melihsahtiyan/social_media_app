@@ -1,12 +1,12 @@
 import express, { NextFunction, Response } from 'express';
-import Request from '../types/Request';
-import { MessageController } from '../controllers/messageController';
-import container from '../util/ioc/iocContainer';
-import isAuth from '../middleware/is-auth';
+import Request from '../../types/Request';
+import { MessageController } from '../controllers/message.controller';
+import container from '../../util/ioc/iocContainer';
+import isAuth from '../../middleware/is-auth';
 import { body, query } from 'express-validator';
-import TYPES from '../util/ioc/types';
-import { singleMediaUpload } from '../util/fileUtil';
-import { logRequest } from '../util/loggingHandler';
+import TYPES from '../../util/ioc/types';
+import { singleMediaUpload } from '../../util/fileUtil';
+import { logRequest } from '../../util/loggingHandler';
 
 const controller: MessageController = container.get<MessageController>(TYPES.MessageController);
 

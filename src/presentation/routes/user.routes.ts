@@ -1,12 +1,12 @@
 import { Express, NextFunction, Response } from 'express';
 import { query } from 'express-validator';
-import { profilePhotoUpload } from '../util/fileUtil';
-import isAuth from '../middleware/is-auth';
-import { UserController } from '../controllers/userController';
-import container from '../util/ioc/iocContainer';
-import Request from '../types/Request';
-import { logRequest } from '../util/loggingHandler';
-import TYPES from '../util/ioc/types';
+import { profilePhotoUpload } from '../../util/fileUtil';
+import isAuth from '../../middleware/is-auth';
+import { UserController } from '../controllers/user.controller';
+import container from '../../util/ioc/iocContainer';
+import Request from '../../types/Request';
+import { logRequest } from '../../util/loggingHandler';
+import TYPES from '../../util/ioc/types';
 
 const controller: UserController = container.get<UserController>(TYPES.UserController);
 

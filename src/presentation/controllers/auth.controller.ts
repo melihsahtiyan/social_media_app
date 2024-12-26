@@ -1,16 +1,16 @@
 import 'reflect-metadata';
 import { inject } from 'inversify';
 import { controller } from 'inversify-express-utils';
-import Request from './../types/Request';
+import Request from './../../types/Request';
 import { NextFunction, Response } from 'express';
-import { isValid } from './../util/validationHandler';
-import UserForRegister from './../models/dtos/user/user-for-register';
-import { Result } from './../types/result/Result';
-import UserForLogin from './../models/dtos/user/user-for-login';
-import { DataResult } from './../types/result/DataResult';
-import { UserLoginResponse } from '../models/dtos/user/user-login-response';
-import IAuthService from '../types/services/IAuthService';
-import TYPES from '../util/ioc/types';
+import { isValid } from './../../util/validationHandler';
+import UserForRegister from './../../models/dtos/user/user-for-register';
+import { Result } from './../../types/result/Result';
+import UserForLogin from './../../models/dtos/user/user-for-login';
+import { DataResult } from './../../types/result/DataResult';
+import { UserLoginResponse } from '../../models/dtos/user/user-login-response';
+import IAuthService from '../../types/services/IAuthService';
+import TYPES from '../../util/ioc/types';
 
 @controller('/auth')
 export class AuthController {

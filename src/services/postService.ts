@@ -444,8 +444,7 @@ export class PostService implements IPostService {
 			}
 
 			for (let i = 0; i < post.content.mediaUrls.length; i++) {
-				const url: string = post.content.mediaUrls[i];
-				const isDeleted: boolean = await this.cloudinaryService.handleDelete(url);
+				const isDeleted: boolean = await this.cloudinaryService.handleDelete(post.content.mediaUrls[i]);
 				if (!isDeleted) {
 					const result: Result = {
 						statusCode: 500,
@@ -456,7 +455,7 @@ export class PostService implements IPostService {
 				}
 			}
 
-			const isDeleted: boolean = await this.postRepository.delete(id);
+			const isDeleted: boolean = await this.postRepository.delete(post._id.toString());
 
 			if (!isDeleted) {
 				const result: Result = {

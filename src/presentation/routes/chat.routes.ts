@@ -1,11 +1,11 @@
 import express, { NextFunction, Response } from 'express';
-import container from '../util/ioc/iocContainer';
-import { ChatController } from '../controllers/chatController';
-import Request from '../types/Request';
-import isAuth from '../middleware/is-auth';
+import container from '../../util/ioc/iocContainer';
+import { ChatController } from '../controllers/chat.controller';
+import Request from '../../types/Request';
+import isAuth from '../../middleware/is-auth';
 import { body, query } from 'express-validator';
-import { profilePhotoUpload } from '../util/fileUtil';
-import TYPES from '../util/ioc/types';
+import { profilePhotoUpload } from '../../util/fileUtil';
+import TYPES from '../../util/ioc/types';
 
 const controller: ChatController = container.get<ChatController>(TYPES.ChatController);
 

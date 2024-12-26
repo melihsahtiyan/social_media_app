@@ -1,12 +1,12 @@
 import { NextFunction, Response, Express } from 'express';
-import Request from '../types/Request';
-import { ClubController } from '../controllers/clubController';
-import container from '../util/ioc/iocContainer';
-import { logRequest } from '../util/loggingHandler';
-import { profilePhotoUpload } from '../util/fileUtil';
-import isAuth from '../middleware/is-auth';
+import Request from '../../types/Request';
+import { ClubController } from '../controllers/club.controller';
+import container from '../../util/ioc/iocContainer';
+import { logRequest } from '../../util/loggingHandler';
+import { profilePhotoUpload } from '../../util/fileUtil';
+import isAuth from '../../middleware/is-auth';
 import { body, param } from 'express-validator';
-import TYPES from '../util/ioc/types';
+import TYPES from '../../util/ioc/types';
 
 const controller: ClubController = container.get<ClubController>(TYPES.ClubController);
 

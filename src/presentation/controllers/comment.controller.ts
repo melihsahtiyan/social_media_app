@@ -1,16 +1,16 @@
 import "reflect-metadata"
 import { inject, injectable } from 'inversify';
-import { CommentForCreateDto } from '../models/dtos/comment/comment-for-create';
-import { CommentInputDto } from '../models/dtos/comment/comment-input-dto';
-import { DataResult } from '../types/result/DataResult';
-import { Result } from '../types/result/Result';
+import { CommentForCreateDto } from '../../models/dtos/comment/comment-for-create';
+import { CommentInputDto } from '../../models/dtos/comment/comment-input-dto';
+import { DataResult } from '../../types/result/DataResult';
+import { Result } from '../../types/result/Result';
 import { NextFunction, Response } from 'express';
-import Request from '../types/Request';
-import { isValid } from '../util/validationHandler';
-import { Comment } from '../models/entities/Comment';
-import isAuth from '../middleware/is-auth';
-import { ICommentService } from "../types/services/ICommentService";
-import TYPES from "../util/ioc/types";
+import Request from '../../types/Request';
+import { isValid } from '../../util/validationHandler';
+import { Comment } from '../../models/entities/Comment';
+import isAuth from '../../middleware/is-auth';
+import { ICommentService } from "../../types/services/ICommentService";
+import TYPES from "../../util/ioc/types";
 
 @injectable()
 export class CommentController {

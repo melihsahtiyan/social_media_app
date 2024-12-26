@@ -1,10 +1,10 @@
-import { MessageChunkController } from '../controllers/messageChunkController';
+import { MessageChunkController } from '../controllers/message.chunk.controller';
 import express, { NextFunction, Response } from 'express';
-import Request from '../types/Request';
-import container from '../util/ioc/iocContainer';
-import TYPES from '../util/ioc/types';
-import { logRequest } from '../util/loggingHandler';
-import isAuth from '../middleware/is-auth';
+import Request from '../../types/Request';
+import container from '../../util/ioc/iocContainer';
+import TYPES from '../../util/ioc/types';
+import { logRequest } from '../../util/loggingHandler';
+import isAuth from '../../middleware/is-auth';
 import { query } from 'express-validator';
 
 const controller: MessageChunkController = container.get<MessageChunkController>(TYPES.MessageChunkController);

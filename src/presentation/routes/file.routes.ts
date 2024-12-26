@@ -1,5 +1,5 @@
 import { Express, Request, Response } from 'express';
-import isAuth from '../middleware/is-auth';
+import isAuth from '../../middleware/is-auth';
 import * as fs from 'fs';
 
 // const imageMimetypes = ['image/png', 'image/jpg', 'image/jpeg', 'image/webp', 'image/heic', 'image/gif'];

@@ -1,16 +1,16 @@
 import 'reflect-metadata';
 import { inject, injectable } from 'inversify';
-import Request from '../types/Request';
+import Request from '../../types/Request';
 import { NextFunction, Response } from 'express';
-import { isValid } from '../util/validationHandler';
-import { PostInputDto } from '../models/dtos/post/post-input-dto';
-import { DataResult } from '../types/result/DataResult';
-import { PostDoc } from '../models/schemas/post.schema';
-import PostListDto from '../models/dtos/post/post-list';
-import { PostDetails } from '../models/dtos/post/post-details';
-import { Result } from '../types/result/Result';
-import IPostService from '../types/services/IPostService';
-import TYPES from '../util/ioc/types';
+import { isValid } from '../../util/validationHandler';
+import { PostInputDto } from '../../models/dtos/post/post-input-dto';
+import { DataResult } from '../../types/result/DataResult';
+import { PostDoc } from '../../models/schemas/post.schema';
+import PostListDto from '../../models/dtos/post/post-list';
+import { PostDetails } from '../../models/dtos/post/post-details';
+import { Result } from '../../types/result/Result';
+import IPostService from '../../types/services/IPostService';
+import TYPES from '../../util/ioc/types';
 
 @injectable()
 export class PostController {

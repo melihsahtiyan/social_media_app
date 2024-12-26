@@ -1,12 +1,12 @@
 import { NextFunction, Response, Express } from 'express';
-import Request from '../types/Request';
-import { mediaArrayUpload } from '../util/fileUtil';
-import isAuth from '../middleware/is-auth';
-import { logRequest } from '../util/loggingHandler';
-import container from '../util/ioc/iocContainer';
+import Request from '../../types/Request';
+import { mediaArrayUpload } from '../../util/fileUtil';
+import isAuth from '../../middleware/is-auth';
+import { logRequest } from '../../util/loggingHandler';
+import container from '../../util/ioc/iocContainer';
 import { body } from 'express-validator';
-import { PollController } from '../controllers/pollController';
-import TYPES from '../util/ioc/types';
+import { PollController } from '../controllers/poll.controller';
+import TYPES from '../../util/ioc/types';
 
 const controller: PollController = container.get<PollController>(TYPES.PollController);
 

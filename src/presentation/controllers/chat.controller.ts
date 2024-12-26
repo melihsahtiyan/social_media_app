@@ -1,12 +1,12 @@
 import 'reflect-metadata';
 import { NextFunction, Response } from 'express';
-import Request from '../types/Request';
+import Request from '../../types/Request';
 import { inject, injectable } from 'inversify';
-import { isValid } from '../util/validationHandler';
-import { Result } from '../types/result/Result';
-import { ChatForUpdate } from '../models/dtos/chat/chat-for-update';
-import IChatService from '../types/services/IChatService';
-import TYPES from '../util/ioc/types';
+import { isValid } from '../../util/validationHandler';
+import { Result } from '../../types/result/Result';
+import { ChatForUpdate } from '../../models/dtos/chat/chat-for-update';
+import IChatService from '../../types/services/IChatService';
+import TYPES from '../../util/ioc/types';
 
 @injectable()
 export class ChatController {

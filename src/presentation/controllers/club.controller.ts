@@ -1,15 +1,15 @@
 import 'reflect-metadata';
 import { inject, injectable } from 'inversify';
-import Request from '../types/Request';
+import Request from '../../types/Request';
 import { NextFunction, Response } from 'express';
-import { ClubInputDto } from '../models/dtos/club/club-input-dto';
-import { isValid } from '../util/validationHandler';
-import { Result } from '../types/result/Result';
-import { DataResult } from '../types/result/DataResult';
-import { Club } from '../models/entities/Club';
-import { ClubForUpdateDto } from '../models/dtos/club/club-for-update-dto';
-import { IClubService } from '../types/services/IClubService';
-import TYPES from '../util/ioc/types';
+import { ClubInputDto } from '../../models/dtos/club/club-input-dto';
+import { isValid } from '../../util/validationHandler';
+import { Result } from '../../types/result/Result';
+import { DataResult } from '../../types/result/DataResult';
+import { Club } from '../../models/entities/Club';
+import { ClubForUpdateDto } from '../../models/dtos/club/club-for-update-dto';
+import { IClubService } from '../../types/services/IClubService';
+import TYPES from '../../util/ioc/types';
 
 @injectable()
 export class ClubController {

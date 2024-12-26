@@ -35,7 +35,9 @@ export class MessageChunkService implements IMessageChunkService {
 
 			const oldChunk: MessageChunk = (await this.messageChunkRepository.getAllByChatId(chunkToCreate.chat))[0];
 
-			if (oldChunk) chunkToCreate.nextChunk = oldChunk._id.toString();
+			if (oldChunk) chunkToCreate.nextChunk = oldChunk._id;
+
+			console.log('Chunk to create: ', chunkToCreate);
 
 			const createdChunk: MessageChunk = await this.messageChunkRepository.createChunk(chunkToCreate);
 

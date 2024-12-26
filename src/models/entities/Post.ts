@@ -31,7 +31,7 @@ export class Post extends Entity {
 	}
 
 	isAuthor(userId: ObjectId): boolean {
-		return this.creator === userId ? true : false;
+		return this.creator.toString() === userId.toString();
 	}
 	isLiked(userId: ObjectId): boolean {
 		if (this.likes.length === 0) return false;
