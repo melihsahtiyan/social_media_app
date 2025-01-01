@@ -1,22 +1,22 @@
 import 'reflect-metadata';
-import { inject } from 'inversify';
-import { controller } from 'inversify-express-utils';
-import Request from './../../types/Request';
+import { inject } 				  from 'inversify';
+import { controller } 			  from 'inversify-express-utils';
 import { NextFunction, Response } from 'express';
-import { isValid } from './../../util/validationHandler';
-import UserForRegister from './../../models/dtos/user/user-for-register';
-import { Result } from './../../types/result/Result';
-import UserForLogin from './../../models/dtos/user/user-for-login';
-import { DataResult } from './../../types/result/DataResult';
-import { UserLoginResponse } from '../../models/dtos/user/user-login-response';
-import IAuthService from '../../types/services/IAuthService';
-import TYPES from '../../util/ioc/types';
+import Request 		  		 	  from './../../types/Request';
+import { Result }     		 	  from './../../types/result/Result';
+import { DataResult } 		 	  from './../../types/result/DataResult';
+import IAuthService   		 	  from '../../types/services/IAuthService';
+import UserForRegister 		 	  from './../../models/dtos/user/user-for-register';
+import UserForLogin 		 	  from './../../models/dtos/user/user-for-login';
+import { UserLoginResponse } 	  from '../../models/dtos/user/user-login-response';
+import { isValid }            	  from './../../util/validationHandler';
+import { ServiceIdentifiers } 	  from '../../application/constants/ServiceIdentifiers';
 
 @controller('/auth')
 export class AuthController {
 	private _authService: IAuthService;
 
-	constructor(@inject(TYPES.IAuthService) authService: IAuthService) {
+	constructor(@inject(ServiceIdentifiers.IAuthService) authService: IAuthService) {
 		this._authService = authService;
 	}
 

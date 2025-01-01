@@ -48,6 +48,43 @@ export class User extends Entity {
 	getFullName(): string {
 		return `${this.firstName} ${this.lastName}`;
 	}
+	isFriendOrSameUniversity(creator: User): boolean {
+		return (
+			(this.friends.find(friend => friend.toString() === creator._id.toString()) ? true : false) ||
+			creator.university === this.university
+		);
+	}
+
+	isFriend(userId: ObjectId): boolean {
+		return this.friends.find(friend => friend.toString() === userId.toString()) ? true : false;
+	}
+
+	isVerifiedStudent(): boolean {
+		return this.status.studentVerification;
+	}
+
+	isVerifiedUser(): boolean {
+		return this.status.studentVerification && this.status.emailVerification;
+	}
+
+	hasFriendRequest(userId: ObjectId): boolean {
+		return this.friendRequests.find(friend => friend.toString() === userId.toString()) ? true : false;
+	}
+
+	hasVerifiedEmail(): boolean {
+		return this.status.emailVerification;
+	}
+
+	static isUnderAge(birthDate: Date): boolean {
+		const now = new Date(Date.now());
+		const age = now.getFullYear() - birthDate.getFullYear();
+		return !!(age < 18);
+	}
+
+	addFriendRequest(userId: ObjectId): void {
+		this.friendRequests.push({ userId, createdAt: new Date(Date.now()) });
+	}
+
 	generateJsonWebToken(): string {
 		const token = jwt.sign(
 			{
@@ -59,39 +96,7 @@ export class User extends Entity {
 			process.env.SECRET_KEY,
 			{ expiresIn: process.env.NODE_ENV === 'production' ? '1h' : '100d' }
 		);
+
 		return token;
-	}
-	isFriendOrSameUniversity(creator: User): boolean {
-		return (
-			(this.friends.find(friend => friend.toString() === creator._id.toString()) ? true : false) ||
-			creator.university === this.university
-		);
-	}
-
-	addFriendRequest(userId: ObjectId): void {
-		this.friendRequests.push({ userId, createdAt: new Date(Date.now()) });
-	}
-
-	isFriend(userId: ObjectId): boolean {
-		return this.friends.find(friend => friend.toString() === userId.toString()) ? true : false;
-	}
-	hasFriendRequest(userId: ObjectId): boolean {
-		return this.friendRequests.find(friend => friend.toString() === userId.toString()) ? true : false;
-	}
-
-	static async hashPassword(password: string): Promise<string> {
-		return await bcrypt.hash(password, 12);
-	}
-
-	async comparePassword(password: string): Promise<boolean> {
-		return await bcrypt.compare(password, this.password);
-	}
-
-	hasVerifiedEmail(): boolean {
-		return this.status.emailVerification;
-	}
-
-	isVerifiedStudent(): boolean {
-		return this.status.studentVerification;
 	}
 }

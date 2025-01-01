@@ -5,8 +5,11 @@ export interface UserForCreate extends Dto {
 	lastName: string;
 	birthDate: Date;
 	email: string;
+	studentEmail: string;
 	password: string;
 	profilePhotoUrl?: string;
+	university: string;
+	department: string;
 }
 
 export default UserForCreate;

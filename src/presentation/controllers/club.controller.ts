@@ -1,20 +1,20 @@
 import 'reflect-metadata';
-import { inject, injectable } from 'inversify';
-import Request from '../../types/Request';
 import { NextFunction, Response } from 'express';
-import { ClubInputDto } from '../../models/dtos/club/club-input-dto';
-import { isValid } from '../../util/validationHandler';
-import { Result } from '../../types/result/Result';
-import { DataResult } from '../../types/result/DataResult';
-import { Club } from '../../models/entities/Club';
-import { ClubForUpdateDto } from '../../models/dtos/club/club-for-update-dto';
-import { IClubService } from '../../types/services/IClubService';
-import TYPES from '../../util/ioc/types';
+import { inject, injectable } 	  from 'inversify';
+import { isValid } 				  from '../../util/validationHandler';
+import Request 				  	  from '../../types/Request';
+import { Result } 				  from '../../types/result/Result';
+import { DataResult } 			  from '../../types/result/DataResult';
+import { IClubService } 		  from '../../types/services/IClubService';
+import { Club } 				  from '../../models/entities/Club';
+import { ClubInputDto } 		  from '../../models/dtos/club/club-input-dto';
+import { ClubForUpdateDto } 	  from '../../models/dtos/club/club-for-update-dto';
+import { ServiceIdentifiers }     from '../../application/constants/ServiceIdentifiers';
 
 @injectable()
 export class ClubController {
 	private clubService: IClubService;
-	constructor(@inject(TYPES.IClubService) clubService: IClubService) {
+	constructor(@inject(ServiceIdentifiers.IClubService) clubService: IClubService) {
 		this.clubService = clubService;
 	}
 

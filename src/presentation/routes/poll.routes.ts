@@ -3,12 +3,12 @@ import Request from '../../types/Request';
 import { mediaArrayUpload } from '../../util/fileUtil';
 import isAuth from '../../middleware/is-auth';
 import { logRequest } from '../../util/loggingHandler';
-import container from '../../util/ioc/iocContainer';
 import { body } from 'express-validator';
 import { PollController } from '../controllers/poll.controller';
-import TYPES from '../../util/ioc/types';
+import ControllerIdentifiers from '../constants/ControllerIdentifiers';
+import controllerContainer from '../PresentationServiceRegistration';
 
-const controller: PollController = container.get<PollController>(TYPES.PollController);
+const controller: PollController = controllerContainer.get<PollController>(ControllerIdentifiers.PollController);
 
 function routes(app: Express) {
 	app.post(

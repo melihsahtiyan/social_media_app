@@ -1,13 +1,13 @@
-import { Express, Response, NextFunction } from 'express';
-import Request from '../../types/Request';
-import { CommentController } from '../controllers/comment.controller';
-import container from '../../util/ioc/iocContainer';
-import isAuth from '../../middleware/is-auth';
-import { body, param } from 'express-validator';
-import { logRequest } from '../../util/loggingHandler';
-import TYPES from '../../util/ioc/types';
+import { Express, Response, NextFunction } 	from 'express';
+import { body, param } 						from 'express-validator';
+import Request 								from '../../types/Request';
+import { logRequest } 						from '../../util/loggingHandler';
+import isAuth 								from '../../middleware/is-auth';
+import { CommentController } 				from '../controllers/comment.controller';
+import ControllerIdentifiers 				from '../constants/ControllerIdentifiers';
+import controllerContainer 					from '../PresentationServiceRegistration';
 
-const controller: CommentController = container.get<CommentController>(TYPES.CommentController);
+const controller: CommentController = controllerContainer.get<CommentController>(ControllerIdentifiers.CommentController);
 
 function routes(app: Express) {
 	app.post(

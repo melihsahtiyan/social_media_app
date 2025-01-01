@@ -1,22 +1,22 @@
 import "reflect-metadata"
-import { inject, injectable } from 'inversify';
-import { CommentForCreateDto } from '../../models/dtos/comment/comment-for-create';
-import { CommentInputDto } from '../../models/dtos/comment/comment-input-dto';
-import { DataResult } from '../../types/result/DataResult';
-import { Result } from '../../types/result/Result';
-import { NextFunction, Response } from 'express';
-import Request from '../../types/Request';
-import { isValid } from '../../util/validationHandler';
-import { Comment } from '../../models/entities/Comment';
-import isAuth from '../../middleware/is-auth';
-import { ICommentService } from "../../types/services/ICommentService";
-import TYPES from "../../util/ioc/types";
+import { NextFunction, Response } 	from 'express';
+import { inject, injectable } 		from 'inversify';
+import isAuth 						from '../../middleware/is-auth';
+import { isValid } 					from '../../util/validationHandler';
+import { Comment } 					from '../../models/entities/Comment';
+import { CommentForCreateDto } 		from '../../models/dtos/comment/comment-for-create';
+import { CommentInputDto } 			from '../../models/dtos/comment/comment-input-dto';
+import Request 						from '../../types/Request';
+import { DataResult } 				from '../../types/result/DataResult';
+import { Result } 					from '../../types/result/Result';
+import { ICommentService } 			from "../../types/services/ICommentService";
+import { ServiceIdentifiers } 		from "../../application/constants/ServiceIdentifiers";
 
 @injectable()
 export class CommentController {
 	private commentService: ICommentService;
 
-	constructor(@inject(TYPES.ICommentService) commentService: ICommentService) {
+	constructor(@inject(ServiceIdentifiers.ICommentService) commentService: ICommentService) {
 		this.commentService = commentService;
 	}
 

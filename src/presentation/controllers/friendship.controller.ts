@@ -1,18 +1,18 @@
 import 'reflect-metadata';
-import { inject, injectable } from 'inversify';
-import { NextFunction, Response } from 'express';
-import { Result } from '../../types/result/Result';
-import { isValid } from '../../util/validationHandler';
-import Request from '../../types/Request';
-import { DataResult } from '../../types/result/DataResult';
-import { UserForRequestDto } from '../../models/dtos/user/user-for-request-dto';
-import TYPES from '../../util/ioc/types';
-import { IFriendshipService } from '../../types/services/IFriendsipService';
+import { inject, injectable } 		from 'inversify';
+import { NextFunction, Response } 	from 'express';
+import { isValid } 					from '../../util/validationHandler';
+import Request 						from '../../types/Request';
+import { Result } 					from '../../types/result/Result';
+import { DataResult } 				from '../../types/result/DataResult';
+import { IFriendshipService } 		from '../../types/services/IFriendsipService';
+import { UserForRequestDto } 		from '../../models/dtos/user/user-for-request-dto';
+import { ServiceIdentifiers } 		from '../../application/constants/ServiceIdentifiers';
 
 @injectable()
 export class FriendshipController {
 	private readonly friendshipService: IFriendshipService;
-	constructor(@inject(TYPES.IFriendshipService) friendshipService: IFriendshipService) {
+	constructor(@inject(ServiceIdentifiers.IFriendshipService) friendshipService: IFriendshipService) {
 		this.friendshipService = friendshipService;
 	}
 

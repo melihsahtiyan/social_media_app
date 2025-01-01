@@ -1,13 +1,13 @@
 import { MessageChunkController } from '../controllers/message.chunk.controller';
 import express, { NextFunction, Response } from 'express';
 import Request from '../../types/Request';
-import container from '../../util/ioc/iocContainer';
-import TYPES from '../../util/ioc/types';
 import { logRequest } from '../../util/loggingHandler';
 import isAuth from '../../middleware/is-auth';
 import { query } from 'express-validator';
+import ControllerIdentifiers from '../constants/ControllerIdentifiers';
+import controllerContainer from '../PresentationServiceRegistration';
 
-const controller: MessageChunkController = container.get<MessageChunkController>(TYPES.MessageChunkController);
+const controller: MessageChunkController = controllerContainer.get<MessageChunkController>(ControllerIdentifiers.MessageChunkController);
 
 function messageChunkRoutes(app: express.Express) {
 	app.get(

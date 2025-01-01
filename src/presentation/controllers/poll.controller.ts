@@ -1,18 +1,18 @@
 import "reflect-metadata"
-import { NextFunction, Response } from 'express';
-import Request from '../../types/Request';
-import { inject, injectable } from 'inversify';
-import { PollInputDto } from '../../models/dtos/post/poll/poll-input-dto';
-import { isValid } from '../../util/validationHandler';
-import { VoteInputDto } from '../../models/dtos/post/poll/vote-input-dto';
-import { IPollService } from "../../types/services/IPollService";
-import TYPES from "../../util/ioc/types";
+import { NextFunction, Response } 	from 'express';
+import { inject, injectable } 		from 'inversify';
+import Request 						from '../../types/Request';
+import { IPollService } 			from "../../types/services/IPollService";
+import { isValid } 					from '../../util/validationHandler';
+import { PollInputDto } 			from '../../models/dtos/post/poll/poll-input-dto';
+import { VoteInputDto } 			from '../../models/dtos/post/poll/vote-input-dto';
+import { ServiceIdentifiers } 		from "../../application/constants/ServiceIdentifiers";
 
 @injectable()
 export class PollController {
 	private _pollService: IPollService;
 
-	constructor(@inject(TYPES.IPollService) pollService: IPollService) {
+	constructor(@inject(ServiceIdentifiers.IPollService) pollService: IPollService) {
 		this._pollService = pollService;
 	}
 

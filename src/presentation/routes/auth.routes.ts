@@ -1,12 +1,12 @@
-import express, { NextFunction, Response } from 'express';
-import Request from '../../types/Request';
-import { body } from 'express-validator';
-import { AuthController } from '../controllers/auth.controller';
-import container from '../../util/ioc/iocContainer';
-import { authRequestLogger } from '../../util/loggingHandler';
-import TYPES from '../../util/ioc/types';
+import express, { NextFunction, Response } 	from 'express';
+import { body } 							from 'express-validator';
+import Request 								from '../../types/Request';
+import { authRequestLogger } 				from '../../util/loggingHandler';
+import { AuthController } 					from '../controllers/auth.controller';
+import ControllerIdentifiers 				from '../constants/ControllerIdentifiers';
+import controllerContainer 							from '../PresentationServiceRegistration';
 
-const controller: AuthController = container.get<AuthController>(TYPES.AuthController);
+const controller: AuthController = controllerContainer.get<AuthController>(ControllerIdentifiers.AuthController);
 
 function routes(app: express.Express) {
 	app.put(

@@ -4,11 +4,11 @@ import { mediaArrayUpload } from '../../util/fileUtil';
 import isAuth from '../../middleware/is-auth';
 import { logRequest } from '../../util/loggingHandler';
 import { PostController } from '../controllers/post.controller';
-import container from '../../util/ioc/iocContainer';
 import { param, query } from 'express-validator';
-import TYPES from '../../util/ioc/types';
+import ControllerIdentifiers from '../constants/ControllerIdentifiers';
+import controllerContainer from '../PresentationServiceRegistration';
 
-const controller: PostController = container.get<PostController>(TYPES.PostController);
+const controller: PostController = controllerContainer.get<PostController>(ControllerIdentifiers.PostController);
 
 function routes(app: Express) {
 	/**

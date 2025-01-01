@@ -1,13 +1,13 @@
-import { Express, NextFunction, Response } from 'express';
-import Request from '../../types/Request';
-import { FriendshipController } from '../controllers/friendship.controller';
-import isAuth from '../../middleware/is-auth';
-import container from '../../util/ioc/iocContainer';
-import { logRequest } from '../../util/loggingHandler';
-import { body, query } from 'express-validator';
-import TYPES from '../../util/ioc/types';
+import { Express, NextFunction, Response } 	from 'express';
+import Request 								from '../../types/Request';
+import { FriendshipController } 			from '../controllers/friendship.controller';
+import isAuth 								from '../../middleware/is-auth';
+import { logRequest } 						from '../../util/loggingHandler';
+import { body, query } 						from 'express-validator';
+import ControllerIdentifiers 				from '../constants/ControllerIdentifiers';
+import controllerContainer 					from '../PresentationServiceRegistration';
 
-const controller: FriendshipController = container.get<FriendshipController>(TYPES.FriendshipController);
+const controller: FriendshipController = controllerContainer.get<FriendshipController>(ControllerIdentifiers.FriendshipController);
 
 function routes(app: Express) {
 	app.get('/user/getFriendRequests', isAuth, logRequest, async (req: Request, res: Response, next: NextFunction) => {

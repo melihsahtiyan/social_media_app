@@ -1,19 +1,19 @@
 import 'reflect-metadata';
-import { inject, injectable } from 'inversify';
-import { Response, NextFunction } from 'express';
-import Request from '../../types/Request';
-import { DataResult } from '../../types/result/DataResult';
-import { ClubEventInputDto } from '../../models/dtos/event/club-event-input-dto';
-import { ClubEventDetailDto } from '../../models/dtos/event/club-event-detail-dto';
-import { ClubEvent } from '../../models/entities/ClubEvent';
-import { IClubEventService } from '../../types/services/IClubEventService';
-import TYPES from '../../util/ioc/types';
+import { Response, NextFunction } 	from 'express';
+import { inject, injectable } 		from 'inversify';
+import Request 						from '../../types/Request';
+import { DataResult } 				from '../../types/result/DataResult';
+import { IClubEventService } 		from '../../types/services/IClubEventService';
+import { ClubEvent } 				from '../../models/entities/ClubEvent';
+import { ClubEventInputDto } 		from '../../models/dtos/event/club-event-input-dto';
+import { ClubEventDetailDto } 		from '../../models/dtos/event/club-event-detail-dto';
+import { ServiceIdentifiers } 		from '../../application/constants/ServiceIdentifiers';
 
 @injectable()
 export class ClubEventController {
 	private readonly clubEventService: IClubEventService;
 
-	constructor(@inject(TYPES.IClubEventService) clubEventService: IClubEventService) {
+	constructor(@inject(ServiceIdentifiers.IClubEventService) clubEventService: IClubEventService) {
 		this.clubEventService = clubEventService;
 	}
 

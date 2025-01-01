@@ -1,17 +1,17 @@
 import 'reflect-metadata';
-import { NextFunction, Response } from 'express';
-import Request from '../../types/Request';
-import { inject, injectable } from 'inversify';
-import { IMessageChunkService } from '../../types/services/IMessageChunkService';
-import TYPES from '../../util/ioc/types';
-import { isValid } from '../../util/validationHandler';
-import { MessageChunk } from '../../models/entities/Chat/MessageChunk';
-import { DataResult } from '../../types/result/DataResult';
+import { NextFunction, Response } 	from 'express';
+import { inject, injectable } 		from 'inversify';
+import Request 						from '../../types/Request';
+import { DataResult } 				from '../../types/result/DataResult';
+import { IMessageChunkService } 	from '../../types/services/IMessageChunkService';
+import { isValid } 					from '../../util/validationHandler';
+import { MessageChunk } 			from '../../models/entities/Chat/MessageChunk';
+import { ServiceIdentifiers } 		from '../../application/constants/ServiceIdentifiers';
 
 @injectable()
 export class MessageChunkController {
 	private readonly messageChunkService: IMessageChunkService;
-	constructor(@inject(TYPES.IMessageChunkService) messageChunkService: IMessageChunkService) {
+	constructor(@inject(ServiceIdentifiers.IMessageChunkService) messageChunkService: IMessageChunkService) {
 		this.messageChunkService = messageChunkService;
 	}
 

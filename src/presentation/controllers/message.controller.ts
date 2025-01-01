@@ -1,18 +1,18 @@
 import 'reflect-metadata';
-import { injectable, inject } from 'inversify';
-import { Response, NextFunction } from 'express';
-import Request from '../../types/Request';
-import { IMessageService } from '../../types/services/IMessageService';
-import TYPES from '../../util/ioc/types';
-import { MessageForCreate } from '../../models/dtos/message/message-for-create';
-import { MessageTypes } from '../../models/entities/enums/messageEnums';
-import { isValid } from '../../util/validationHandler';
+import { injectable, inject } 		from 'inversify';
+import { Response, NextFunction } 	from 'express';
+import Request 						from '../../types/Request';
+import { IMessageService } 			from '../../types/services/IMessageService';
+import { MessageForCreate } 		from '../../models/dtos/message/message-for-create';
+import { MessageTypes } 			from '../../models/entities/enums/messageEnums';
+import { isValid } 					from '../../util/validationHandler';
+import { ServiceIdentifiers } 		from '../../application/constants/ServiceIdentifiers';
 
 @injectable()
 export class MessageController {
 	private readonly messageService: IMessageService;
 
-	constructor(@inject(TYPES.IMessageService) messageService: IMessageService) {
+	constructor(@inject(ServiceIdentifiers.IMessageService) messageService: IMessageService) {
 		this.messageService = messageService;
 	}
 

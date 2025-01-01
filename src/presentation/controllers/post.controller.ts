@@ -1,22 +1,22 @@
 import 'reflect-metadata';
-import { inject, injectable } from 'inversify';
-import Request from '../../types/Request';
-import { NextFunction, Response } from 'express';
-import { isValid } from '../../util/validationHandler';
-import { PostInputDto } from '../../models/dtos/post/post-input-dto';
-import { DataResult } from '../../types/result/DataResult';
-import { PostDoc } from '../../models/schemas/post.schema';
-import PostListDto from '../../models/dtos/post/post-list';
-import { PostDetails } from '../../models/dtos/post/post-details';
-import { Result } from '../../types/result/Result';
-import IPostService from '../../types/services/IPostService';
-import TYPES from '../../util/ioc/types';
+import { inject, injectable } 		from 'inversify';
+import { NextFunction, Response } 	from 'express';
+import Request 						from '../../types/Request';
+import { Result } 					from '../../types/result/Result';
+import { DataResult } 				from '../../types/result/DataResult';
+import IPostService 				from '../../types/services/IPostService';
+import { isValid } 					from '../../util/validationHandler';
+import { PostDoc } 					from '../../models/schemas/post.schema';
+import PostListDto 					from '../../models/dtos/post/post-list';
+import { PostDetails } 				from '../../models/dtos/post/post-details';
+import { PostInputDto } 			from '../../models/dtos/post/post-input-dto';
+import { ServiceIdentifiers } 		from '../../application/constants/ServiceIdentifiers';
 
 @injectable()
 export class PostController {
 	private _postService: IPostService;
 
-	constructor(@inject(TYPES.IPostService) postService: IPostService) {
+	constructor(@inject(ServiceIdentifiers.IPostService) postService: IPostService) {
 		this._postService = postService;
 	}
 

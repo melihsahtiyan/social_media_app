@@ -1,25 +1,25 @@
 import 'reflect-metadata';
-import { inject, injectable } from 'inversify';
-import Request from '../../types/Request';
-import { Response, NextFunction } from 'express';
-import { isValid } from '../../util/validationHandler';
-import { Result } from '../../types/result/Result';
-import isAuth from '../../middleware/is-auth';
-import { UserForUpdate } from '../../models/dtos/user/user-for-update';
-import { DataResult } from '../../types/result/DataResult';
-import { UserDetailDto } from '../../models/dtos/user/user-detail-dto';
-import { UserForSearchDto } from '../../models/dtos/user/user-for-search-dto';
-import { UserProfileDto } from '../../models/dtos/user/user-profile-dto';
-import { UserDoc } from '../../models/schemas/user.schema';
-import TYPES from '../../util/ioc/types';
-import IUserService from '../../types/services/IUserService';
-import { User } from '../../models/entities/User';
+import { inject, injectable } 		from 'inversify';
+import { Response, NextFunction } 	from 'express';
+import Request 						from '../../types/Request';
+import { Result } 					from '../../types/result/Result';
+import { DataResult } 				from '../../types/result/DataResult';
+import IUserService 				from '../../types/services/IUserService';
+import isAuth 						from '../../middleware/is-auth';
+import { isValid } 					from '../../util/validationHandler';
+import { User } 					from '../../models/entities/User';
+import { UserDoc } 					from '../../models/schemas/user.schema';
+import { UserForUpdate } 			from '../../models/dtos/user/user-for-update';
+import { UserDetailDto } 			from '../../models/dtos/user/user-detail-dto';
+import { UserForSearchDto } 		from '../../models/dtos/user/user-for-search-dto';
+import { UserProfileDto } 			from '../../models/dtos/user/user-profile-dto';
+import { ServiceIdentifiers } 		from '../../application/constants/ServiceIdentifiers';
 
 @injectable()
 export class UserController {
 	private readonly userService: IUserService;
 
-	constructor(@inject(TYPES.IUserService) userService: IUserService) {
+	constructor(@inject(ServiceIdentifiers.IUserService) userService: IUserService) {
 		this.userService = userService;
 	}
 

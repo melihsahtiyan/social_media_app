@@ -5,6 +5,7 @@
 /media
 todo-codes.ts
 .clinic
+.nyc_output
 ```
 combined.log
 error.log

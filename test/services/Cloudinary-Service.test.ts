@@ -1,4 +1,4 @@
-import { CloudinaryService } from '../../src/services/cloudinaryService';
+import { CloudinaryService } from '../../src/application/services/cloudinary.service';
 import { v2 as cloudinary, UploadApiResponse } from 'cloudinary';
 
 describe('Cloudinary Service', () => {

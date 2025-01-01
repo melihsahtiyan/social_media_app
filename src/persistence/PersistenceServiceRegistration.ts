@@ -1,0 +1,32 @@
+import container from "../util/ioc/iocContainer";
+import IUserRepository from "./abstracts/IUserRepository";
+import { IChatRepository } from "./abstracts/IChatRepository";
+import { IClubEventRepository } from "./abstracts/IClubEventRepository";
+import { IClubRepository } from "./abstracts/IClubRepository";
+import { ICommentRepository } from "./abstracts/ICommentRepository";
+import { IMessageChunkRepository } from "./abstracts/IMessageChunkRepository";
+import { IMessageRepository } from "./abstracts/IMessageRepository";
+import { IPollRepository } from "./abstracts/IPollRepository";
+import IPostRepository from "./abstracts/IPostRepository";
+import RepositoryIdentifiers from "./constants/RepsitoryIdentifiers";
+import { ChatRepository } from "./repositories/chat-repository";
+import { ClubEventRepository } from "./repositories/club-event-repository";
+import { ClubRepository } from "./repositories/club-repository";
+import { CommentRepository } from "./repositories/comment-repository";
+import { MessageChunkRepository } from "./repositories/message-chunk-repository";
+import { MessageRepository } from "./repositories/message-repository";
+import { PollRepository } from "./repositories/poll-repository";
+import { PostRepository } from "./repositories/post-repository";
+import { UserRepository } from "./repositories/user-repository";
+
+container.bind<IPostRepository>(RepositoryIdentifiers.IPostRepository).to(PostRepository).inSingletonScope();
+container.bind<IPollRepository>(RepositoryIdentifiers.IPollRepository).to(PollRepository).inSingletonScope();
+container.bind<IUserRepository>(RepositoryIdentifiers.IUserRepository).to(UserRepository).inSingletonScope();
+container.bind<IChatRepository>(RepositoryIdentifiers.IChatRepository).to(ChatRepository).inSingletonScope();
+container.bind<IMessageChunkRepository>(RepositoryIdentifiers.IMessageChunkRepository).to(MessageChunkRepository).inSingletonScope();
+container.bind<IMessageRepository>(RepositoryIdentifiers.IMessageRepository).to(MessageRepository).inSingletonScope();
+container.bind<IClubRepository>(RepositoryIdentifiers.IClubRepository).to(ClubRepository).inSingletonScope();
+container.bind<ICommentRepository>(RepositoryIdentifiers.ICommentRepository).to(CommentRepository).inSingletonScope();
+container.bind<IClubEventRepository>(RepositoryIdentifiers.IClubEventRepository).to(ClubEventRepository).inSingletonScope();
+
+export default container;

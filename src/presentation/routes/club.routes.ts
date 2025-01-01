@@ -1,14 +1,14 @@
-import { NextFunction, Response, Express } from 'express';
-import Request from '../../types/Request';
-import { ClubController } from '../controllers/club.controller';
-import container from '../../util/ioc/iocContainer';
-import { logRequest } from '../../util/loggingHandler';
-import { profilePhotoUpload } from '../../util/fileUtil';
-import isAuth from '../../middleware/is-auth';
-import { body, param } from 'express-validator';
-import TYPES from '../../util/ioc/types';
+import { NextFunction, Response, Express } 	from 'express';
+import { body, param } 						from 'express-validator';
+import Request 								from '../../types/Request';
+import { profilePhotoUpload } 				from '../../util/fileUtil';
+import { logRequest } 						from '../../util/loggingHandler';
+import isAuth 								from '../../middleware/is-auth';
+import { ClubController } 					from '../controllers/club.controller';
+import ControllerIdentifiers 				from '../constants/ControllerIdentifiers';
+import controllerContainer 					from '../PresentationServiceRegistration';
 
-const controller: ClubController = container.get<ClubController>(TYPES.ClubController);
+const controller: ClubController = controllerContainer.get<ClubController>(ControllerIdentifiers.ClubController);
 
 function routes(app: Express) {
 	app.get('/club/getAllClubs', logRequest, isAuth, async (req: Request, res: Response, next: NextFunction) => {

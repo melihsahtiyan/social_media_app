@@ -5,6 +5,8 @@ export default interface UserForRegister extends Dto {
 	lastName: string;
 	birthDate: Date;
 	email: string;
+	studentEmail: string;
 	password: string;
+	university: string;
+	department: string;
 }
-

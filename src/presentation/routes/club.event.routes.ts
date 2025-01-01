@@ -1,14 +1,14 @@
-import { ClubEventController } from '../controllers/club.event.controller';
-import container from '../../util/ioc/iocContainer';
-import { Express, Response, NextFunction } from 'express';
-import Request from '../../types/Request';
-import { logRequest } from '../../util/loggingHandler';
-import isAuth from '../../middleware/is-auth';
-import { body, param, query } from 'express-validator';
-import { singleMediaUpload } from '../../util/fileUtil';
-import TYPES from '../../util/ioc/types';
+import { Express, Response, NextFunction } 	from 'express';
+import { body, param, query } 				from 'express-validator';
+import Request 								from '../../types/Request';
+import { singleMediaUpload } 				from '../../util/fileUtil';
+import { logRequest } 						from '../../util/loggingHandler';
+import isAuth 								from '../../middleware/is-auth';
+import ControllerIdentifiers 				from '../constants/ControllerIdentifiers';
+import { ClubEventController } 				from '../controllers/club.event.controller';
+import controllerContainer 					from '../PresentationServiceRegistration';
 
-const controller: ClubEventController = container.get<ClubEventController>(TYPES.ClubEventController);
+const controller: ClubEventController = controllerContainer.get<ClubEventController>(ControllerIdentifiers.ClubEventController);
 
 function routes(app: Express) {
 	app.post(

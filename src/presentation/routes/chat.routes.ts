@@ -1,13 +1,13 @@
-import express, { NextFunction, Response } from 'express';
-import container from '../../util/ioc/iocContainer';
-import { ChatController } from '../controllers/chat.controller';
-import Request from '../../types/Request';
-import isAuth from '../../middleware/is-auth';
-import { body, query } from 'express-validator';
-import { profilePhotoUpload } from '../../util/fileUtil';
-import TYPES from '../../util/ioc/types';
+import express, { NextFunction, Response } 	from 'express';
+import { body, query } 						from 'express-validator';
+import Request 								from '../../types/Request';
+import { profilePhotoUpload } 				from '../../util/fileUtil';
+import isAuth 								from '../../middleware/is-auth';
+import { ChatController } 					from '../controllers/chat.controller';
+import ControllerIdentifiers 				from '../constants/ControllerIdentifiers';
+import controllerContainer 					from '../PresentationServiceRegistration';
 
-const controller: ChatController = container.get<ChatController>(TYPES.ChatController);
+const controller: ChatController = controllerContainer.get<ChatController>(ControllerIdentifiers.ChatController);
 
 function routes(app: express.Express) {
 	app.post('/chat/create', isAuth, async (req: Request, res: Response, next: NextFunction) => {
