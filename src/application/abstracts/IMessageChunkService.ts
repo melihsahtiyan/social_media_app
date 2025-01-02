@@ -1,7 +1,7 @@
 import { MessageChunkForCreate } from '../../models/dtos/message-chunk/message-chunk-for-create';
 import { Message } from '../../models/entities/Chat/Message';
 import { MessageChunk } from '../../models/entities/Chat/MessageChunk';
-import { DataResult } from '../result/DataResult';
+import { DataResult } from '../../types/result/DataResult';
 
 export interface IMessageChunkService {
 	// Create Operation

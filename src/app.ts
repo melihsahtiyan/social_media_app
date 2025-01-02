@@ -50,7 +50,7 @@ fileRoute(app);
 
 app.listen({ port: process.env.PORT || 8080 }, () => {
 	mongoose
-		.connect(process.env.MONGO_URL)
+		.connect(process.env.DEV_CONNECTION_STRING)
 		.then(() => {
 			console.info('Server running, MongoDB connected');
 			wss.on('connection', ws => {

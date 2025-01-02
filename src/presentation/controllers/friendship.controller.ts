@@ -5,9 +5,9 @@ import { isValid } 					from '../../util/validationHandler';
 import Request 						from '../../types/Request';
 import { Result } 					from '../../types/result/Result';
 import { DataResult } 				from '../../types/result/DataResult';
-import { IFriendshipService } 		from '../../types/services/IFriendsipService';
 import { UserForRequestDto } 		from '../../models/dtos/user/user-for-request-dto';
 import { ServiceIdentifiers } 		from '../../application/constants/ServiceIdentifiers';
+import { IFriendshipService } from '../../application/abstracts/IFriendsipService';
 
 @injectable()
 export class FriendshipController {

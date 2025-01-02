@@ -9,8 +9,8 @@ import { CommentInputDto } 			from '../../models/dtos/comment/comment-input-dto'
 import Request 						from '../../types/Request';
 import { DataResult } 				from '../../types/result/DataResult';
 import { Result } 					from '../../types/result/Result';
-import { ICommentService } 			from "../../types/services/ICommentService";
 import { ServiceIdentifiers } 		from "../../application/constants/ServiceIdentifiers";
+import { ICommentService } from "../../application/abstracts/ICommentService";
 
 @injectable()
 export class CommentController {

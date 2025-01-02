@@ -1,27 +1,30 @@
+import IUserService from '../../../src/application/abstracts/IUserService';
 import { CloudinaryService } from '../../../src/application/services/cloudinary.service';
 import { PostService } from '../../../src/application/services/post.service';
+import { UserService } from '../../../src/application/services/user.service';
 import { PostInputDto } from '../../../src/models/dtos/post/post-input-dto';
 import { Post } from '../../../src/models/entities/Post';
 import { User } from '../../../src/models/entities/User';
 import { PostDoc } from '../../../src/models/schemas/post.schema';
 import { PostRepository } from '../../../src/persistence/repositories/post-repository';
 import { UserRepository } from '../../../src/persistence/repositories/user-repository';
+import { DataResult } from '../../../src/types/result/DataResult';
 import { postMocks } from './post.mocks';
 
 describe('Post Service', () => {
 	let postService: PostService;
 	let postRepository: PostRepository;
-	let userRepository: UserRepository;
+	let userService: IUserService;
 	let cloudinaryService: CloudinaryService;
 
 	beforeEach(() => {
 		postRepository = new PostRepository();
-		userRepository = new UserRepository();
 		cloudinaryService = new CloudinaryService();
-		postService = new PostService(postRepository, userRepository, cloudinaryService);
+		userService = new UserService(new UserRepository(), cloudinaryService);
+		postService = new PostService(postRepository, userService, cloudinaryService);
 
-		jest.spyOn(userRepository, 'get').mockImplementation(async () => {
-			return postMocks.userMocks.validUserMocks[0];
+		jest.spyOn(userService, 'getUserById').mockImplementationOnce(async () => {
+			return { data: postMocks.userMocks.validUserMocks[0] } as DataResult<User>;
 		});
 
 		jest.spyOn(postRepository, 'get').mockImplementation(async () => {
@@ -159,9 +162,13 @@ describe('Post Service', () => {
 
 		it('should return an error when post creator is not a friend or university member', async () => {
 			jest.spyOn(postRepository, 'get').mockResolvedValue(postMocks.post[0]);
-			jest.spyOn(userRepository, 'get').mockResolvedValue(postMocks.userMocks.validUserMocks[0]);
 
-			jest.spyOn(userRepository, 'get').mockResolvedValue(postMocks.userMocks.validUserMocks[1]);
+			jest.spyOn(userService, 'getUserById').mockImplementationOnce(async () => {
+				return { data: postMocks.userMocks.validUserMocks[0] } as DataResult<User>;
+			});
+			jest.spyOn(userService, 'getUserById').mockImplementationOnce(async () => {
+				return { data: postMocks.userMocks.validUserMocks[1] } as DataResult<User>;
+			});
 
 			jest.spyOn(User.prototype, 'isFriendOrSameUniversity').mockReturnValue(false);
 
@@ -175,8 +182,12 @@ describe('Post Service', () => {
 		it('should return post details successfully', async () => {
 			jest.spyOn(postRepository, 'get').mockResolvedValue(postMocks.post[0]);
 
-			jest.spyOn(userRepository, 'get').mockResolvedValue(postMocks.userMocks.validUserMocks[0]);
-			jest.spyOn(userRepository, 'get').mockResolvedValue(postMocks.userMocks.validUserMocks[1]);
+			jest.spyOn(userService, 'getUserById').mockImplementationOnce(async () => {
+				return { data: postMocks.userMocks.validUserMocks[0] } as DataResult<User>;
+			});
+			jest.spyOn(userService, 'getUserById').mockImplementationOnce(async () => {
+				return { data: postMocks.userMocks.validUserMocks[1] } as DataResult<User>;
+			});
 
 			jest.spyOn(User.prototype, 'isFriendOrSameUniversity').mockReturnValue(true);
 
@@ -192,8 +203,12 @@ describe('Post Service', () => {
 		it('should return post details successfully by the creator', async () => {
 			jest.spyOn(postRepository, 'get').mockResolvedValue(postMocks.post[0]);
 
-			jest.spyOn(userRepository, 'get').mockResolvedValue(postMocks.userMocks.validUserMocks[0]);
-			jest.spyOn(userRepository, 'get').mockResolvedValue(postMocks.userMocks.validUserMocks[0]);
+			jest.spyOn(userService, 'getUserById').mockImplementationOnce(async () => {
+				return { data: postMocks.userMocks.validUserMocks[0] } as DataResult<User>;
+			});
+			jest.spyOn(userService, 'getUserById').mockImplementationOnce(async () => {
+				return { data: postMocks.userMocks.validUserMocks[0] } as DataResult<User>;
+			});
 
 			jest.spyOn(User.prototype, 'isFriendOrSameUniversity').mockReturnValue(true);
 
@@ -218,9 +233,12 @@ describe('Post Service', () => {
 		it('should return an error when post creator is not a friend or university member', async () => {
 			jest.spyOn(postRepository, 'get').mockResolvedValue(postMocks.post[0]);
 
-			jest.spyOn(userRepository, 'get').mockResolvedValue(postMocks.userMocks.validUserMocks[0]);
-
-			jest.spyOn(userRepository, 'get').mockResolvedValue(postMocks.userMocks.validUserMocks[1]);
+			jest.spyOn(userService, 'getUserById').mockImplementationOnce(async () => {
+				return { data: postMocks.userMocks.validUserMocks[0] } as DataResult<User>;
+			});
+			jest.spyOn(userService, 'getUserById').mockImplementationOnce(async () => {
+				return { data: postMocks.userMocks.validUserMocks[1] } as DataResult<User>;
+			});
 
 			jest.spyOn(User.prototype, 'isFriendOrSameUniversity').mockReturnValue(false);
 
@@ -233,9 +251,13 @@ describe('Post Service', () => {
 
 		it('should return post details successfully', async () => {
 			jest.spyOn(postRepository, 'get').mockResolvedValue(postMocks.post[0]);
-			jest.spyOn(userRepository, 'get').mockResolvedValue(postMocks.userMocks.validUserMocks[0]);
 
-			jest.spyOn(userRepository, 'get').mockResolvedValue(postMocks.userMocks.validUserMocks[1]);
+			jest.spyOn(userService, 'getUserById').mockImplementationOnce(async () => {
+				return { data: postMocks.userMocks.validUserMocks[0] } as DataResult<User>;
+			});
+			jest.spyOn(userService, 'getUserById').mockImplementationOnce(async () => {
+				return { data: postMocks.userMocks.validUserMocks[1] } as DataResult<User>;
+			});
 
 			jest.spyOn(User.prototype, 'isFriendOrSameUniversity').mockReturnValue(true);
 
@@ -260,7 +282,9 @@ describe('Post Service', () => {
 		it('should return an error when user has already liked the post', async () => {
 			jest.spyOn(postRepository, 'get').mockResolvedValue(postMocks.post[0]);
 
-			jest.spyOn(userRepository, 'get').mockResolvedValue(postMocks.userMocks.validUserMocks[0]);
+			jest.spyOn(userService, 'getUserById').mockImplementationOnce(async () => {
+				return { data: postMocks.userMocks.validUserMocks[0] } as DataResult<User>;
+			});
 
 			jest.spyOn(Post.prototype, 'isLiked').mockReturnValue(true);
 
@@ -297,7 +321,9 @@ describe('Post Service', () => {
 		it('should unlike post successfully', async () => {
 			jest.spyOn(postRepository, 'get').mockResolvedValue(postMocks.post[0]);
 
-			jest.spyOn(userRepository, 'get').mockResolvedValue(postMocks.userMocks.validUserMocks[0]);
+			jest.spyOn(userService, 'getUserById').mockImplementationOnce(async () => {
+				return { data: postMocks.userMocks.validUserMocks[0] } as DataResult<User>;
+			});
 
 			jest.spyOn(Post.prototype, 'isLiked').mockReturnValue(true);
 
@@ -332,7 +358,9 @@ describe('Post Service', () => {
 		});
 
 		it('should return an error when media files cannot be deleted', async () => {
-			jest.spyOn(userRepository, 'get').mockResolvedValue(postMocks.userMocks.validUserMocks[0]);
+			jest.spyOn(userService, 'getUserById').mockImplementationOnce(async () => {
+				return { data: postMocks.userMocks.validUserMocks[0] } as DataResult<User>;
+			});
 
 			jest.spyOn(postRepository, 'get').mockResolvedValue(postMocks.post[0]);
 

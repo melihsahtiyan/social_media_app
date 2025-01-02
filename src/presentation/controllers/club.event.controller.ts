@@ -1,13 +1,13 @@
 import 'reflect-metadata';
-import { Response, NextFunction } 	from 'express';
-import { inject, injectable } 		from 'inversify';
-import Request 						from '../../types/Request';
-import { DataResult } 				from '../../types/result/DataResult';
-import { IClubEventService } 		from '../../types/services/IClubEventService';
-import { ClubEvent } 				from '../../models/entities/ClubEvent';
-import { ClubEventInputDto } 		from '../../models/dtos/event/club-event-input-dto';
-import { ClubEventDetailDto } 		from '../../models/dtos/event/club-event-detail-dto';
-import { ServiceIdentifiers } 		from '../../application/constants/ServiceIdentifiers';
+import { Response, NextFunction } from 'express';
+import { inject, injectable } from 'inversify';
+import Request from '../../types/Request';
+import { DataResult } from '../../types/result/DataResult';
+import { ClubEvent } from '../../models/entities/ClubEvent';
+import { ClubEventInputDto } from '../../models/dtos/event/club-event-input-dto';
+import { ClubEventDetailDto } from '../../models/dtos/event/club-event-detail-dto';
+import { ServiceIdentifiers } from '../../application/constants/ServiceIdentifiers';
+import { IClubEventService } from '../../application/abstracts/IClubEventService';
 
 @injectable()
 export class ClubEventController {

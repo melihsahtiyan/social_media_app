@@ -7,28 +7,29 @@ import { Comment } from '../../models/entities/Comment';
 import { User } from '../../models/entities/User';
 import { Post } from '../../models/entities/Post';
 import { ICommentRepository } from '../../persistence/abstracts/ICommentRepository';
-import IUserRepository from '../../persistence/abstracts/IUserRepository';
-import IPostRepository from '../../persistence/abstracts/IPostRepository';
 import RepositoryIdentifiers from '../../persistence/constants/RepsitoryIdentifiers';
 import { ICommentService } from '../abstracts/ICommentService';
+import IUserService from '../abstracts/IUserService';
+import IPostService from '../abstracts/IPostService';
+import { ServiceIdentifiers } from '../constants/ServiceIdentifiers';
 
 @injectable()
 export class CommentService implements ICommentService {
 	private commentRepository: ICommentRepository;
-	private userRepository: IUserRepository;
-	private postRepository: IPostRepository;
+	private userService: IUserService;
+	private postService: IPostService;
 	constructor(
 		@inject(RepositoryIdentifiers.ICommentRepository) commentRepository: ICommentRepository,
-		@inject(RepositoryIdentifiers.IUserRepository) userRepository: IUserRepository,
-		@inject(RepositoryIdentifiers.IPostRepository) postRepository: IPostRepository
+		@inject(ServiceIdentifiers.IUserService) userService: IUserService,
+		@inject(ServiceIdentifiers.IPostService) postService: IPostService
 	) {
 		this.commentRepository = commentRepository;
-		this.userRepository = userRepository;
-		this.postRepository = postRepository;
+		this.userService = userService;
+		this.postService = postService;
 	}
 	async create(commentInput: CommentInputDto, userId: string): Promise<Result> {
 		try {
-			const creator: User = await this.userRepository.getById(userId);
+			const creator: User = (await this.userService.getUserById(userId)).data;
 
 			if (!creator) return { success: false, message: 'User not found', statusCode: 404 };
 
@@ -41,7 +42,9 @@ export class CommentService implements ICommentService {
 				isUpdated: false,
 			});
 
-			await this.postRepository.getById(comment.getPostId());
+			const post: Post = (await this.postService.getPostById(comment.getPostId(), userId)).data;
+
+			if (!post) return { success: false, message: 'Post not found', statusCode: 404 };
 
 			const isCreated: boolean = await this.commentRepository.create(comment);
 
@@ -58,10 +61,10 @@ export class CommentService implements ICommentService {
 
 	async reply(commentId: string, replyInput: CommentInputDto, userId: string): Promise<Result> {
 		try {
-			const creator: User = await this.userRepository.getById(userId);
+			const creator: User = (await this.userService.getUserById(userId)).data;
 			if (!creator) return { success: false, message: 'User not found', statusCode: 404 };
 
-			const repliedComment: Comment = await this.commentRepository.getById(commentId);
+			const repliedComment: Comment = await this.commentRepository.get({ _id: commentId });
 			if (!repliedComment) return { success: false, message: 'Comment not found', statusCode: 404 };
 
 			const reply: Comment = new Comment({
@@ -73,11 +76,11 @@ export class CommentService implements ICommentService {
 				isUpdated: false,
 			});
 
-			const post: Post = await this.postRepository.getById(reply.getPostId());
+			const post: Post = (await this.postService.getPostById(reply.getPostId(), userId)).data;
 
 			if (!post) return { success: false, message: 'Post not found', statusCode: 404 };
 
-			const repliedCommentPost: Post = await this.postRepository.getById(repliedComment.getPostId());
+			const repliedCommentPost: Post = (await this.postService.getPostById(repliedComment.getPostId(), userId)).data;
 
 			if (!repliedCommentPost) return { success: false, message: 'Post not found', statusCode: 404 };
 
@@ -97,12 +100,12 @@ export class CommentService implements ICommentService {
 		}
 	}
 
-	// async getById(id: string): Promise<DataResult<CommentDoc>> {
+	// async getUserById(id: string): Promise<DataResult<CommentDoc>> {
 	// 	throw new Error('Method not implemented.');
 	// }
-	async getCommentsByPostId(postId: string): Promise<DataResult<Array<Comment>>> {
+	async getCommentsByPostId(postId: string, userId: string): Promise<DataResult<Array<Comment>>> {
 		try {
-			const post: Post = await this.postRepository.getById(postId);
+			const post: Post = (await this.postService.getPostById(postId, userId)).data;
 
 			if (!post) {
 				const result: DataResult<Array<Comment>> = {
@@ -131,7 +134,7 @@ export class CommentService implements ICommentService {
 	}
 	async update(id: string, userId: string, content: string): Promise<Result> {
 		try {
-			const user: User = await this.userRepository.getById(userId);
+			const user: User = (await this.userService.getUserById(userId)).data;
 
 			if (!user) {
 				const result: Result = {
@@ -142,7 +145,7 @@ export class CommentService implements ICommentService {
 				return result;
 			}
 
-			const comment: Comment = await this.commentRepository.getById(id);
+			const comment: Comment = await this.commentRepository.get({ _id: id });
 
 			if (!comment) {
 				const result: Result = {
@@ -187,7 +190,7 @@ export class CommentService implements ICommentService {
 	}
 	async delete(id: string, userId: string): Promise<Result> {
 		try {
-			const comment: Comment = await this.commentRepository.getById(id);
+			const comment: Comment = await this.commentRepository.get({ _id: id });
 
 			if (!comment) {
 				const result: Result = {

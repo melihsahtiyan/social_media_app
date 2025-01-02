@@ -1,7 +1,7 @@
 import { VoteInputDto } from '../../models/dtos/post/poll/vote-input-dto';
 import { PollInputDto } from '../../models/dtos/post/poll/poll-input-dto';
-import { DataResult } from '../result/DataResult';
-import { Result } from '../result/Result';
+import { DataResult } from '../../types/result/DataResult';
+import { Result } from '../../types/result/Result';
 
 export interface IPollService {
 	createPoll(userId: string, poll: PollInputDto, files?: Express.Multer.File[]): Promise<DataResult<PollInputDto>>;

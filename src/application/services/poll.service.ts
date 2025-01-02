@@ -17,22 +17,23 @@ import { ServiceIdentifiers } from '../constants/ServiceIdentifiers';
 import RepositoryIdentifiers from '../../persistence/constants/RepsitoryIdentifiers';
 import { IFileUploadService } from '../abstracts/IFileUploadService';
 import { IPollService } from '../abstracts/IPollService';
+import IUserService from '../abstracts/IUserService';
 
 @injectable()
 export class PollService implements IPollService {
 	private pollRepository: IPollRepository;
 	private postRepository: IPostRepository;
-	private userRepository: IUserRepository;
+	private userService: IUserService;
 	private readonly cloudinaryService: IFileUploadService;
 	constructor(
 		@inject(RepositoryIdentifiers.IPollRepository) pollRepository: IPollRepository,
 		@inject(RepositoryIdentifiers.IPostRepository) postRepository: IPostRepository,
-		@inject(RepositoryIdentifiers.IUserRepository) userRepository: IUserRepository,
+		@inject(ServiceIdentifiers.IUserService) userService: IUserService,
 		@inject(ServiceIdentifiers.IFileUploadService) cloudinaryService: IFileUploadService
 	) {
 		this.pollRepository = pollRepository;
 		this.postRepository = postRepository;
-		this.userRepository = userRepository;
+		this.userService = userService;
 		this.cloudinaryService = cloudinaryService;
 	}
 
@@ -43,7 +44,7 @@ export class PollService implements IPollService {
 	): Promise<DataResult<PollInputDto>> {
 		try {
 			// TODO: Refactor this block with Post Service
-			const user: User = await this.userRepository.getById(userId);
+			const user: User = (await this.userService.getUserById(userId)).data;
 
 			if (!user) {
 				const result: DataResult<PollInputDto> = {
@@ -144,9 +145,9 @@ export class PollService implements IPollService {
 		try {
 			const post: Post = await this.postRepository.getById(voteInput.pollId);
 
-			const voter: User = await this.userRepository.getById(voteInput.userId);
+			const voter: User = (await this.userService.getUserById(voteInput.userId)).data;
 
-			const creator: User = await this.userRepository.getById(post.getCreatorId());
+			const creator: User = (await this.userService.getUserById(post.getCreatorId())).data;
 
 			if (post.poll.isExpired()) {
 				const result: DataResult<VoteInputDto> = {
@@ -221,7 +222,7 @@ export class PollService implements IPollService {
 	async deleteVote(pollId: string, userId: string): Promise<Result> {
 		try {
 			const post: Post = await this.postRepository.getById(pollId);
-			const user: User = await this.userRepository.getById(userId);
+			const user: User = (await this.userService.getUserById(userId)).data;
 
 			const vote = post.poll.findVote(user._id);
 			if (!vote) {

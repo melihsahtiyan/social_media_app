@@ -2,11 +2,11 @@ import 'reflect-metadata';
 import { injectable, inject } 		from 'inversify';
 import { Response, NextFunction } 	from 'express';
 import Request 						from '../../types/Request';
-import { IMessageService } 			from '../../types/services/IMessageService';
 import { MessageForCreate } 		from '../../models/dtos/message/message-for-create';
 import { MessageTypes } 			from '../../models/entities/enums/messageEnums';
 import { isValid } 					from '../../util/validationHandler';
 import { ServiceIdentifiers } 		from '../../application/constants/ServiceIdentifiers';
+import { IMessageService } from '../../application/abstracts/IMessageService';
 
 @injectable()
 export class MessageController {

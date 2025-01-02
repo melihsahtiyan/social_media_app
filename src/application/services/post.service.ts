@@ -11,25 +11,25 @@ import { Post } from '../../models/entities/Post';
 import { Result } from '../../types/result/Result';
 import { User } from '../../models/entities/User';
 import IPostRepository from '../../persistence/abstracts/IPostRepository';
-import IUserRepository from '../../persistence/abstracts/IUserRepository';
 import { ObjectId } from '../../types/ObjectId';
 import { ServiceIdentifiers } from '../constants/ServiceIdentifiers';
 import RepositoryIdentifiers from '../../persistence/constants/RepsitoryIdentifiers';
 import IPostService from '../abstracts/IPostService';
 import { IFileUploadService } from '../abstracts/IFileUploadService';
+import IUserService from '../abstracts/IUserService';
 
 @injectable()
 export class PostService implements IPostService {
 	private postRepository: IPostRepository;
-	private userRepository: IUserRepository;
+	private userService: IUserService;
 	private cloudinaryService: IFileUploadService;
 	constructor(
 		@inject(RepositoryIdentifiers.IPostRepository) postRepository: IPostRepository,
-		@inject(RepositoryIdentifiers.IUserRepository) userRepository: IUserRepository,
+		@inject(ServiceIdentifiers.IUserService) userService: IUserService,
 		@inject(ServiceIdentifiers.IFileUploadService) cloudinaryService: IFileUploadService
 	) {
 		this.postRepository = postRepository;
-		this.userRepository = userRepository;
+		this.userService = userService;
 		this.cloudinaryService = cloudinaryService;
 	}
 
@@ -43,7 +43,7 @@ export class PostService implements IPostService {
 				};
 			}
 
-			const user: User = await this.userRepository.get({ _id: userId });
+			const user: User = (await this.userService.getUserById(userId)).data;
 
 			let sourceUrls: string[] = [];
 
@@ -131,7 +131,8 @@ export class PostService implements IPostService {
 
 	async getAllFriendsPosts(userId: string): Promise<DataResult<Array<PostListDto>>> {
 		try {
-			const user: User = await this.userRepository.get({ _id: userId });
+			const user: User = (await this.userService.getUserById(userId)).data;
+
 			// const posts: Post[] = await this.postRepository.getFriendsPosts(user.getId());
 			const posts: Post[] = await this.postRepository.getAll({ creator: { $in: user.friends } });
 
@@ -166,7 +167,18 @@ export class PostService implements IPostService {
 	}
 	async getAllUniversityPosts(userId: string): Promise<DataResult<Array<PostListDto>>> {
 		try {
-			const user: User = await this.userRepository.get({ _id: userId });
+			const user: User = (await this.userService.getUserById(userId)).data;
+
+			if (!user) {
+				const result: DataResult<Array<PostListDto>> = {
+					statusCode: 404,
+					message: 'User not found!',
+					success: false,
+					data: null,
+				};
+				return result;
+			}
+
 			const posts: Array<Post> = await this.postRepository.getAllUniversityPosts(user.university);
 
 			const postList: Array<PostListDto> = posts.map(post => {
@@ -213,9 +225,9 @@ export class PostService implements IPostService {
 				return result;
 			}
 
-			const creator: User = await this.userRepository.get({ _id: post.getCreatorId() });
+			const creator: User = (await this.userService.getUserById(userId)).data;
 
-			const user: User = (await this.userRepository.get({ _id: userId })) as User;
+			const user: User = (await this.userService.getUserById(userId)).data;
 
 			if (!user.isFriendOrSameUniversity(creator)) {
 				const result: DataResult<PostDetails> = {
@@ -274,12 +286,12 @@ export class PostService implements IPostService {
 			throw new CustomError('An unexpected error occurred while fetching post details', 500, [err]);
 		}
 	}
-	async getPostById(postId: string, userId: string): Promise<DataResult<PostDetails>> {
+	async getPostById(postId: string, userId: string): Promise<DataResult<Post>> {
 		try {
 			const post: Post = await this.postRepository.get({ _id: postId });
 
 			if (!post) {
-				const result: DataResult<PostDetails> = {
+				const result: DataResult<Post> = {
 					statusCode: 404,
 					message: 'Post not found!',
 					success: false,
@@ -289,13 +301,13 @@ export class PostService implements IPostService {
 				return result;
 			}
 
-			const user: User = await this.userRepository.get({ _id: userId });
+			const user: User = (await this.userService.getUserById(userId)).data;
 
 			//TODO
-			const creator: User = await this.userRepository.get({ _id: post.getCreatorId() });
+			const creator: User = (await this.userService.getUserById(userId)).data;
 
 			if (!user.isFriendOrSameUniversity(creator)) {
-				const result: DataResult<PostDetails> = {
+				const result: DataResult<Post> = {
 					statusCode: 403,
 					message: 'You are not authorized to view this post!',
 					success: false,
@@ -304,39 +316,12 @@ export class PostService implements IPostService {
 				return result;
 			}
 
-			const postDetails: PostDetails = {
-				_id: post._id,
-				creator: {
-					_id: creator._id,
-					firstName: creator.firstName,
-					lastName: creator.lastName,
-					department: creator.department,
-					university: creator.university,
-					profilePhotoUrl: creator.profilePhotoUrl,
-					friends: creator.friends,
-				},
-				content: {
-					caption: post.content.caption,
-					mediaUrls: post.content.mediaUrls,
-				},
-				poll: post.poll,
-				likes: post.likes,
-				comments: post.comments,
-				createdAt: post.createdAt,
-				commentCount: post.comments.length,
-				likeCount: post.likes.length,
-				isUpdated: post.isUpdated,
-				isLiked: post.isLiked(user._id),
-			};
-
-			const result: DataResult<PostDetails> = {
+			return {
 				statusCode: 200,
 				message: 'Post fetched!',
 				success: true,
-				data: postDetails,
+				data: post,
 			};
-
-			return result;
 		} catch (err) {
 			err.message = err.message || 'Fetching post failed';
 			throw err;
@@ -357,7 +342,7 @@ export class PostService implements IPostService {
 				return result;
 			}
 
-			const user: User = await this.userRepository.get({ _id: userId });
+			const user: User = (await this.userService.getUserById(userId)).data;
 
 			if (post.isLiked(user._id)) {
 				const result: DataResult<number> = {
@@ -400,7 +385,7 @@ export class PostService implements IPostService {
 				return result;
 			}
 
-			const user: User = await this.userRepository.get({ _id: userId });
+			const user: User = (await this.userService.getUserById(userId)).data;
 
 			if (!post.isLiked(user._id)) {
 				const result: DataResult<number> = {
@@ -433,7 +418,7 @@ export class PostService implements IPostService {
 
 	async deletePost(id: string, userId: string): Promise<Result> {
 		try {
-			const user: User = await this.userRepository.get({ _id: userId });
+			const user: User = (await this.userService.getUserById(userId)).data;
 
 			const post: Post = await this.postRepository.get({ _id: id });
 

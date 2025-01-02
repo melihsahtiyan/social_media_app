@@ -9,25 +9,26 @@ import { ClubForUpdateDto } from '../../models/dtos/club/club-for-update-dto';
 import { clearImage } from '../../util/fileUtil';
 import { CustomError } from '../../types/error/CustomError';
 import { IClubRepository } from '../../persistence/abstracts/IClubRepository';
-import IUserRepository from '../../persistence/abstracts/IUserRepository';
 import RepositoryIdentifiers from '../../persistence/constants/RepsitoryIdentifiers';
 import { IClubService } from '../abstracts/IClubService';
+import IUserService from '../abstracts/IUserService';
+import { ServiceIdentifiers } from '../constants/ServiceIdentifiers';
 
 @injectable()
 export class ClubService implements IClubService {
 	protected clubRepository: IClubRepository;
-	protected userRepository: IUserRepository;
+	protected userService: IUserService;
 
 	constructor(
 		@inject(RepositoryIdentifiers.IClubRepository) clubRepository: IClubRepository,
-		@inject(RepositoryIdentifiers.IUserRepository) userRepository: IUserRepository
+		@inject(ServiceIdentifiers.IUserService) userService: IUserService
 	) {
 		this.clubRepository = clubRepository;
-		this.userRepository = userRepository;
+		this.userService = userService;
 	}
 	public async createClub(club: ClubInputDto, logo?: Express.Multer.File): Promise<DataResult<ClubInputDto>> {
 		try {
-			const president: User = await this.userRepository.getById(club.president);
+			const president: User = (await this.userService.getUserById(club.president)).data;
 
 			if (!president) {
 				const result: DataResult<ClubInputDto> = {
@@ -164,7 +165,7 @@ export class ClubService implements IClubService {
 
 	async updateClub(id: string, club: ClubForUpdateDto, organizerId: string): Promise<Result> {
 		try {
-			const organizer: User = await this.userRepository.getById(organizerId);
+			const organizer: User = (await this.userService.getUserById(organizerId)).data;
 			if (!organizer)
 				return {
 					message: 'Organizer not found',
@@ -211,7 +212,7 @@ export class ClubService implements IClubService {
 	}
 	async updateClubLogo(id: string, logo: Express.Multer.File, organizerId: string): Promise<Result> {
 		try {
-			const organizer = await this.userRepository.getById(organizerId);
+			const organizer = (await this.userService.getUserById(organizerId)).data;
 
 			if (!organizer)
 				return {
@@ -255,7 +256,7 @@ export class ClubService implements IClubService {
 	}
 	async updateClubBanner(id: string, banner: Express.Multer.File, organizerId: string): Promise<Result> {
 		try {
-			const organizer = await this.userRepository.getById(organizerId);
+			const organizer = (await this.userService.getUserById(organizerId)).data;
 
 			if (!organizer)
 				return {
@@ -310,7 +311,7 @@ export class ClubService implements IClubService {
 					statusCode: 404,
 				};
 
-			const president: User = await this.userRepository.getById(presidentId);
+			const president: User = (await this.userService.getUserById(presidentId)).data;
 
 			if (club.isPresident(president._id))
 				return {
@@ -319,7 +320,7 @@ export class ClubService implements IClubService {
 					statusCode: 401,
 				};
 
-			const presitendForUpdate: User = await this.userRepository.getById(updatedPresidentId);
+			const presitendForUpdate: User = (await this.userService.getUserById(updatedPresidentId)).data;
 
 			if (!presitendForUpdate)
 				return {
@@ -351,7 +352,7 @@ export class ClubService implements IClubService {
 					statusCode: 404,
 				};
 
-			const president = await this.userRepository.getById(userId);
+			const president = (await this.userService.getUserById(userId)).data;
 
 			if (!president)
 				return {

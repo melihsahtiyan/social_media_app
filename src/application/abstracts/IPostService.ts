@@ -1,10 +1,11 @@
 import { PostInputDto } from "../../models/dtos/post/post-input-dto";
-import { DataResult } from "../result/DataResult";
 import { PostDoc } from "../../models/schemas/post.schema";
 import PostListDto from "../../models/dtos/post/post-list";
 import { PostDetails } from "../../models/dtos/post/post-details";
-import { Result } from "../result/Result";
-import { ObjectId } from "../ObjectId";
+import { Result } from "../../types/result/Result";
+import { DataResult } from "../../types/result/DataResult";
+import { ObjectId } from "../../types/ObjectId";
+import { Post } from "../../models/entities/Post";
 
 interface IPostService {
   createPost(
@@ -19,7 +20,7 @@ interface IPostService {
     postId: string,
     userId: string
   ): Promise<DataResult<PostDetails>>;
-  getPostById(postId: string, userId: string): Promise<DataResult<PostDetails>>;
+  getPostById(postId: string, userId: string): Promise<DataResult<Post>>;
   getTotalLikes(postIds: Array<ObjectId>): Promise<DataResult<number>>;
   likePost(postId: string, userId: string): Promise<DataResult<number>>;
   unlikePost(postId: string, userId: string): Promise<DataResult<number>>;

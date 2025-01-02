@@ -1,8 +1,7 @@
 import { ClubEvent } from '../../models/entities/ClubEvent';
 import { ClubEventInputDto } from '../../models/dtos/event/club-event-input-dto';
 import { ClubEventDetailDto } from '../../models/dtos/event/club-event-detail-dto';
-import { DataResult } from '../result/DataResult';
-import { Club } from '../../models/entities/Club';
+import { DataResult } from '../../types/result/DataResult';
 
 export interface IClubEventService {
 	create(

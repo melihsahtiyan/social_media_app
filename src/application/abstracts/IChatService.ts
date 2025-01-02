@@ -1,9 +1,9 @@
 import { Chat } from '../../models/entities/Chat/Chat';
-import { DataResult } from '../result/DataResult';
-import { Result } from '../result/Result';
+import { DataResult } from '../../types/result/DataResult';
+import { Result } from '../../types/result/Result';
 import { ChatDetailDto } from '../../models/dtos/chat/chat-detail-dto';
 import { ChatForUpdate } from '../../models/dtos/chat/chat-for-update';
-import { ObjectId } from '../ObjectId';
+import { ObjectId } from '../../types/ObjectId';
 
 export default interface IChatService {
 	// Create Operation

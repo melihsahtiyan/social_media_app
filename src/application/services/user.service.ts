@@ -115,9 +115,9 @@ export class UserService implements IUserService {
 
 	async viewUserProfile(userId: string, viewerId: string): Promise<DataResult<UserProfileDto | UserDetailDto>> {
 		try {
-			const user: User = await this.userRepository.getById(userId);
+			const user: User = await this.userRepository.get({ _id: userId });
 
-			const viewer: User = await this.userRepository.getById(viewerId);
+			const viewer: User = await this.userRepository.get({ _id: viewerId });
 
 			if (!viewer) {
 				const result: DataResult<UserProfileDto> = {
@@ -256,7 +256,7 @@ export class UserService implements IUserService {
 	}
 	async updateProfile(userId: string, userForUpdate: UserForUpdate): Promise<Result> {
 		try {
-			const user: User = await this.userRepository.getById(userId);
+			const user: User = await this.userRepository.get({ _id: userId });
 
 			// Check 1: if the user exists
 			if (!user) {

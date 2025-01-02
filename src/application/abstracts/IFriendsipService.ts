@@ -1,6 +1,6 @@
-import { DataResult } from '../result/DataResult';
 import { UserForRequestDto } from '../../models/dtos/user/user-for-request-dto';
-import { Result } from '../result/Result';
+import { DataResult } from '../../types/result/DataResult';
+import { Result } from '../../types/result/Result';
 
 export interface IFriendshipService {
 	areFriends(userId: string, friendId: string): Promise<Result>;

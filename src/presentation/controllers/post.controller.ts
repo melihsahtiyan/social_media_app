@@ -1,16 +1,17 @@
 import 'reflect-metadata';
-import { inject, injectable } 		from 'inversify';
-import { NextFunction, Response } 	from 'express';
-import Request 						from '../../types/Request';
-import { Result } 					from '../../types/result/Result';
-import { DataResult } 				from '../../types/result/DataResult';
-import IPostService 				from '../../types/services/IPostService';
-import { isValid } 					from '../../util/validationHandler';
-import { PostDoc } 					from '../../models/schemas/post.schema';
-import PostListDto 					from '../../models/dtos/post/post-list';
-import { PostDetails } 				from '../../models/dtos/post/post-details';
-import { PostInputDto } 			from '../../models/dtos/post/post-input-dto';
-import { ServiceIdentifiers } 		from '../../application/constants/ServiceIdentifiers';
+import { inject, injectable } from 'inversify';
+import { NextFunction, Response } from 'express';
+import Request from '../../types/Request';
+import { Result } from '../../types/result/Result';
+import { DataResult } from '../../types/result/DataResult';
+import { isValid } from '../../util/validationHandler';
+import { PostDoc } from '../../models/schemas/post.schema';
+import PostListDto from '../../models/dtos/post/post-list';
+import { PostDetails } from '../../models/dtos/post/post-details';
+import { PostInputDto } from '../../models/dtos/post/post-input-dto';
+import { ServiceIdentifiers } from '../../application/constants/ServiceIdentifiers';
+import IPostService from '../../application/abstracts/IPostService';
+import { Post } from '../../models/entities/Post';
 
 @injectable()
 export class PostController {
@@ -56,7 +57,7 @@ export class PostController {
 			const postId: string = req.params.postId;
 			const userId: string = req.userId;
 
-			const result: DataResult<PostDetails> = await this._postService.getPostById(postId, userId);
+			const result: DataResult<Post> = await this._postService.getPostById(postId, userId);
 
 			if (result.success) {
 				return res.status(result.statusCode).json({

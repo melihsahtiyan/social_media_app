@@ -1,8 +1,7 @@
 import { MessageForCreate } from '../../models/dtos/message/message-for-create';
 import { Message } from '../../models/entities/Chat/Message';
-import { DataResult } from '../result/DataResult';
-import { Result } from '../result/Result';
-
+import { DataResult } from '../../types/result/DataResult';
+import { Result } from '../../types/result/Result';
 export interface IMessageService {
 	// Create Operation
 	createMessage(

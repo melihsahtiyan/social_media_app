@@ -3,10 +3,10 @@ import { NextFunction, Response } 	from 'express';
 import { inject, injectable } 		from 'inversify';
 import Request 						from '../../types/Request';
 import { DataResult } 				from '../../types/result/DataResult';
-import { IMessageChunkService } 	from '../../types/services/IMessageChunkService';
 import { isValid } 					from '../../util/validationHandler';
 import { MessageChunk } 			from '../../models/entities/Chat/MessageChunk';
 import { ServiceIdentifiers } 		from '../../application/constants/ServiceIdentifiers';
+import { IMessageChunkService } from '../../application/abstracts/IMessageChunkService';
 
 @injectable()
 export class MessageChunkController {

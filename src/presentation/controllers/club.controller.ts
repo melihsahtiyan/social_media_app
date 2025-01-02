@@ -1,15 +1,15 @@
 import 'reflect-metadata';
 import { NextFunction, Response } from 'express';
-import { inject, injectable } 	  from 'inversify';
-import { isValid } 				  from '../../util/validationHandler';
-import Request 				  	  from '../../types/Request';
-import { Result } 				  from '../../types/result/Result';
-import { DataResult } 			  from '../../types/result/DataResult';
-import { IClubService } 		  from '../../types/services/IClubService';
-import { Club } 				  from '../../models/entities/Club';
-import { ClubInputDto } 		  from '../../models/dtos/club/club-input-dto';
-import { ClubForUpdateDto } 	  from '../../models/dtos/club/club-for-update-dto';
-import { ServiceIdentifiers }     from '../../application/constants/ServiceIdentifiers';
+import { inject, injectable } from 'inversify';
+import { isValid } from '../../util/validationHandler';
+import Request from '../../types/Request';
+import { Result } from '../../types/result/Result';
+import { DataResult } from '../../types/result/DataResult';
+import { Club } from '../../models/entities/Club';
+import { ClubInputDto } from '../../models/dtos/club/club-input-dto';
+import { ClubForUpdateDto } from '../../models/dtos/club/club-for-update-dto';
+import { ServiceIdentifiers } from '../../application/constants/ServiceIdentifiers';
+import { IClubService } from '../../application/abstracts/IClubService';
 
 @injectable()
 export class ClubController {
@@ -26,7 +26,7 @@ export class ClubController {
 			if (result.success) {
 				return res.status(result.statusCode).json({
 					message: result.message,
-					data: result.data
+					data: result.data,
 				});
 			}
 
@@ -45,7 +45,7 @@ export class ClubController {
 			if (result.success) {
 				return res.status(result.statusCode).json({
 					message: result.message,
-					data: result.data
+					data: result.data,
 				});
 			}
 
@@ -96,7 +96,7 @@ export class ClubController {
 				const result: Result = {
 					message: 'Logo is required',
 					success: false,
-					statusCode: 400
+					statusCode: 400,
 				};
 				return res.status(result.statusCode).json({ result });
 			}
@@ -123,7 +123,7 @@ export class ClubController {
 				const result: Result = {
 					message: 'Banner is required',
 					success: false,
-					statusCode: 400
+					statusCode: 400,
 				};
 				return res.status(result.statusCode).json({ result });
 			}

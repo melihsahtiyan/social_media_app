@@ -1,6 +1,6 @@
 import { ClubInputDto } from '../../models/dtos/club/club-input-dto';
-import { DataResult } from '../result/DataResult';
-import { Result } from '../result/Result';
+import { DataResult } from '../../types/result/DataResult';
+import { Result } from '../../types/result/Result';
 import { Club } from '../../models/entities/Club';
 import { ClubForUpdateDto } from '../../models/dtos/club/club-for-update-dto';
 
